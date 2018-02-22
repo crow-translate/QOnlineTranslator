@@ -49,7 +49,7 @@ QOnlineTranslator::speech(text, inputLanguageCode, outputLanguageCode);
 
 ## Member Type Documentation
 
-### QString QOnlineTranslator::TRANSLATION_URL
+### `QString QOnlineTranslator::TRANSLATION_URL`
 
 Provides translation link with arguments support:
 
@@ -63,16 +63,16 @@ Where:
 * `%2` - Output text language
 * `%3` - Text for translation
 
-### QStringList QOnlineTranslator::LANGUAGE_NAMES const
+### `QStringList QOnlineTranslator::LANGUAGE_NAMES const`
 Provides language names that can be used for the text of buttons. See table below.
 
-### QStringList QOnlineTranslator::LANGUAGE_LONG_CODES const
+### `QStringList QOnlineTranslator::LANGUAGE_LONG_CODES const`
 Provides language long codes that can be used as arguments for console applications. See table below.
 
-### QStringList QOnlineTranslator::LANGUAGE_SHORT_CODES const
+### `QStringList QOnlineTranslator::LANGUAGE_SHORT_CODES const`
 Provides language short codes that are used for the Google API. See table below.
 
-### Members of LANGUAGE_NAMES, LANGUAGE_LONG_CODES and LANGUAGE_SHORT_CODES
+### Members of `LANGUAGE_NAMES`, `LANGUAGE_LONG_CODES` and `LANGUAGE_SHORT_CODES`
 
 | Index | LANGUAGE_NAMES       | LANGUAGE_LONG_CODES | LANGUAGE_SHORT_CODES | 
 |:-----:|:--------------------:|:-------------------:|:--------------------:|
@@ -196,26 +196,26 @@ Provides language short codes that are used for the Google API. See table below.
 
 ## Member Function Documentation
 
-### QString QOnlineTranslator::translate(const QString &text)
+### `QString QOnlineTranslator::translate(const QString &text)`
 
 Returns a string containing the translation of the `text` from the automatically detected language to your system language.
 
-### QString QOnlineTranslator::translate(const QString &text, const QString &outputLanguageCode)
+### `QString QOnlineTranslator::translate(const QString &text, const QString &outputLanguageCode)`
 
 Returns a string containing the translation of the `text` from the automatically detected language to language of `outputLanguageCode`. For language codes see the column `LANGUAGE_SHORT_CODES` in the table above.
 
-### QString QOnlineTranslator::translate(const QString &text, const short &outputLanguageIndex)
+### `QString QOnlineTranslator::translate(const QString &text, const short &outputLanguageIndex)`
 
 Returns a string containing the translation of the `text` from the automatically detected language to language of `outputLanguageIndex`. For language indexes see the column `Index` in the table above.
 
-### QString QOnlineTranslator::translate(const QString &text, const QString &inputLanguageCode, const QString &outputLanguageCode)
+### `QString QOnlineTranslator::translate(const QString &text, const QString &inputLanguageCode, const QString &outputLanguageCode)`
 
 Returns a string containing the translation of the `text` from the language of `inputLanguageCode` to language of `outputLanguageCode`. For language codes see the column `LANGUAGE_SHORT_CODES` in the table above.
 
-### QString QOnlineTranslator::translate(const QString &text, const short &inputLanguageIndex, const short &outputLanguageIndex)
+### `QString QOnlineTranslator::translate(const QString &text, const short &inputLanguageIndex, const short &outputLanguageIndex)`
 
 Returns a string containing the translation of the `text` from the language of `inputLanguageIndex` to language of `outputLanguageIndex`. For language indexes see the column `Index` in the table above.
 
-### void QOnlineTranslator::say(const QString &text, const short &languageIndex)
+### `void QOnlineTranslator::say(const QString &text, const short &languageIndex)`
 
 Speak `text` in the language of `languageIndex`. For language indexes see the column `Index` in the table above.
