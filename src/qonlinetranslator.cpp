@@ -26,14 +26,6 @@
 
 #include "qonlinetranslator.h"
 
-const QString QOnlineTranslator::TRANSLATION_URL =
-        "https://translate.googleapis.com/translate_a/single?client=gtx&sl="
-        "%1"
-        "&tl="
-        "%2"
-        "&dt=t&q="
-        "%3";
-
 const QStringList QOnlineTranslator::LANGUAGE_NAMES = { QT_TR_NOOP("Automatically detect"), QT_TR_NOOP("Afrikaans"), QT_TR_NOOP("Amharic"), QT_TR_NOOP("Arabic"),
                                                         QT_TR_NOOP("Azerbaijani"), QT_TR_NOOP("Belarusian"), QT_TR_NOOP("Bulgarian"), QT_TR_NOOP("Bengali"),
                                                         QT_TR_NOOP("Bosnian"), QT_TR_NOOP("Catalan"), QT_TR_NOOP("Cebuano"), QT_TR_NOOP("Corsican"),
@@ -86,6 +78,14 @@ const QStringList QOnlineTranslator::LANGUAGE_SHORT_CODES = { "auto", "af", "am"
                                                               "ro", "ru", "sd", "si", "sk", "sl", "sm", "sn", "so", "sq", "sr-cyrl", "sr-latn", "st", "su", "sv", "sw", "ta",
                                                               "te", "tg", "th", "tl", "tlh", "tlh-qaak", "to", "tr", "tt", "ty", "udm", "uk", "ur", "uz", "vi", "xh", "yi", "yo",
                                                               "yua", "yue", "zh-cn", "zh-tw", "zu" };
+
+const QString QOnlineTranslator::TRANSLATION_URL =
+        "https://translate.googleapis.com/translate_a/single?client=gtx&sl="
+        "%1"
+        "&tl="
+        "%2"
+        "&dt=t&q="
+        "%3";
 
 QString QOnlineTranslator::translate(const QString &text)
 {

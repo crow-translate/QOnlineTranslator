@@ -27,7 +27,6 @@ class QOnlineTranslator
 {
 
 public:
-    static const QString TRANSLATION_URL;
     static const QStringList LANGUAGE_NAMES;
     static const QStringList LANGUAGE_LONG_CODES;
     static const QStringList LANGUAGE_SHORT_CODES;
@@ -40,6 +39,8 @@ public:
     static void say(const QString &text, const short &languageIndex);
 
 private:
+    static const QString TRANSLATION_URL;
+
     static QString receiveTranslation(const QString &preparedUrl);
     static void parseText(QString &response);
     static void parseLanguage(QString &response);
