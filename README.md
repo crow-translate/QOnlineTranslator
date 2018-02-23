@@ -13,9 +13,13 @@ The **QOnlineTranslator** library provides free usage of Google Translate API fo
 
 ## Installation
 
-To include the library files I would recommend that you add it as a git submodule to your project and include it's contents with a `.pri` file. Go to the directory where you want to clone the library (for example, `src/third-party/`) and use this command:
+To include the library files I would recommend that you add it as a git submodule to your project and include it's contents with a `.pri` file. For example, if you want to clone the library in `src/third-party/` in your project, use this command to clone with **ssh**:
 
-`git submodule add git@github.com:Shatur95/QOnlineTranslator.git qonlinetranslator`
+`git submodule add git@github.com:Shatur95/QOnlineTranslator.git src/third-party/qonlinetranslator`
+
+or this to clone with **https**:
+
+`git submodule add https://github.com/Shatur95/QOnlineTranslator.git src/third-party/qonlinetranslator`
 
 Then include the `qonlinetranslator.pri` file in your `.pro` project file:
 
@@ -38,7 +42,7 @@ Then include the `qonlinetranslator.pri` file in your `.pro` project file:
 | QString      | [**translate**(const QString *&text*, const short *&outputLanguageIndex*)](#translate3)                                      |
 | QString      | [**translate**(const QString *&text*, const QString *&inputLanguageCode*, const QString *&outputLanguageCode*)](#translate4) |
 | QString      | [**translate**(const QString *&text*, const short *&inputLanguageIndex*, const short *&outputLanguageIndex*)](#translate5)   |
-| void         | [**say**(const QString *&text*, const short *&languageIndex*)](#say)                                                          |
+| void         | [**say**(const QString *&text*, const short *&languageIndex*)](#say)                                                         |
 
 ## Detailed Description
 
