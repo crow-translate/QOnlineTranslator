@@ -1,6 +1,19 @@
 # QOnlineTranslator
 
-The `QOnlineTranslator` library provides free usage of Google Translate API for `Qt5`.
+The **QOnlineTranslator** library provides free usage of Google Translate API for **Qt5**.
+
+## Contents
+[Installation](#Installation)
+
+[Static Public Types](#Static-Public-Types)
+
+[Static Public Members](#Static-Public-Members)
+
+[Detailed Description](#Detailed-Description)
+
+[Member Type Documentation](#Member-Type-Documentation)
+
+[Member Function Documentation](#Member-Function-Documentation)
 
 ## Installation
 
@@ -14,27 +27,26 @@ Then include the `qonlinetranslator.pri` file in your `.pro` project file:
 
 ## Static Public Types
 
-| Return type     | Data member          |
-|:----------------|:---------------------|
-| QString         | TRANSLATION_URL      |
-| QStringList     | LANGUAGE_NAMES       |
-| QStringList     | LANGUAGE_LONG_CODES  |
-| QStringList     | LANGUAGE_SHORT_CODES |
+| Return type     | Data member                                       |
+|:----------------|:--------------------------------------------------|
+| QStringList     | [**LANGUAGE_NAMES**](#LANGUAGE_NAMES)             |
+| QStringList     | [**LANGUAGE_LONG_CODES**](#LANGUAGE_LONG_CODES)   |
+| QStringList     | [**LANGUAGE_SHORT_CODES**](#LANGUAGE_SHORT_CODES) |
 
 ## Static Public Members
 
-| Return type  | Function                                                                                            |
-|:-------------|:----------------------------------------------------------------------------------------------------|
-| QString      | translate(const QString &text)                                                                      |
-| QString      | translate(const QString &text, const QString &outputLanguageCode)                                   |
-| QString      | translate(const QString &text, const short &outputLanguageIndex)                                    |
-| QString      | translate(const QString &text, const QString &inputLanguageCode, const QString &outputLanguageCode) |
-| QString      | translate(const QString &text, const short &inputLanguageIndex, const short &outputLanguageIndex)   |
-| void         | say(const QString &text, const short &languageIndex)                                                |
+| Return type  | Function                                                                                                                     |
+|:-------------|:-----------------------------------------------------------------------------------------------------------------------------|
+| QString      | [**translate**(const QString *&text*)](#translate1)                                                                          |
+| QString      | [**translate**(const QString *&text*, const QString *&outputLanguageCode*)](#translate2)                                     |
+| QString      | [**translate**(const QString *&text*, const short *&outputLanguageIndex*)](#translate3)                                      |
+| QString      | [**translate**(const QString *&text*, const QString *&inputLanguageCode*, const QString *&outputLanguageCode*)](#translate4) |
+| QString      | [**translate**(const QString *&text*, const short *&inputLanguageIndex*, const short *&outputLanguageIndex*)](#translate5)   |
+| void         | [**say**(const QString *&text*, const short *&languageIndex*)](say)                                                          |
 
 ## Detailed Description
 
-The `QOnlineTranslator` uses the Google API URL to get the response, and then the parse the reply for translation translation. Normally you do not need to create an object, all functions and members of this class are static.
+The **QOnlineTranslator** uses the Google API URL to get the response, and then the parse the reply for translation translation. Normally you do not need to create an object, all functions and members of this class are static.
 
 Example:
 ```cpp
@@ -47,32 +59,20 @@ qDebug() << QOnlineTranslator::translate(text, inputLanguageCode, outputLanguage
 QOnlineTranslator::speech(text, inputLanguageCode, outputLanguageCode);
 ```
 
+For real example of usage you can look into my other project: [Crow](https://github.com/Shatur95/Crow "A simple and lightweight translator that allows to translate and speak the selected text using the Google Translate API").
+
 ## Member Type Documentation
 
-### `QString QOnlineTranslator::TRANSLATION_URL`
-
-Provides translation link with arguments support:
-
-```cpp
-https://translate.googleapis.com/translate_a/single?client=gtx&sl=%1&tl=%2&dt=t&q=%3
-```
-
-Where:
-
-* `%1` - Input text language
-* `%2` - Output text language
-* `%3` - Text for translation
-
-### `QStringList QOnlineTranslator::LANGUAGE_NAMES const`
+### [QStringList](http://doc.qt.io/qt-5/qstringlist.html "Qt Documentation") QOnlineTranslator::LANGUAGE_NAMES const {#LANGUAGE_NAMES}
 Provides language names that can be used for the text of buttons. See table below.
 
-### `QStringList QOnlineTranslator::LANGUAGE_LONG_CODES const`
+### [QStringList](http://doc.qt.io/qt-5/qstringlist.html "Qt Documentation") QOnlineTranslator::LANGUAGE_LONG_CODES const {#LANGUAGE_LONG_CODES}
 Provides language long codes that can be used as arguments for console applications. See table below.
 
-### `QStringList QOnlineTranslator::LANGUAGE_SHORT_CODES const`
+### [QStringList](http://doc.qt.io/qt-5/qstringlist.html "Qt Documentation") QOnlineTranslator::LANGUAGE_SHORT_CODES const {#LANGUAGE_SHORT_CODES}
 Provides language short codes that are used for the Google API. See table below.
 
-### Members of `LANGUAGE_NAMES`, `LANGUAGE_LONG_CODES` and `LANGUAGE_SHORT_CODES`
+### Members of `LANGUAGE_NAMES`, `LANGUAGE_LONG_CODES` and `LANGUAGE_SHORT_CODES` {#languages}
 
 | Index | LANGUAGE_NAMES       | LANGUAGE_LONG_CODES | LANGUAGE_SHORT_CODES | 
 |:-----:|:--------------------:|:-------------------:|:--------------------:|
@@ -196,26 +196,26 @@ Provides language short codes that are used for the Google API. See table below.
 
 ## Member Function Documentation
 
-### `QString QOnlineTranslator::translate(const QString &text)`
+### [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::translate(const QString *&text*) {#translate1}
 
-Returns a string containing the translation of the `text` from the automatically detected language to your system language.
+Returns a string containing the translation of the *text* from the automatically detected language to your system language.
 
-### `QString QOnlineTranslator::translate(const QString &text, const QString &outputLanguageCode)`
+### [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::translate(const QString *&text*, const QString *&outputLanguageCode*) {#translate2}
 
-Returns a string containing the translation of the `text` from the automatically detected language to language of `outputLanguageCode`. For language codes see the column `LANGUAGE_SHORT_CODES` in the table above.
+Returns a string containing the translation of the *text* from the automatically detected language to language of *outputLanguageCode*. For language codes see the column **LANGUAGE_SHORT_CODES** in the table [above](#languages).
 
-### `QString QOnlineTranslator::translate(const QString &text, const short &outputLanguageIndex)`
+### [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::translate(const QString *&text*, const short *&outputLanguageIndex*) {#translate3}
 
-Returns a string containing the translation of the `text` from the automatically detected language to language of `outputLanguageIndex`. For language indexes see the column `Index` in the table above.
+Returns a string containing the translation of the *text* from the automatically detected language to language of *outputLanguageIndex*. For language indexes see the column **Index** in the table [above](#languages).
 
-### `QString QOnlineTranslator::translate(const QString &text, const QString &inputLanguageCode, const QString &outputLanguageCode)`
+### [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::translate(const QString *&text*, const QString *&inputLanguageCode*, const QString *&outputLanguageCode*) {#translate4}
 
-Returns a string containing the translation of the `text` from the language of `inputLanguageCode` to language of `outputLanguageCode`. For language codes see the column `LANGUAGE_SHORT_CODES` in the table above.
+Returns a string containing the translation of the `text` from the language of *inputLanguageCode* to language of *outputLanguageCode*. For language codes see the column **LANGUAGE_SHORT_CODES** in the table [above](#languages).
 
-### `QString QOnlineTranslator::translate(const QString &text, const short &inputLanguageIndex, const short &outputLanguageIndex)`
+### [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::translate(const QString *&text*, const short *&inputLanguageIndex*, const short *&outputLanguageIndex*) {#translate5}
 
-Returns a string containing the translation of the `text` from the language of `inputLanguageIndex` to language of `outputLanguageIndex`. For language indexes see the column `Index` in the table above.
+Returns a string containing the translation of the `text` from the language of *inputLanguageIndex* to language of *outputLanguageIndex*. For language indexes see the column **Index** in the table [above](#languages).
 
-### `void QOnlineTranslator::say(const QString &text, const short &languageIndex)`
+### `void` QOnlineTranslator::say(const QString *&text*, const short *&languageIndex*) {#say}
 
-Speak `text` in the language of `languageIndex`. For language indexes see the column `Index` in the table above.
+Speak *text* in the language of *languageIndex*. For language indexes see the column **Index** in the table [above](#languages).
