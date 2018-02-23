@@ -55,8 +55,8 @@ QCoreApplication a(argc, argv); // Always need to create app instance for QEvent
 QString inputLanguageCode = "en";
 QString outputLanguageCode = "ru";
 QString text = "Hello Word!";
-qDebug() << QOnlineTranslator::translate(text, inputLanguageCode, outputLanguageCode);
-QOnlineTranslator::speech(text, inputLanguageCode, outputLanguageCode);
+qDebug() << QOnlineTranslator::translate(text, inputLanguageCode, outputLanguageCode); // Return translated string ("Привет Мир!") in console
+QOnlineTranslator::speech(text, inputLanguageCode, outputLanguageCode); // Speak "Hello word!"
 ```
 
 For real example of usage you can look into my other project: [Crow](https://github.com/Shatur95/Crow "A simple and lightweight translator that allows to translate and speak the selected text using the Google Translate API").
