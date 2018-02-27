@@ -59,7 +59,7 @@ qDebug() << QOnlineTranslator::translate(text, inputLanguageCode, outputLanguage
 QOnlineTranslator::speech(text, inputLanguageCode, outputLanguageCode); // Speak "Hello word!"
 ```
 
-For real example of usage you can look into my other project: [Crow](https://github.com/Shatur95/Crow "A simple and lightweight translator that allows to translate and speak the selected text using the Google Translate API").
+For real example of usage you can look into my other project: [Crow Translate](https://github.com/Shatur95/CrowTranslate "A simple and lightweight translator that allows to translate and speak the selected text using the Google Translate API").
 
 ## Member Type Documentation
 
