@@ -22,28 +22,47 @@
 #define QONLINETRANSLATOR_H
 
 #include <QString>
+#include <QPair>
 
 class QOnlineTranslator
 {
 
 public:
+    QOnlineTranslator(const QString &text, const QString &translationLanguage, const QString &sourceLanguage, const QString &translatorLanguage, const bool &autoCorrect);
+    QOnlineTranslator(const QString &text, const QString &translationLanguage, const QString &sourceLanguage, const QString &translatorLanguage);
+    QOnlineTranslator(const QString &text, const QString &translationLanguage, const QString &sourceLanguage);
+    QOnlineTranslator(const QString &text, const QString &translationLanguage);
+    QOnlineTranslator(const QString &text);
+
+    void translate(const QString &text, QString translationLanguage = "auto", QString sourceLanguage = "auto", const QString &translatorLanguage = "auto", const bool &autoCorrect = false);
+    void say();
+    QString sourceLanguage();
+    QString sourceTranscription();
+    QString text();
+    QList<QPair<QString, QStringList> > options();
+    QString translationTranscription();
+    QString translationLanguage();
+
+    static void say(const QString &text, QString language = "auto");
+    static QString translateText(const QString &text, QString translationLanguage = "auto", QString sourceLanguage = "auto");
+
     static const QStringList LANGUAGE_NAMES;
     static const QStringList LANGUAGE_LONG_CODES;
     static const QStringList LANGUAGE_SHORT_CODES;
 
-    static QString translate(const QString &text);
-    static QString translate(const QString &text, const QString &outputLanguageCode);
-    static QString translate(const QString &text, const short &outputLanguageIndex);
-    static QString translate(const QString &text, const QString &inputLanguageCode, const QString &outputLanguageCode);
-    static QString translate(const QString &text, const short &inputLanguageIndex, const short &outputLanguageIndex);
-    static void say(const QString &text, const short &languageIndex);
-
 private:
-    static const QString TRANSLATION_URL;
+    static QString receiveQuery(const QString &preparedUrl);
 
-    static QString receiveTranslation(const QString &preparedUrl);
-    static void parseText(QString &response);
-    static void parseLanguage(QString &response);
+    QString m_text;
+    QString m_sourceTranscription;
+    QString m_translationTranscription;
+    QString m_translationLanguage;
+    QString m_sourceLanguage;
+    QList<QPair<QString, QStringList> > m_translationOptions;
+
+    static const QString TTS_URL;
+    static const QString TRANSLATION_URL;
+    static const QString TRANSLATION_SHORT_URL;
 };
 
 #endif // QONLINETRANSLATOR_H

@@ -22,7 +22,8 @@
 #include <QNetworkReply>
 #include <QEventLoop>
 #include <QMediaPlayer>
-#include <QCoreApplication>
+#include <QJsonDocument>
+#include <QJsonArray>
 
 #include "qonlinetranslator.h"
 
@@ -79,7 +80,25 @@ const QStringList QOnlineTranslator::LANGUAGE_SHORT_CODES = { "auto", "af", "am"
                                                               "te", "tg", "th", "tl", "tlh", "tlh-qaak", "to", "tr", "tt", "ty", "udm", "uk", "ur", "uz", "vi", "xh", "yi", "yo",
                                                               "yua", "yue", "zh-cn", "zh-tw", "zu" };
 
+const QString QOnlineTranslator::TTS_URL =
+        "http://translate.googleapis.com/translate_tts?ie=UTF-8&client=gtx&tl="
+        "%1"
+        "&q="
+        "%2";
+
 const QString QOnlineTranslator::TRANSLATION_URL =
+        "https://translate.googleapis.com/translate_a/single?client=gtx&ie=UTF-8&oe=UTF-8&dt=bd&dt=ex&dt=ld&dt=md&dt=rw&dt=rm&dt=ss&dt=t&dt=at&dt="
+        "%1"
+        "&sl="
+        "%2"
+        "&tl="
+        "%3"
+        "&hl="
+        "%4"
+        "&q="
+        "%5";
+
+const QString QOnlineTranslator::TRANSLATION_SHORT_URL =
         "https://translate.googleapis.com/translate_a/single?client=gtx&sl="
         "%1"
         "&tl="
@@ -87,72 +106,165 @@ const QString QOnlineTranslator::TRANSLATION_URL =
         "&dt=t&q="
         "%3";
 
-QString QOnlineTranslator::translate(const QString &text)
+QOnlineTranslator::QOnlineTranslator(const QString &text, const QString &translationLanguage, const QString &sourceLanguage, const QString &translatorLanguage, const bool &autoCorrect)
 {
-    QString preparedUrl = TRANSLATION_URL.arg("auto").arg(QLocale::system().name().left(2)).arg(text); // Generate URL
-    QString response = receiveTranslation(preparedUrl); // Get response from URL
-    parseText(response); // Parse response for text and return
-    return response;
+    translate(text, translationLanguage, sourceLanguage, translatorLanguage, autoCorrect);
 }
 
-QString QOnlineTranslator::translate(const QString &text, const QString &outputLanguageCode)
+QOnlineTranslator::QOnlineTranslator(const QString &text, const QString &translationLanguage, const QString &sourceLanguage, const QString &translatorLanguage)
 {
-    QString preparedUrl = TRANSLATION_URL.arg("auto").arg(outputLanguageCode).arg(text);
-    QString response = receiveTranslation(preparedUrl);
-    parseText(response);
-    return response;
+    translate(text, translationLanguage, sourceLanguage, translatorLanguage);
 }
 
-QString QOnlineTranslator::translate(const QString &text, const short &outputLanguageIndex)
+QOnlineTranslator::QOnlineTranslator(const QString &text, const QString &translationLanguage, const QString &sourceLanguage)
 {
-    QString outputLanguageCode = LANGUAGE_SHORT_CODES.at(outputLanguageIndex); // Generate language code from index
-    QString preparedUrl = TRANSLATION_URL.arg("auto").arg(outputLanguageCode).arg(text); // Generate URL
-    QString response = receiveTranslation(preparedUrl); // Get response from URL
-    parseText(response); // Parse response for text and return
-    return response;
+    translate(text, translationLanguage, sourceLanguage);
 }
 
-QString QOnlineTranslator::translate(const QString &text, const QString &inputLanguageCode, const QString &outputLanguageCode)
+QOnlineTranslator::QOnlineTranslator(const QString &text, const QString &translationLanguage)
 {
-    QString preparedUrl = TRANSLATION_URL.arg(inputLanguageCode).arg(outputLanguageCode).arg(text);
-    QString response = receiveTranslation(preparedUrl);
-    parseText(response);
-    return response;
+    translate(text, translationLanguage);
 }
 
-QString QOnlineTranslator::translate(const QString &text, const short &inputLanguageIndex, const short &outputLanguageIndex)
+QOnlineTranslator::QOnlineTranslator(const QString &text)
 {
-    // Generate language codes from indexes
-    QString inputLanguageCode = LANGUAGE_SHORT_CODES.at(inputLanguageIndex);
-    QString outputLanguageCode = LANGUAGE_SHORT_CODES.at(outputLanguageIndex);
-
-    QString preparedUrl = TRANSLATION_URL.arg(inputLanguageCode).arg(outputLanguageCode).arg(text);
-    QString response = receiveTranslation(preparedUrl);
-    parseText(response);
-    return response;
+    translate(text);
 }
 
-void QOnlineTranslator::say(const QString &text, const short &languageIndex)
+void QOnlineTranslator::translate(const QString &text, QString translationLanguage, QString sourceLanguage, const QString &translatorLanguage, const bool &autoCorrect)
 {
-    QString language = LANGUAGE_SHORT_CODES.at(languageIndex);
+    // Detect system language if translateLanguage not specified
+    if (translationLanguage == "auto") {
+        QLocale locale;
+        translationLanguage = locale.name();
+        translationLanguage.truncate(translationLanguage.indexOf("_"));
+    }
 
+    // Set auto-correction query option
+    QString autocorrection;
+    if (autoCorrect == true)
+        autocorrection = "qca";
+    else
+        autocorrection = "qc";
+
+    QString url = TRANSLATION_URL.arg(autocorrection).arg(sourceLanguage).arg(translationLanguage).arg(translatorLanguage).arg(text);
+    QString response = receiveQuery(url);
+
+    // Check for network error
+    if(response.startsWith("E")) {
+        m_text = response;
+        return;
+    }
+
+    QJsonDocument jsonResponse = QJsonDocument::fromJson(response.toUtf8());
+    QJsonArray jsonData = jsonResponse.array();
+
+    // Parse first sentense. If the answer contains more than one sentence, then at the end of the first one there will be a space
+    m_text = jsonData.at(0).toArray().at(0).toArray().at(0).toString();
+    for (int i = 1; m_text.endsWith(" "); i++) {
+        m_text.append(jsonData.at(0).toArray().at(i).toArray().at(0).toString());
+    }
+
+    m_translationTranscription = jsonData.at(0).toArray().last().toArray().at(2).toString();
+    m_sourceTranscription = jsonData.at(0).toArray().last().toArray().at(3).toString().replace(",", ", ");
+
+    foreach (QJsonValue typeOfSpeach, jsonData.at(1).toArray()) {
+        m_translationOptions.append(QPair<QString, QStringList>());
+        m_translationOptions.last().first = typeOfSpeach.toArray().at(0).toString();
+        foreach (QJsonValue translationOption, typeOfSpeach.toArray().at(2).toArray()) {
+             m_translationOptions.last().second.append(translationOption.toArray().at(0).toString() + ": ");
+             // Add the first word without ",", and then add the remaining words
+             m_translationOptions.last().second.last().append(translationOption.toArray().at(1).toArray().at(0).toString());
+             for (int i = 1; i < translationOption.toArray().at(1).toArray().size(); i++)
+                 m_translationOptions.last().second.last().append(", " + translationOption.toArray().at(1).toArray().at(i).toString());
+        }
+    }
+
+    m_sourceLanguage = jsonData.at(2).toString();
+}
+
+void QOnlineTranslator::say()
+{
+    QUrl preparedUrl = TTS_URL.arg(m_translationLanguage).arg(m_text);
+    QMediaPlayer *player = new QMediaPlayer;
+    player->setMedia(preparedUrl);
+    player->play();
+}
+
+void QOnlineTranslator::say(const QString &text, QString language)
+{
     // Google don't support "auto" as argument for text-to-speech, so need to detect language manually
     if (language == "auto") {
-        QString preparedUrl = TRANSLATION_URL.arg("auto").arg("en").arg(text);
-        language = receiveTranslation(preparedUrl); // Get response from Google
-        parseLanguage(language); // Parse language from response
+        QString preparedUrl = TRANSLATION_SHORT_URL.arg("auto").arg("en").arg(text);
+        language = receiveQuery(preparedUrl);
+        language.chop(4);
+        language = language.mid(language.lastIndexOf("\"") + 1);
     }
+
     QUrl preparedUrl = QUrl("http://translate.googleapis.com/translate_tts?ie=UTF-8&client=gtx&tl=" + language + "&q=" + text);
     QMediaPlayer *player = new QMediaPlayer;
     player->setMedia(preparedUrl);
     player->play();
 }
 
-QString QOnlineTranslator::receiveTranslation(const QString &preparedUrl)
+QString QOnlineTranslator::translateText(const QString &text, QString translationLanguage, QString sourceLanguage)
+{
+    // Detect system language if translateLanguage not specified
+    if (translationLanguage == "auto") {
+        QLocale locale;
+        translationLanguage = locale.name();
+        translationLanguage.truncate(translationLanguage.indexOf("_"));
+    }
+
+    QString preparedUrl = TRANSLATION_SHORT_URL.arg(sourceLanguage).arg(translationLanguage).arg(text);
+    QString response = receiveQuery(preparedUrl);
+
+    // Get first sentence from quotes (first quote always starts from 4 fourth character)
+    QString translatedText = response.mid(4, response.indexOf("\",\"", 4) - 4);
+    while (translatedText.endsWith(" ") || translatedText.endsWith("\\n")) {
+        // The text has one more sentence if ends with "space" or "line break"
+        response = response.mid(response.indexOf("],[\"") + 4);
+        translatedText.append(response.left(response.indexOf("\",\"")));
+    }
+
+    return translatedText;
+}
+
+QString QOnlineTranslator::sourceLanguage()
+{
+    return m_sourceLanguage;
+}
+
+QString QOnlineTranslator::sourceTranscription()
+{
+    return m_sourceTranscription;
+}
+
+QString QOnlineTranslator::text()
+{
+    return m_text;
+}
+
+QString QOnlineTranslator::translationLanguage()
+{
+    return m_translationLanguage;
+}
+
+QString QOnlineTranslator::translationTranscription()
+{
+    return m_translationTranscription;
+}
+
+QList<QPair<QString, QStringList> > QOnlineTranslator::options()
+{
+    return m_translationOptions;
+}
+
+QString QOnlineTranslator::receiveQuery(const QString &url)
 {
     // Send request
     QNetworkAccessManager manager;
-    QNetworkReply *response = manager.get(QNetworkRequest(QUrl(preparedUrl)));
+    QNetworkReply *response = manager.get(QNetworkRequest(QUrl(url)));
 
     // Wait for the response
     QEventLoop event;
@@ -161,17 +273,6 @@ QString QOnlineTranslator::receiveTranslation(const QString &preparedUrl)
 
     if (response->error() == QNetworkReply::NoError)
         return response->readAll();
-    else return QString(response->error());
-}
-
-void QOnlineTranslator::parseText(QString &response)
-{
-    response=response.mid(4);
-    response=response.left(response.indexOf("\",\""));
-}
-
-void QOnlineTranslator::parseLanguage(QString &response)
-{
-    response.chop(4);
-    response=response.mid(response.indexOf("],[\"")+4);
+    else
+        return "Error: " + QVariant::fromValue(response->error()).value<QString>();
 }
