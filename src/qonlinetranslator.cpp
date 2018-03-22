@@ -106,31 +106,6 @@ const QString QOnlineTranslator::TRANSLATION_SHORT_URL =
         "&dt=t&q="
         "%3";
 
-QOnlineTranslator::QOnlineTranslator(const QString &text, const QString &translationLanguage, const QString &sourceLanguage, const QString &translatorLanguage, const bool &autoCorrect)
-{
-    translate(text, translationLanguage, sourceLanguage, translatorLanguage, autoCorrect);
-}
-
-QOnlineTranslator::QOnlineTranslator(const QString &text, const QString &translationLanguage, const QString &sourceLanguage, const QString &translatorLanguage)
-{
-    translate(text, translationLanguage, sourceLanguage, translatorLanguage);
-}
-
-QOnlineTranslator::QOnlineTranslator(const QString &text, const QString &translationLanguage, const QString &sourceLanguage)
-{
-    translate(text, translationLanguage, sourceLanguage);
-}
-
-QOnlineTranslator::QOnlineTranslator(const QString &text, const QString &translationLanguage)
-{
-    translate(text, translationLanguage);
-}
-
-QOnlineTranslator::QOnlineTranslator(const QString &text)
-{
-    translate(text);
-}
-
 void QOnlineTranslator::translate(const QString &text, QString translationLanguage, QString sourceLanguage, const QString &translatorLanguage, const bool &autoCorrect)
 {
     // Detect system language if translateLanguage not specified
@@ -168,14 +143,14 @@ void QOnlineTranslator::translate(const QString &text, QString translationLangua
     m_sourceTranscription = jsonData.at(0).toArray().last().toArray().at(3).toString().replace(",", ", ");
 
     foreach (QJsonValue typeOfSpeach, jsonData.at(1).toArray()) {
-        m_translationOptions.append(QPair<QString, QStringList>());
-        m_translationOptions.last().first = typeOfSpeach.toArray().at(0).toString();
+        m_options.append(QPair<QString, QStringList>());
+        m_options.last().first = typeOfSpeach.toArray().at(0).toString();
         foreach (QJsonValue translationOption, typeOfSpeach.toArray().at(2).toArray()) {
-             m_translationOptions.last().second.append(translationOption.toArray().at(0).toString() + ": ");
+             m_options.last().second.append(translationOption.toArray().at(0).toString() + ": ");
              // Add the first word without ",", and then add the remaining words
-             m_translationOptions.last().second.last().append(translationOption.toArray().at(1).toArray().at(0).toString());
+             m_options.last().second.last().append(translationOption.toArray().at(1).toArray().at(0).toString());
              for (int i = 1; i < translationOption.toArray().at(1).toArray().size(); i++)
-                 m_translationOptions.last().second.last().append(", " + translationOption.toArray().at(1).toArray().at(i).toString());
+                 m_options.last().second.last().append(", " + translationOption.toArray().at(1).toArray().at(i).toString());
         }
     }
 
@@ -227,36 +202,6 @@ QString QOnlineTranslator::translateText(const QString &text, QString translatio
     }
 
     return translatedText;
-}
-
-QString QOnlineTranslator::sourceLanguage()
-{
-    return m_sourceLanguage;
-}
-
-QString QOnlineTranslator::sourceTranscription()
-{
-    return m_sourceTranscription;
-}
-
-QString QOnlineTranslator::text()
-{
-    return m_text;
-}
-
-QString QOnlineTranslator::translationLanguage()
-{
-    return m_translationLanguage;
-}
-
-QString QOnlineTranslator::translationTranscription()
-{
-    return m_translationTranscription;
-}
-
-QList<QPair<QString, QStringList> > QOnlineTranslator::options()
-{
-    return m_translationOptions;
 }
 
 QString QOnlineTranslator::receiveQuery(const QString &url)

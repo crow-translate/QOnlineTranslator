@@ -28,20 +28,33 @@ class QOnlineTranslator
 {
 
 public:
-    QOnlineTranslator(const QString &text, const QString &translationLanguage, const QString &sourceLanguage, const QString &translatorLanguage, const bool &autoCorrect);
-    QOnlineTranslator(const QString &text, const QString &translationLanguage, const QString &sourceLanguage, const QString &translatorLanguage);
-    QOnlineTranslator(const QString &text, const QString &translationLanguage, const QString &sourceLanguage);
-    QOnlineTranslator(const QString &text, const QString &translationLanguage);
-    QOnlineTranslator(const QString &text);
+    inline QOnlineTranslator() {}
+    inline QOnlineTranslator(const QString &text)
+    { translate(text); }
+    inline QOnlineTranslator(const QString &text, const QString &translationLanguage)
+    { translate(text, translationLanguage); }
+    inline QOnlineTranslator(const QString &text, const QString &translationLanguage, const QString &sourceLanguage)
+    { translate(text, translationLanguage, sourceLanguage); }
+    inline QOnlineTranslator(const QString &text, const QString &translationLanguage, const QString &sourceLanguage, const QString &translatorLanguage)
+    { translate(text, translationLanguage, sourceLanguage, translatorLanguage); }
+    inline QOnlineTranslator(const QString &text, const QString &translationLanguage, const QString &sourceLanguage, const QString &translatorLanguage, const bool &autoCorrect)
+    { translate(text, translationLanguage, sourceLanguage, translatorLanguage, autoCorrect); }
 
     void translate(const QString &text, QString translationLanguage = "auto", QString sourceLanguage = "auto", const QString &translatorLanguage = "auto", const bool &autoCorrect = false);
     void say();
-    QString sourceLanguage();
-    QString sourceTranscription();
-    QString text();
-    QList<QPair<QString, QStringList> > options();
-    QString translationTranscription();
-    QString translationLanguage();
+
+    inline QString sourceLanguage()
+    { return m_sourceLanguage; }
+    inline QString sourceTranscription()
+    { return m_sourceTranscription; }
+    inline QString text()
+    { return m_text; }
+    inline QList<QPair<QString, QStringList> > options()
+    { return m_options; }
+    inline QString translationTranscription()
+    { return m_translationTranscription; }
+    inline QString translationLanguage()
+    { return m_translationLanguage; }
 
     static void say(const QString &text, QString language = "auto");
     static QString translateText(const QString &text, QString translationLanguage = "auto", QString sourceLanguage = "auto");
@@ -58,7 +71,7 @@ private:
     QString m_translationTranscription;
     QString m_translationLanguage;
     QString m_sourceLanguage;
-    QList<QPair<QString, QStringList> > m_translationOptions;
+    QList<QPair<QString, QStringList> > m_options;
 
     static const QString TTS_URL;
     static const QString TRANSLATION_URL;
