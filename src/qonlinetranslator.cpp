@@ -142,7 +142,7 @@ void QOnlineTranslator::translate(const QString &text, const QString &targetLang
 
     // Parse first sentense. If the answer contains more than one sentence, then at the end of the first one there will be a space
     m_text = jsonData.at(0).toArray().at(0).toArray().at(0).toString();
-    for (int i = 1; m_text.endsWith(" ") || m_text.endsWith("\n"); i++)
+    for (int i = 1; m_text.endsWith(" ") || m_text.endsWith("\n") || m_text.endsWith("\u00a0"); i++)
         m_text.append(jsonData.at(0).toArray().at(i).toArray().at(0).toString());
 
     m_targetTranscription = jsonData.at(0).toArray().last().toArray().at(2).toString();
