@@ -50,28 +50,28 @@ Then include the `qonlinetranslator.pri` file in your `.pro` project file:
 
 ## Public Functions
 
-| Return type                         | Data member                                                                                                                                             |
-|------------------------------------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------|
-|                                     | [**QOnlineTranslator**()](#c1)                                                                                                                          |
-|                                     | [**QOnlineTranslator**(const QString &text)](#c2)                                                                                                       |
-|                                     | [**QOnlineTranslator**(const QString &text, const QString &translationLanguage)](#c3)                                                                   |
-|                                     | [**QOnlineTranslator**(const QString &text, const QString &translationLanguage, const QString &sourceLanguage)](#c4)                                    |
-|                                     | [**QOnlineTranslator**(const QString &text, const QString &translationLanguage, const QString &sourceLanguage, const QString &translatorLanguage)](#c5) |
-|                                     | [**QOnlineTranslator**(const QString &text, const QString &translationLanguage, const QString &sourceLanguage, const QString &translatorLanguage, const bool &autoCorrect)](#c6) |
-| void                                | [**translate**(const QString &text, QString &translationLanguage = "auto", QString &sourceLanguage = "auto", QString &translatorLanguage = "auto", bool &autoCorrect = false)](#translate) |
-| void                                | [**say**()](#say)                                                                                                                                       |
-| QString                             | [**sourceLanguage**()](#source-language)                                                                                                                |
-| QString                             | [**sourceTranscription**()](#source-transcription)                                                                                                      |
-| QString                             | [**text**()](#text)                                                                                                                                     |
-| QList<QPair<QString, QStringList> > | [**options**()](#options)                                                                                                                                |
-| QString                             | [**translationLanguage**()](#translation-language)                                                                                                      |
-| QString                             | [**translationTranscription**()](translation-transcription)                                                                                             |
+| Return type                         | Data member                                                                                                                                        |
+|------------------------------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------|
+|                                     | [**QOnlineTranslator**()](#c1)                                                                                                                     |
+|                                     | [**QOnlineTranslator**(const QString &text)](#c2)                                                                                                  |
+|                                     | [**QOnlineTranslator**(const QString &text, const QString &targetLanguage)](#c3)                                                                   |
+|                                     | [**QOnlineTranslator**(const QString &text, const QString &targetLanguage, const QString &sourceLanguage)](#c4)                                    |
+|                                     | [**QOnlineTranslator**(const QString &text, const QString &targetLanguage, const QString &sourceLanguage, const QString &translatorLanguage)](#c5) |
+|                                     | [**QOnlineTranslator**(const QString &text, const QString &targetLanguage, const QString &sourceLanguage, const QString &translatorLanguage, const bool &autoCorrect)](#c6) |
+| void                                | [**translate**(const QString &text, QString &targetLanguage = "auto", QString &sourceLanguage = "auto", QString &translatorLanguage = "auto", bool &autoCorrect = false)](#translate) |
+| void                                | [**say**()](#say)                                                                                                                                  |
+| QString                             | [**text**()](#text)                                                                                                                                |
+| QString                             | [**sourceLanguage**()](#source-language)                                                                                                           |
+| QString                             | [**sourceTranscription**()](#source-transcription)                                                                                                 |
+| QString                             | [**targetLanguage**()](#target-language)                                                                                                           |
+| QString                             | [**targetTranscription**()](target-transcription)                                                                                                  |
+| QList<QPair<QString, QStringList> > | [**options**()](#options)                                                                                                                          |
 
 ## Static Public Functions
 
 | Return type | Function                                                                                                                                |
 |------------:|:----------------------------------------------------------------------------------------------------------------------------------------|
-| QString     | [**translateText**(const QString &text, QString translationLanguage = "auto", QString sourceLanguage = "auto")](#translate-text-static) |
+| QString     | [**translateText**(const QString &text, QString targetLanguage = "auto", QString sourceLanguage = "auto")](#translate-text-static)      |
 | void        | [**say**(const QString &text, QString language = "auto")](#say-static)                                                                  |
 
 ## Detailed Description
@@ -240,40 +240,48 @@ ___
 Constructs an object initialized with the *text* translated into system languge from autodetected languge by Google with hints on system language. For languages see the column **LANGUAGE_SHORT_CODES** in the table [above](#languages-table).
 ___
 
-### <a id='c3'/> QOnlineTranslator::QOnlineTranslator(*const QString &text, const QString &translationLanguage*)
-Constructs an object initialized with the *text* translated into language of *translationLanguage* code from autodetected languge by Google with hints on system language. For languages see the column **LANGUAGE_SHORT_CODES** in the table [above](#languages-table).
+### <a id='c3'/> QOnlineTranslator::QOnlineTranslator(*const QString &text, const QString &targetLanguage*)
+Constructs an object initialized with the *text* translated into language of *targetLanguage* code from autodetected languge by Google with hints on system language. For languages see the column **LANGUAGE_SHORT_CODES** in the table [above](#languages-table).
 ___
 
-### <a id='c4'/> QOnlineTranslator::QOnlineTranslator(*const QString &text, const QString &translationLanguage, const QString &sourceLanguage*)
-Constructs an object initialized with the *text* translated into language of *translationLanguage* code from language of *sourceLanguage* code with hints on system language. For languages see the column **LANGUAGE_SHORT_CODES** in the table [above](#languages-table).
+### <a id='c4'/> QOnlineTranslator::QOnlineTranslator(*const QString &text, const QString &targetLanguage, const QString &sourceLanguage*)
+Constructs an object initialized with the *text* translated into language of *targetLanguage* code from language of *sourceLanguage* code with hints on system language. For languages see the column **LANGUAGE_SHORT_CODES** in the table [above](#languages-table).
 ___
 
-### <a id='c5'/> QOnlineTranslator::QOnlineTranslator(*const QString &text, const QString &translationLanguage, const QString &sourceLanguage, const QString &translatorLanguage*)
-Constructs an object initialized with the *text* translated into language of *translationLanguage* code from language of *sourceLanguage* code with hints on language of *translatorLanguage* code. For languages see the column **LANGUAGE_SHORT_CODES** in the table [above](#languages-table).
+### <a id='c5'/> QOnlineTranslator::QOnlineTranslator(*const QString &text, const QString &targetLanguage, const QString &sourceLanguage, const QString &translatorLanguage*)
+Constructs an object initialized with the *text* translated into language of *targetLanguage* code from language of *sourceLanguage* code with hints on language of *translatorLanguage* code. For languages see the column **LANGUAGE_SHORT_CODES** in the table [above](#languages-table).
 ___
 
-### <a id='c6'/> QOnlineTranslator::QOnlineTranslator(*const QString &text, const QString &translationLanguage, const QString &sourceLanguage, const QString &translatorLanguage, const bool &autoCorrect*)
-Constructs an object initialized with the *text* translated into language of *translationLanguage* code from language of *sourceLanguage* code with hints on language of *translatorLanguage* code. Also Google try automatically correct grammatical errors and typos of *text* if *autoCorrect* is set to **true**. For languages see the column **LANGUAGE_SHORT_CODES** in the table [above](#languages-table).
+### <a id='c6'/> QOnlineTranslator::QOnlineTranslator(*const QString &text, const QString &targetLanguage, const QString &sourceLanguage, const QString &translatorLanguage, const bool &autoCorrect*)
+Constructs an object initialized with the *text* translated into language of *targetLanguage* code from language of *sourceLanguage* code with hints on language of *translatorLanguage* code. Also Google try automatically correct grammatical errors and typos of *text* if *autoCorrect* is set to **true**. For languages see the column **LANGUAGE_SHORT_CODES** in the table [above](#languages-table).
 ___
 
-### <a id='translate'/> void QOnlineTranslator::translate(*const QString &text, QString &translationLanguage = "auto", QString &sourceLanguage = "auto", QString &translatorLanguage = "auto", bool &autoCorrect = false*)
-Parse *text* and translate into language of *translationLanguage* code from language of *sourceLanguage* code with hints on language of *translatorLanguage* code and send data into object fields. Also Google try automatically correct grammatical errors and typos of *text* if *autoCorrect* is set to **true**. For languages see the column **LANGUAGE_SHORT_CODES** in the table [above](#languages-table).
+### <a id='translate'/> void QOnlineTranslator::translate(*const QString &text, QString &targetLanguage = "auto", QString &sourceLanguage = "auto", QString &translatorLanguage = "auto", bool &autoCorrect = false*)
+Parse *text* and translate into language of *targetLanguage* code from language of *sourceLanguage* code with hints on language of *translatorLanguage* code and send data into object fields. Also Google try automatically correct grammatical errors and typos of *text* if *autoCorrect* is set to **true**. For languages see the column **LANGUAGE_SHORT_CODES** in the table [above](#languages-table).
 ___
 
 ### <a id='say'/> void QOnlineTranslator::say()
 Speaks translated text from the object using [QMediaPlayer](http://doc.qt.io/qt-5/qmediaplayer.html "Qt Documentation").
 ___
 
-### <a id='translation-language'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::translationLanguage()
+### <a id='text'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::text()
+Returns the translated text.
+___
+
+### <a id='source-language'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::sourceLanguage()
+Returns the source language of the translated text.
+___
+
+### <a id='source-transcription'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::sourceTranscription()
+Returns the transcription of the source text. Google sends source transcription only if the source text is one word, otherwise function returns empty string.
+___
+
+### <a id='target-language'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::targetLanguage()
 Returns the language to which the text is translated.
 ___
 
-### <a id='translation-transcription'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::translationTranscription()
+### <a id='target-transcription'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::targetTranscription()
 Returns the transcription of the translated text.
-___
-
-### <a id='text'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::text()
-Returns the translated text.
 ___
 
 ### <a id='options'/> [QList](http://doc.qt.io/qt-5/qlist.html "Qt Documentation")<[QPair](http://doc.qt.io/qt-5/qpair.html "Qt Documentation")<[QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation"), [QStringList](http://doc.qt.io/qt-5/qstringlist.html "Qt Documentation")> >  QOnlineTranslator::options()
@@ -309,16 +317,8 @@ foreach (auto typeOfSpeech, translator.options()) {
 ```
 ___
 
-### <a id='source-language'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::sourceLanguage()
-Returns the source language of the translated text.
-___
-
-### <a id='source-transcription'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::sourceTranscription()
-Returns the transcription of the source text. Google sends source transcription only if the source text is one word, otherwise function returns empty string.
-___
-
-### <a id='translate-text-static'/> static void QOnlineTranslator::translateText(*const QString &text, QString translationLanguage = "auto", QString sourceLanguage = "auto"*)
-Returns the translated text from language of *sourceLanguage* code to language of *translationLanguage* code from the source *text*. For languages see the column **LANGUAGE_SHORT_CODES** in the table [above](#languages-table).
+### <a id='translate-text-static'/> static void QOnlineTranslator::translateText(*const QString &text, QString targetLanguage = "auto", QString sourceLanguage = "auto"*)
+Returns the translated text from language of *sourceLanguage* code to language of *targetLanguage* code from the source *text*. For languages see the column **LANGUAGE_SHORT_CODES** in the table [above](#languages-table).
 ___
 
 ### <a id='say-static'/> static void QOnlineTranslator::say(*const QString &text, QString language = "auto"*)
