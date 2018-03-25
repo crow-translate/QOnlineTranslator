@@ -23,6 +23,7 @@
 
 #include <QString>
 #include <QPair>
+#include <QUrl>
 
 class QOnlineTranslator
 {
@@ -40,7 +41,7 @@ public:
     inline QOnlineTranslator(const QString &text, const QString &translationLanguage, const QString &sourceLanguage, const QString &translatorLanguage, const bool &autoCorrect)
     { translate(text, translationLanguage, sourceLanguage, translatorLanguage, autoCorrect); }
 
-    void translate(const QString &text, QString translationLanguage = "auto", QString sourceLanguage = "auto", const QString &translatorLanguage = "auto", const bool &autoCorrect = false);
+    void translate(const QString &text, const QString &translationLanguage = "auto", const QString &sourceLanguage = "auto", const QString &translatorLanguage = "auto", const bool &autoCorrect = false);
     void say();
 
     inline QString sourceLanguage()
@@ -64,7 +65,7 @@ public:
     static const QStringList LANGUAGE_SHORT_CODES;
 
 private:
-    static QString receiveQuery(const QString &preparedUrl);
+    static QByteArray receiveReply(const QUrl &url);
 
     QString m_text;
     QString m_sourceTranscription;

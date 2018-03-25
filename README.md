@@ -58,7 +58,7 @@ Then include the `qonlinetranslator.pri` file in your `.pro` project file:
 |                                     | [**QOnlineTranslator**(const QString &text, const QString &translationLanguage, const QString &sourceLanguage)](#c4)                                    |
 |                                     | [**QOnlineTranslator**(const QString &text, const QString &translationLanguage, const QString &sourceLanguage, const QString &translatorLanguage)](#c5) |
 |                                     | [**QOnlineTranslator**(const QString &text, const QString &translationLanguage, const QString &sourceLanguage, const QString &translatorLanguage, const bool &autoCorrect)](#c6) |
-| void                                | [**translate**(const QString &text, QString translationLanguage = "auto", QString sourceLanguage = "auto", QString &translatorLanguage = "auto", bool &autoCorrect = false)](#translate) |
+| void                                | [**translate**(const QString &text, QString &translationLanguage = "auto", QString &sourceLanguage = "auto", QString &translatorLanguage = "auto", bool &autoCorrect = false)](#translate) |
 | void                                | [**say**()](#say)                                                                                                                                       |
 | QString                             | [**sourceLanguage**()](#source-language)                                                                                                                |
 | QString                             | [**sourceTranscription**()](#source-transcription)                                                                                                      |
@@ -256,7 +256,7 @@ ___
 Constructs an object initialized with the *text* translated into language of *translationLanguage* code from language of *sourceLanguage* code with hints on language of *translatorLanguage* code. Also Google try automatically correct grammatical errors and typos of *text* if *autoCorrect* is set to **true**. For languages see the column **LANGUAGE_SHORT_CODES** in the table [above](#languages-table).
 ___
 
-### <a id='translate'/> void QOnlineTranslator::translate(*const QString &text, QString translationLanguage = "auto", QString sourceLanguage = "auto", QString &translatorLanguage = "auto", bool &autoCorrect = false*)
+### <a id='translate'/> void QOnlineTranslator::translate(*const QString &text, QString &translationLanguage = "auto", QString &sourceLanguage = "auto", QString &translatorLanguage = "auto", bool &autoCorrect = false*)
 Parse *text* and translate into language of *translationLanguage* code from language of *sourceLanguage* code with hints on language of *translatorLanguage* code and send data into object fields. Also Google try automatically correct grammatical errors and typos of *text* if *autoCorrect* is set to **true**. For languages see the column **LANGUAGE_SHORT_CODES** in the table [above](#languages-table).
 ___
 

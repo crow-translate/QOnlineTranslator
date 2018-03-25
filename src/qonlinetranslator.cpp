@@ -25,6 +25,10 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 
+#if defined(Q_OS_WIN)
+#include <QBuffer>
+#endif
+
 #include "qonlinetranslator.h"
 
 const QStringList QOnlineTranslator::LANGUAGE_NAMES = { QT_TR_NOOP("Automatically detect"), QT_TR_NOOP("Afrikaans"), QT_TR_NOOP("Amharic"), QT_TR_NOOP("Arabic"),
@@ -106,14 +110,16 @@ const QString QOnlineTranslator::TRANSLATION_SHORT_URL =
         "&dt=t&q="
         "%3";
 
-void QOnlineTranslator::translate(const QString &text, QString translationLanguage, QString sourceLanguage, const QString &translatorLanguage, const bool &autoCorrect)
+void QOnlineTranslator::translate(const QString &text, const QString &translationLanguage, const QString &sourceLanguage, const QString &translatorLanguage, const bool &autoCorrect)
 {
     // Detect system language if translateLanguage not specified
     if (translationLanguage == "auto") {
         QLocale locale;
-        translationLanguage = locale.name();
-        translationLanguage.truncate(translationLanguage.indexOf("_"));
+        m_translationLanguage = locale.name();
+        m_translationLanguage.truncate(m_translationLanguage.indexOf("_"));
     }
+    else
+        m_translationLanguage = translationLanguage;
 
     // Set auto-correction query option
     QString autocorrection;
@@ -122,16 +128,16 @@ void QOnlineTranslator::translate(const QString &text, QString translationLangua
     else
         autocorrection = "qc";
 
-    QString url = TRANSLATION_URL.arg(autocorrection).arg(sourceLanguage).arg(translationLanguage).arg(translatorLanguage).arg(text);
-    QString response = receiveQuery(url);
+    QByteArray reply = receiveReply(TRANSLATION_URL.arg(autocorrection).arg(sourceLanguage).arg(translationLanguage).arg(translatorLanguage).arg(text));
 
     // Check for network error
-    if(response.startsWith("E")) {
-        m_text = response;
+    if(!reply.startsWith("[")) {
+        m_text = reply;
         return;
     }
 
-    QJsonDocument jsonResponse = QJsonDocument::fromJson(response.toUtf8());
+    // Convert to JsonArray
+    QJsonDocument jsonResponse = QJsonDocument::fromJson(reply);
     QJsonArray jsonData = jsonResponse.array();
 
     // Parse first sentense. If the answer contains more than one sentence, then at the end of the first one there will be a space
@@ -142,6 +148,7 @@ void QOnlineTranslator::translate(const QString &text, QString translationLangua
     m_translationTranscription = jsonData.at(0).toArray().last().toArray().at(2).toString();
     m_sourceTranscription = jsonData.at(0).toArray().last().toArray().at(3).toString().replace(",", ", ");
 
+    // Translation options
     foreach (QJsonValue typeOfSpeach, jsonData.at(1).toArray()) {
         m_options.append(QPair<QString, QStringList>());
         m_options.last().first = typeOfSpeach.toArray().at(0).toString();
@@ -159,9 +166,17 @@ void QOnlineTranslator::translate(const QString &text, QString translationLangua
 
 void QOnlineTranslator::say()
 {
-    QUrl preparedUrl = TTS_URL.arg(m_translationLanguage).arg(m_text);
+    QUrl url = TTS_URL.arg(m_translationLanguage).arg(m_text);
     QMediaPlayer *player = new QMediaPlayer;
-    player->setMedia(preparedUrl);
+#if defined(Q_OS_LINUX)
+    player->setMedia(url);
+#elif defined(Q_OS_WIN)
+    // A workaround for Windows, without this, Cyrillic characters are reproduced as "?
+    QByteArray *reply = new QByteArray(receiveReply(url));
+    QBuffer *buffer = new QBuffer(reply);
+    buffer->open(QIODevice::ReadOnly);
+    player->setMedia(url, buffer);
+#endif
     player->play();
 }
 
@@ -169,15 +184,23 @@ void QOnlineTranslator::say(const QString &text, QString language)
 {
     // Google don't support "auto" as argument for text-to-speech, so need to detect language manually
     if (language == "auto") {
-        QString preparedUrl = TRANSLATION_SHORT_URL.arg("auto").arg("en").arg(text);
-        language = receiveQuery(preparedUrl);
+        QString languageUrl = TRANSLATION_SHORT_URL.arg("auto").arg("en").arg(text);
+        language = receiveReply(languageUrl);
         language.chop(4);
         language = language.mid(language.lastIndexOf("\"") + 1);
     }
 
-    QUrl preparedUrl = QUrl("http://translate.googleapis.com/translate_tts?ie=UTF-8&client=gtx&tl=" + language + "&q=" + text);
+    QUrl url = TTS_URL.arg(language).arg(text);
     QMediaPlayer *player = new QMediaPlayer;
-    player->setMedia(preparedUrl);
+#if defined(Q_OS_LINUX)
+    player->setMedia(url);
+#elif defined(Q_OS_WIN)
+    // A workaround for Windows, without this, Cyrillic characters are reproduced as "?
+    QByteArray *reply = new QByteArray(receiveReply(url));
+    QBuffer *buffer = new QBuffer(reply);
+    buffer->open(QIODevice::ReadOnly);
+    player->setMedia(url, buffer);
+#endif
     player->play();
 }
 
@@ -190,33 +213,37 @@ QString QOnlineTranslator::translateText(const QString &text, QString translatio
         translationLanguage.truncate(translationLanguage.indexOf("_"));
     }
 
-    QString preparedUrl = TRANSLATION_SHORT_URL.arg(sourceLanguage).arg(translationLanguage).arg(text);
-    QString response = receiveQuery(preparedUrl);
+    QByteArray reply = receiveReply(TRANSLATION_SHORT_URL.arg(sourceLanguage).arg(translationLanguage).arg(text));
 
-    // Get first sentence from quotes (first quote always starts from 4 fourth character)
-    QString translatedText = response.mid(4, response.indexOf("\",\"", 4) - 4);
-    while (translatedText.endsWith(" ") || translatedText.endsWith("\\n")) {
-        // The text has one more sentence if ends with "space" or "line break"
-        response = response.mid(response.indexOf("],[\"") + 4);
-        translatedText.append(response.left(response.indexOf("\",\"")));
-    }
+    // Check for network error
+    if(!reply.startsWith("["))
+        return reply;
+
+    // Convert to JsonArray
+    QJsonDocument jsonResponse = QJsonDocument::fromJson(reply);
+    QJsonArray jsonData = jsonResponse.array();
+
+    // Parse first sentense. If the answer contains more than one sentence, then at the end of the first one there will be a space
+    QString translatedText = jsonData.at(0).toArray().at(0).toArray().at(0).toString();
+    for (int i = 1; translatedText.endsWith(" ") || translatedText.endsWith("\n"); i++)
+        translatedText.append(jsonData.at(0).toArray().at(i).toArray().at(0).toString());
 
     return translatedText;
 }
 
-QString QOnlineTranslator::receiveQuery(const QString &url)
+QByteArray QOnlineTranslator::receiveReply(const QUrl &url)
 {
     // Send request
     QNetworkAccessManager manager;
-    QNetworkReply *response = manager.get(QNetworkRequest(QUrl(url)));
+    QNetworkReply *reply = manager.get(QNetworkRequest(url));
 
     // Wait for the response
     QEventLoop event;
-    QObject::connect(response, &QNetworkReply::finished, &event, &QEventLoop::quit);
+    QObject::connect(reply, &QNetworkReply::finished, &event, &QEventLoop::quit);
     event.exec();
 
-    if (response->error() == QNetworkReply::NoError)
-        return response->readAll();
+    if (reply->error() == QNetworkReply::NoError)
+        return reply->readAll();
     else
-        return "Error: " + QVariant::fromValue(response->error()).value<QString>();
+        return reply->errorString().toUtf8();
 }
