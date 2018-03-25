@@ -149,6 +149,7 @@ void QOnlineTranslator::translate(const QString &text, const QString &targetLang
     m_sourceTranscription = jsonData.at(0).toArray().last().toArray().at(3).toString().replace(",", ", ");
 
     // Translation options
+    m_options.clear();
     foreach (QJsonValue typeOfSpeach, jsonData.at(1).toArray()) {
         m_options.append(QPair<QString, QStringList>());
         m_options.last().first = typeOfSpeach.toArray().at(0).toString();
