@@ -110,16 +110,16 @@ const QString QOnlineTranslator::TRANSLATION_SHORT_URL =
         "&dt=t&q="
         "%3";
 
-void QOnlineTranslator::translate(const QString &text, const QString &targetLanguage, const QString &sourceLanguage, const QString &translatorLanguage, const bool &autoCorrect)
+void QOnlineTranslator::translate(const QString &text, const QString &translationLanguage, const QString &sourceLanguage, const QString &translatorLanguage, const bool &autoCorrect)
 {
     // Detect system language if translateLanguage not specified
-    if (targetLanguage == "auto") {
+    if (translationLanguage == "auto") {
         QLocale locale;
-        m_targetLanguage = locale.name();
-        m_targetLanguage.truncate(m_targetLanguage.indexOf("_"));
+        m_translationLanguage = locale.name();
+        m_translationLanguage.truncate(m_translationLanguage.indexOf("_"));
     }
     else
-        m_targetLanguage = targetLanguage;
+        m_translationLanguage = translationLanguage;
 
     // Set auto-correction query option
     QString autocorrection;
@@ -128,7 +128,7 @@ void QOnlineTranslator::translate(const QString &text, const QString &targetLang
     else
         autocorrection = "qc";
 
-    QByteArray reply = receiveReply(TRANSLATION_URL.arg(autocorrection).arg(sourceLanguage).arg(targetLanguage).arg(translatorLanguage).arg(text));
+    QByteArray reply = receiveReply(TRANSLATION_URL.arg(autocorrection).arg(sourceLanguage).arg(translationLanguage).arg(translatorLanguage).arg(text));
 
     // Check for network error
     if(!reply.startsWith("[")) {
@@ -145,7 +145,7 @@ void QOnlineTranslator::translate(const QString &text, const QString &targetLang
     for (int i = 1; m_text.endsWith(" ") || m_text.endsWith("\n") || m_text.endsWith("\u00a0"); i++)
         m_text.append(jsonData.at(0).toArray().at(i).toArray().at(0).toString());
 
-    m_targetTranscription = jsonData.at(0).toArray().last().toArray().at(2).toString();
+    m_translationTranscription = jsonData.at(0).toArray().last().toArray().at(2).toString();
     m_sourceTranscription = jsonData.at(0).toArray().last().toArray().at(3).toString().replace(",", ", ");
 
     // Translation options
@@ -167,7 +167,7 @@ void QOnlineTranslator::translate(const QString &text, const QString &targetLang
 
 void QOnlineTranslator::say()
 {
-    QUrl url = TTS_URL.arg(m_targetLanguage).arg(m_text);
+    QUrl url = TTS_URL.arg(m_translationLanguage).arg(m_text);
     QMediaPlayer *player = new QMediaPlayer;
 #if defined(Q_OS_LINUX)
     player->setMedia(url);
@@ -205,16 +205,16 @@ void QOnlineTranslator::say(const QString &text, QString language)
     player->play();
 }
 
-QString QOnlineTranslator::translateText(const QString &text, QString targetLanguage, QString sourceLanguage)
+QString QOnlineTranslator::translateText(const QString &text, QString translationLanguage, QString sourceLanguage)
 {
     // Detect system language if translateLanguage not specified
-    if (targetLanguage == "auto") {
+    if (translationLanguage == "auto") {
         QLocale locale;
-        targetLanguage = locale.name();
-        targetLanguage.truncate(targetLanguage.indexOf("_"));
+        translationLanguage = locale.name();
+        translationLanguage.truncate(translationLanguage.indexOf("_"));
     }
 
-    QByteArray reply = receiveReply(TRANSLATION_SHORT_URL.arg(sourceLanguage).arg(targetLanguage).arg(text));
+    QByteArray reply = receiveReply(TRANSLATION_SHORT_URL.arg(sourceLanguage).arg(translationLanguage).arg(text));
 
     // Check for network error
     if(!reply.startsWith("["))

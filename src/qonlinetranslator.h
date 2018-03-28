@@ -32,16 +32,16 @@ public:
     inline QOnlineTranslator() {}
     inline QOnlineTranslator(const QString &text)
     { translate(text); }
-    inline QOnlineTranslator(const QString &text, const QString &targetLanguage)
-    { translate(text, targetLanguage); }
-    inline QOnlineTranslator(const QString &text, const QString &targetLanguage, const QString &sourceLanguage)
-    { translate(text, targetLanguage, sourceLanguage); }
-    inline QOnlineTranslator(const QString &text, const QString &targetLanguage, const QString &sourceLanguage, const QString &translatorLanguage)
-    { translate(text, targetLanguage, sourceLanguage, translatorLanguage); }
-    inline QOnlineTranslator(const QString &text, const QString &targetLanguage, const QString &sourceLanguage, const QString &translatorLanguage, const bool &autoCorrect)
-    { translate(text, targetLanguage, sourceLanguage, translatorLanguage, autoCorrect); }
+    inline QOnlineTranslator(const QString &text, const QString &translationLanguage)
+    { translate(text, translationLanguage); }
+    inline QOnlineTranslator(const QString &text, const QString &translationLanguage, const QString &sourceLanguage)
+    { translate(text, translationLanguage, sourceLanguage); }
+    inline QOnlineTranslator(const QString &text, const QString &translationLanguage, const QString &sourceLanguage, const QString &translatorLanguage)
+    { translate(text, translationLanguage, sourceLanguage, translatorLanguage); }
+    inline QOnlineTranslator(const QString &text, const QString &translationLanguage, const QString &sourceLanguage, const QString &translatorLanguage, const bool &autoCorrect)
+    { translate(text, translationLanguage, sourceLanguage, translatorLanguage, autoCorrect); }
 
-    void translate(const QString &text, const QString &targetLanguage = "auto", const QString &sourceLanguage = "auto", const QString &translatorLanguage = "auto", const bool &autoCorrect = false);
+    void translate(const QString &text, const QString &translationLanguage = "auto", const QString &sourceLanguage = "auto", const QString &translatorLanguage = "auto", const bool &autoCorrect = false);
     void say();
 
     inline QString text()
@@ -50,15 +50,15 @@ public:
     { return m_sourceLanguage; }
     inline QString sourceTranscription()
     { return m_sourceTranscription; }
-    inline QString targetTranscription()
-    { return m_targetTranscription; }
-    inline QString targetLanguage()
-    { return m_targetLanguage; }
+    inline QString translationTranscription()
+    { return m_translationTranscription; }
+    inline QString translationLanguage()
+    { return m_translationLanguage; }
     inline QList<QPair<QString, QStringList> > options()
     { return m_options; }
 
     static void say(const QString &text, QString language = "auto");
-    static QString translateText(const QString &text, QString targetLanguage = "auto", QString sourceLanguage = "auto");
+    static QString translateText(const QString &text, QString translationLanguage = "auto", QString sourceLanguage = "auto");
 
     static const QStringList LANGUAGE_NAMES;
     static const QStringList LANGUAGE_LONG_CODES;
@@ -70,8 +70,8 @@ private:
     QString m_text;
     QString m_sourceLanguage;
     QString m_sourceTranscription;
-    QString m_targetTranscription;
-    QString m_targetLanguage;
+    QString m_translationTranscription;
+    QString m_translationLanguage;
     QList<QPair<QString, QStringList> > m_options;
 
     static const QString TTS_URL;
