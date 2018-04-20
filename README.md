@@ -71,8 +71,10 @@ Then include the `qonlinetranslator.pri` file in your `.pro` project file:
 
 | Return type | Function                                                                                                                                |
 |------------:|:----------------------------------------------------------------------------------------------------------------------------------------|
-| QString     | [**translateText**(const QString &text, QString translationLanguage = "auto", QString sourceLanguage = "auto")](#translate-text-static)      |
+| QString     | [**translateText**(const QString &text, QString translationLanguage = "auto", QString sourceLanguage = "auto")](#translate-text-static) |
 | void        | [**say**(const QString &text, QString language = "auto")](#say-static)                                                                  |
+| QString     | [**codeToLanguage**(const QString &code)](#code-to-language-static)                                                                     |
+| QString     | [**languageToCode**(const QString &language)](#language-to-code-static)                                                                 |
 
 ## Detailed Description
 
@@ -317,9 +319,17 @@ foreach (auto typeOfSpeech, translator.options()) {
 ```
 ___
 
-### <a id='translate-text-static'/> static void QOnlineTranslator::translateText(*const QString &text, QString translationLanguage = "auto", QString sourceLanguage = "auto"*)
+### <a id='translate-text-static'/> static [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::translateText(*const QString &text, QString translationLanguage = "auto", QString sourceLanguage = "auto"*)
 Returns the translated text from language of *sourceLanguage* code to language of *translationLanguage* code from the source *text*. For languages see the column **LANGUAGE_SHORT_CODES** in the table [above](#languages-table).
 ___
 
 ### <a id='say-static'/> static void QOnlineTranslator::say(*const QString &text, QString language = "auto"*)
 Speaks *text* in the language of *language* code using [QMediaPlayer](http://doc.qt.io/qt-5/qmediaplayer.html "Qt Documentation"). Works faster if the language of *text* is specified. For languages see the column **LANGUAGE_SHORT_CODES** in the table [above](#languages-table).
+___
+
+### <a id='code-to-language-static'/> static [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::codeToLanguage(*const QString &code*)
+Returns a [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") containing the language of *code*.
+___
+
+### <a id='language-to-code-static'/> static [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::languageToCode(*const QString &language*)
+Returns a [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") containing the code of *language*.

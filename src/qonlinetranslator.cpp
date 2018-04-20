@@ -232,6 +232,18 @@ QString QOnlineTranslator::translateText(const QString &text, QString translatio
     return translatedText;
 }
 
+QString QOnlineTranslator::codeToLanguage(const QString &code)
+{
+    int index = LANGUAGE_SHORT_CODES.indexOf(code);
+    return LANGUAGE_NAMES.at(index);
+}
+
+QString QOnlineTranslator::languageToCode(const QString &language)
+{
+    int index = LANGUAGE_NAMES.indexOf(language);
+    return LANGUAGE_SHORT_CODES.at(index);
+}
+
 QByteArray QOnlineTranslator::receiveReply(const QUrl &url)
 {
     // Send request
