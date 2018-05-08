@@ -84,32 +84,6 @@ const QStringList QOnlineTranslator::LANGUAGE_SHORT_CODES = { "auto", "af", "am"
                                                               "te", "tg", "th", "tl", "tlh", "tlh-qaak", "to", "tr", "tt", "ty", "udm", "uk", "ur", "uz", "vi", "xh", "yi", "yo",
                                                               "yua", "yue", "zh-cn", "zh-tw", "zu" };
 
-const QString QOnlineTranslator::TTS_URL =
-        "http://translate.googleapis.com/translate_tts?ie=UTF-8&client=gtx&tl="
-        "%1"
-        "&q="
-        "%2";
-
-const QString QOnlineTranslator::TRANSLATION_URL =
-        "https://translate.googleapis.com/translate_a/single?client=gtx&ie=UTF-8&oe=UTF-8&dt=bd&dt=ex&dt=ld&dt=md&dt=rw&dt=rm&dt=ss&dt=t&dt=at&dt="
-        "%1"
-        "&sl="
-        "%2"
-        "&tl="
-        "%3"
-        "&hl="
-        "%4"
-        "&q="
-        "%5";
-
-const QString QOnlineTranslator::TRANSLATION_SHORT_URL =
-        "https://translate.googleapis.com/translate_a/single?client=gtx&sl="
-        "%1"
-        "&tl="
-        "%2"
-        "&dt=t&q="
-        "%3";
-
 void QOnlineTranslator::translate(const QString &text, const QString &translationLanguage, const QString &sourceLanguage, const QString &translatorLanguage, const bool &autoCorrect)
 {
     // Detect system language if translateLanguage not specified
@@ -128,7 +102,11 @@ void QOnlineTranslator::translate(const QString &text, const QString &translatio
     else
         autocorrection = "qc";
 
-    QByteArray reply = receiveReply(TRANSLATION_URL.arg(autocorrection).arg(sourceLanguage).arg(translationLanguage).arg(translatorLanguage).arg(text));
+    // Generate API url and receive a reply
+    QUrl apiUrl("https://translate.googleapis.com/translate_a/single");
+    apiUrl.setQuery("client=gtx&ie=UTF-8&oe=UTF-8&dt=bd&dt=ex&dt=ld&dt=md&dt=rw&dt=rm&dt=ss&dt=t&dt=at&dt=" + autocorrection +"&sl=" + sourceLanguage + "&tl=" +
+                    translationLanguage + "&hl=" + translatorLanguage + "&q=" + text);
+    QByteArray reply = receiveReply(apiUrl);
 
     // Check for network error
     if(!reply.startsWith("[")) {
@@ -167,40 +145,47 @@ void QOnlineTranslator::translate(const QString &text, const QString &translatio
 
 void QOnlineTranslator::say()
 {
-    QUrl url = TTS_URL.arg(m_translationLanguage).arg(m_text);
+    // Generate API url for tts
+    QUrl apiUrl("http://translate.googleapis.com/translate_tts");
+    apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + m_translationLanguage +"&q=" + m_text);
+
     QMediaPlayer *player = new QMediaPlayer;
 #if defined(Q_OS_LINUX)
-    player->setMedia(url);
+    player->setMedia(apiUrl);
 #elif defined(Q_OS_WIN)
     // A workaround for Windows, without this, Cyrillic characters are reproduced as "?
-    QByteArray *reply = new QByteArray(receiveReply(url));
+    QByteArray *reply = new QByteArray(receiveReply(apiUrl));
     QBuffer *buffer = new QBuffer(reply);
     buffer->open(QIODevice::ReadOnly);
-    player->setMedia(url, buffer);
+    player->setMedia(apiUrl, buffer);
 #endif
     player->play();
 }
 
 void QOnlineTranslator::say(const QString &text, QString language)
 {
-    // Google don't support "auto" as argument for text-to-speech, so need to detect language manually
+    // Google don't support "auto" as argument for text-to-speech, so need to detect language manually from translation request
     if (language == "auto") {
-        QString languageUrl = TRANSLATION_SHORT_URL.arg("auto").arg("en").arg(text);
+        QUrl languageUrl("https://translate.googleapis.com/translate_a/single");
+        languageUrl.setQuery("client=gtx&sl=auto&tl=en&dt=t&q=" + text);
         language = receiveReply(languageUrl);
         language.chop(4);
         language = language.mid(language.lastIndexOf("\"") + 1);
     }
 
-    QUrl url = TTS_URL.arg(language).arg(text);
+    // Generate API url for tts
+    QUrl apiUrl("http://translate.googleapis.com/translate_tts");
+    apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + language +"&q=" + text);
+
     QMediaPlayer *player = new QMediaPlayer;
 #if defined(Q_OS_LINUX)
-    player->setMedia(url);
+    player->setMedia(apiUrl);
 #elif defined(Q_OS_WIN)
     // A workaround for Windows, without this, Cyrillic characters are reproduced as "?"
-    QByteArray *reply = new QByteArray(receiveReply(url));
+    QByteArray *reply = new QByteArray(receiveReply(apiUrl));
     QBuffer *buffer = new QBuffer(reply);
     buffer->open(QIODevice::ReadOnly);
-    player->setMedia(url, buffer);
+    player->setMedia(apiUrl, buffer);
 #endif
     player->play();
 }
@@ -214,7 +199,10 @@ QString QOnlineTranslator::translateText(const QString &text, QString translatio
         translationLanguage.truncate(translationLanguage.indexOf("_"));
     }
 
-    QByteArray reply = receiveReply(TRANSLATION_SHORT_URL.arg(sourceLanguage).arg(translationLanguage).arg(text));
+    // Generate short API url only for translation and and receive a reply
+    QUrl apiUrl("https://translate.googleapis.com/translate_a/single");
+    apiUrl.setQuery("client=gtx&sl=" + sourceLanguage +"&tl=" + translationLanguage + "&dt=t&q=" + text);
+    QByteArray reply = receiveReply(apiUrl);
 
     // Check for network error
     if(!reply.startsWith("["))

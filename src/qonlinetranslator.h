@@ -75,10 +75,6 @@ private:
     QString m_translationTranscription;
     QString m_translationLanguage;
     QList<QPair<QString, QStringList> > m_options;
-
-    static const QString TTS_URL;
-    static const QString TRANSLATION_URL;
-    static const QString TRANSLATION_SHORT_URL;
 };
 
 #endif // QONLINETRANSLATOR_H
