@@ -30,15 +30,7 @@ class QOnlineTranslator
 
 public:
     inline QOnlineTranslator() {}
-    inline QOnlineTranslator(const QString &text)
-    { translate(text); }
-    inline QOnlineTranslator(const QString &text, const QString &translationLanguage)
-    { translate(text, translationLanguage); }
-    inline QOnlineTranslator(const QString &text, const QString &translationLanguage, const QString &sourceLanguage)
-    { translate(text, translationLanguage, sourceLanguage); }
-    inline QOnlineTranslator(const QString &text, const QString &translationLanguage, const QString &sourceLanguage, const QString &translatorLanguage)
-    { translate(text, translationLanguage, sourceLanguage, translatorLanguage); }
-    inline QOnlineTranslator(const QString &text, const QString &translationLanguage, const QString &sourceLanguage, const QString &translatorLanguage, const bool &autoCorrect)
+    inline QOnlineTranslator(const QString &text, const QString &translationLanguage = "auto", const QString &sourceLanguage = "auto", const QString &translatorLanguage = "auto", const bool &autoCorrect = false)
     { translate(text, translationLanguage, sourceLanguage, translatorLanguage, autoCorrect); }
 
     void translate(const QString &text, const QString &translationLanguage = "auto", const QString &sourceLanguage = "auto", const QString &translatorLanguage = "auto", const bool &autoCorrect = false);

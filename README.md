@@ -53,18 +53,14 @@ Then include the `qonlinetranslator.pri` file in your `.pro` project file:
 | Return type                         | Data member                                                                                                                                        |
 |------------------------------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------|
 |                                     | [**QOnlineTranslator**()](#c1)                                                                                                                     |
-|                                     | [**QOnlineTranslator**(const QString &text)](#c2)                                                                                                  |
-|                                     | [**QOnlineTranslator**(const QString &text, const QString &translationLanguage)](#c3)                                                                   |
-|                                     | [**QOnlineTranslator**(const QString &text, const QString &translationLanguage, const QString &sourceLanguage)](#c4)                                    |
-|                                     | [**QOnlineTranslator**(const QString &text, const QString &translationLanguage, const QString &sourceLanguage, const QString &translatorLanguage)](#c5) |
-|                                     | [**QOnlineTranslator**(const QString &text, const QString &translationLanguage, const QString &sourceLanguage, const QString &translatorLanguage, const bool &autoCorrect)](#c6) |
+|                                     | [**QOnlineTranslator**(const QString &text, QString &translationLanguage = "auto", QString &sourceLanguage = "auto", QString &translatorLanguage = "auto", bool &autoCorrect = false)](#c2) |
 | void                                | [**translate**(const QString &text, QString &translationLanguage = "auto", QString &sourceLanguage = "auto", QString &translatorLanguage = "auto", bool &autoCorrect = false)](#translate) |
 | void                                | [**say**()](#say)                                                                                                                                  |
 | QString                             | [**text**()](#text)                                                                                                                                |
 | QString                             | [**sourceLanguage**()](#source-language)                                                                                                           |
 | QString                             | [**sourceTranscription**()](#source-transcription)                                                                                                 |
-| QString                             | [**translationLanguage**()](#translation-language)                                                                                                           |
-| QString                             | [**translationTranscription**()](translation-transcription)                                                                                                  |
+| QString                             | [**translationLanguage**()](#translation-language)                                                                                                 |
+| QString                             | [**translationTranscription**()](translation-transcription)                                                                                        |
 | QList<QPair<QString, QStringList> > | [**options**()](#options)                                                                                                                          |
 
 ## Static Public Functions
@@ -235,27 +231,11 @@ ___
 ## Member Function Documentation
 
 ### <a id='c1'/> QOnlineTranslator::QOnlineTranslator()
-Constructs an object with empty data. You can use [translate](#translate) to send text to object.
+Constructs an object with empty data. You can use [translate()](#translate) to send text to object.
 ___
 
-### <a id='c2'/> QOnlineTranslator::QOnlineTranslator(*const QString &text*)
-Constructs an object initialized with the *text* translated into system languge from autodetected languge by Google with hints on system language. For languages see the column **LANGUAGE_SHORT_CODES** in the table [above](#languages-table).
-___
-
-### <a id='c3'/> QOnlineTranslator::QOnlineTranslator(*const QString &text, const QString &translationLanguage*)
-Constructs an object initialized with the *text* translated into language of *translationLanguage* code from autodetected languge by Google with hints on system language. For languages see the column **LANGUAGE_SHORT_CODES** in the table [above](#languages-table).
-___
-
-### <a id='c4'/> QOnlineTranslator::QOnlineTranslator(*const QString &text, const QString &translationLanguage, const QString &sourceLanguage*)
-Constructs an object initialized with the *text* translated into language of *translationLanguage* code from language of *sourceLanguage* code with hints on system language. For languages see the column **LANGUAGE_SHORT_CODES** in the table [above](#languages-table).
-___
-
-### <a id='c5'/> QOnlineTranslator::QOnlineTranslator(*const QString &text, const QString &translationLanguage, const QString &sourceLanguage, const QString &translatorLanguage*)
-Constructs an object initialized with the *text* translated into language of *translationLanguage* code from language of *sourceLanguage* code with hints on language of *translatorLanguage* code. For languages see the column **LANGUAGE_SHORT_CODES** in the table [above](#languages-table).
-___
-
-### <a id='c6'/> QOnlineTranslator::QOnlineTranslator(*const QString &text, const QString &translationLanguage, const QString &sourceLanguage, const QString &translatorLanguage, const bool &autoCorrect*)
-Constructs an object initialized with the *text* translated into language of *translationLanguage* code from language of *sourceLanguage* code with hints on language of *translatorLanguage* code. Also Google try automatically correct grammatical errors and typos of *text* if *autoCorrect* is set to **true**. For languages see the column **LANGUAGE_SHORT_CODES** in the table [above](#languages-table).
+### <a id='c2'/> QOnlineTranslator::QOnlineTranslator(*const QString &text, QString &translationLanguage = "auto", QString &sourceLanguage = "auto", QString &translatorLanguage = "auto", bool &autoCorrect = false*)
+Constructs an object initialized with the *text* translated into language of *translationLanguage* code from language of *sourceLanguage* code with hints on language of *translatorLanguage* code. Also Google try automatically correct grammatical errors and typos of *text* if *autoCorrect* is set to *true*. For languages see the column **LANGUAGE_SHORT_CODES** in the table [above](#languages-table).
 ___
 
 ### <a id='translate'/> void QOnlineTranslator::translate(*const QString &text, QString &translationLanguage = "auto", QString &sourceLanguage = "auto", QString &translatorLanguage = "auto", bool &autoCorrect = false*)
