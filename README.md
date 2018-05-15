@@ -71,6 +71,7 @@ Then include the `qonlinetranslator.pri` file in your `.pro` project file:
 | void        | [**say**(const QString &text, QString language = "auto")](#say-static)                                                                  |
 | QString     | [**codeToLanguage**(const QString &code)](#code-to-language-static)                                                                     |
 | QString     | [**languageToCode**(const QString &language)](#language-to-code-static)                                                                 |
+| QString     | [**defaultLocaleToCode**()](#default-locale-to-code-static)                                                                                             |
 
 ## Detailed Description
 
@@ -313,3 +314,6 @@ ___
 
 ### <a id='language-to-code-static'/> static [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::languageToCode(*const QString &language*)
 Returns a [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") containing the code of *language*.
+
+### <a id='default-locale-to-code-static'/> static [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::defaultLocaleToCode()
+Returns a [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") containing the code of the default [QLocale](https://doc.qt.io/qt-5/qlocale.html "Qt Documentation") language.

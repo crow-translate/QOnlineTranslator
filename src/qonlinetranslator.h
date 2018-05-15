@@ -53,6 +53,7 @@ public:
     static QString translateText(const QString &text, QString translationLanguage = "auto", QString sourceLanguage = "auto");
     static QString codeToLanguage(const QString &code);
     static QString languageToCode(const QString &language);
+    static QString defaultLocaleToCode();
 
     static const QStringList LANGUAGE_NAMES;
     static const QStringList LANGUAGE_LONG_CODES;

@@ -87,11 +87,8 @@ const QStringList QOnlineTranslator::LANGUAGE_SHORT_CODES = { "auto", "af", "am"
 void QOnlineTranslator::translate(const QString &text, const QString &translationLanguage, const QString &sourceLanguage, const QString &translatorLanguage, const bool &autoCorrect)
 {
     // Detect system language if translateLanguage not specified
-    if (translationLanguage == "auto") {
-        QLocale locale;
-        m_translationLanguage = locale.name();
-        m_translationLanguage.truncate(m_translationLanguage.indexOf("_"));
-    }
+    if (translationLanguage == "auto")
+        m_translationLanguage = defaultLocaleToCode();
     else
         m_translationLanguage = translationLanguage;
 
@@ -192,12 +189,9 @@ void QOnlineTranslator::say(const QString &text, QString language)
 
 QString QOnlineTranslator::translateText(const QString &text, QString translationLanguage, QString sourceLanguage)
 {
-    // Detect system language if translateLanguage not specified
-    if (translationLanguage == "auto") {
-        QLocale locale;
-        translationLanguage = locale.name();
-        translationLanguage.truncate(translationLanguage.indexOf("_"));
-    }
+    // Detect system language if translationLanguage not specified
+    if (translationLanguage == "auto")
+        translationLanguage = defaultLocaleToCode();
 
     // Generate short API url only for translation and and receive a reply
     QUrl apiUrl("https://translate.googleapis.com/translate_a/single");
@@ -230,6 +224,12 @@ QString QOnlineTranslator::languageToCode(const QString &language)
 {
     int index = LANGUAGE_NAMES.indexOf(language);
     return LANGUAGE_SHORT_CODES.at(index);
+}
+
+QString QOnlineTranslator::defaultLocaleToCode()
+{
+    QLocale locale;
+    return locale.name().left(locale.name().indexOf("_"));
 }
 
 QByteArray QOnlineTranslator::receiveReply(const QUrl &url)
