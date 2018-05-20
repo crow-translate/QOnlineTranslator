@@ -102,7 +102,7 @@ void QOnlineTranslator::translate(const QString &text, const QString &translatio
     // Generate API url and receive a reply
     QUrl apiUrl("https://translate.googleapis.com/translate_a/single");
     apiUrl.setQuery("client=gtx&ie=UTF-8&oe=UTF-8&dt=bd&dt=ex&dt=ld&dt=md&dt=rw&dt=rm&dt=ss&dt=t&dt=at&dt=" + autocorrection +"&sl=" + sourceLanguage + "&tl=" +
-                    translationLanguage + "&hl=" + translatorLanguage + "&q=" + text);
+                    translationLanguage + "&hl=" + translatorLanguage + "&q=" + QUrl::toPercentEncoding(text));
 
     // Send request
     QNetworkAccessManager manager;
@@ -153,7 +153,7 @@ void QOnlineTranslator::say()
 {
     // Generate API url for tts
     QUrl apiUrl("http://translate.googleapis.com/translate_tts");
-    apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + m_translationLanguage +"&q=" + m_text);
+    apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + m_translationLanguage +"&q=" + QUrl::toPercentEncoding(m_text));
 
     QMediaPlayer *player = new QMediaPlayer;
 #if defined(Q_OS_LINUX)
@@ -187,7 +187,7 @@ void QOnlineTranslator::say(const QString &text, QString language)
     // Google don't support "auto" as argument for text-to-speech, so need to detect language manually from translation request
     if (language == "auto") {
         QUrl languageUrl("https://translate.googleapis.com/translate_a/single");
-        languageUrl.setQuery("client=gtx&sl=auto&tl=en&dt=t&q=" + text);
+        languageUrl.setQuery("client=gtx&sl=auto&tl=en&dt=t&q=" + QUrl::toPercentEncoding(text));
 
         // Send request
         QNetworkAccessManager manager;
@@ -211,7 +211,7 @@ void QOnlineTranslator::say(const QString &text, QString language)
 
     // Generate API url for tts
     QUrl apiUrl("http://translate.googleapis.com/translate_tts");
-    apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + language +"&q=" + text);
+    apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + language +"&q=" + QUrl::toPercentEncoding(text));
 
     QMediaPlayer *player = new QMediaPlayer;
 #if defined(Q_OS_LINUX)
@@ -248,7 +248,7 @@ QString QOnlineTranslator::translateText(const QString &text, QString translatio
 
     // Generate short API url only for translation and and receive a reply
     QUrl apiUrl("https://translate.googleapis.com/translate_a/single");
-    apiUrl.setQuery("client=gtx&sl=" + sourceLanguage +"&tl=" + translationLanguage + "&dt=t&q=" + text);
+    apiUrl.setQuery("client=gtx&sl=" + sourceLanguage +"&tl=" + translationLanguage + "&dt=t&q=" + QUrl::toPercentEncoding(text));
 
     // Send request
     QNetworkAccessManager manager;
