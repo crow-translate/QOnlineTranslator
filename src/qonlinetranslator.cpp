@@ -103,16 +103,25 @@ void QOnlineTranslator::translate(const QString &text, const QString &translatio
     QUrl apiUrl("https://translate.googleapis.com/translate_a/single");
     apiUrl.setQuery("client=gtx&ie=UTF-8&oe=UTF-8&dt=bd&dt=ex&dt=ld&dt=md&dt=rw&dt=rm&dt=ss&dt=t&dt=at&dt=" + autocorrection +"&sl=" + sourceLanguage + "&tl=" +
                     translationLanguage + "&hl=" + translatorLanguage + "&q=" + text);
-    QByteArray reply = receiveReply(apiUrl);
+
+    // Send request
+    QNetworkAccessManager manager;
+    QNetworkReply *reply = manager.get(QNetworkRequest(apiUrl));
+
+    // Wait for the response
+    QEventLoop event;
+    QObject::connect(reply, &QNetworkReply::finished, &event, &QEventLoop::quit);
+    event.exec();
 
     // Check for network error
-    if(!reply.startsWith("[")) {
-        m_text = reply;
+    if (reply->error() != QNetworkReply::NoError) {
+        m_error = true;
+        m_text = reply->errorString();
         return;
     }
 
     // Convert to JsonArray
-    QJsonDocument jsonResponse = QJsonDocument::fromJson(reply);
+    QJsonDocument jsonResponse = QJsonDocument::fromJson(reply->readAll());
     QJsonArray jsonData = jsonResponse.array();
 
     // Parse first sentense. If the answer contains more than one sentence, then at the end of the first one there will be a space
@@ -151,8 +160,22 @@ void QOnlineTranslator::say()
     player->setMedia(apiUrl);
 #elif defined(Q_OS_WIN)
     // A workaround for Windows, without this, Cyrillic characters are reproduced as "?
-    QByteArray *reply = new QByteArray(receiveReply(apiUrl));
-    QBuffer *buffer = new QBuffer(reply);
+
+    // Send request
+    QNetworkAccessManager manager;
+    QNetworkReply *reply = manager.get(QNetworkRequest(apiUrl));
+
+    // Wait for the response
+    QEventLoop event;
+    QObject::connect(reply, &QNetworkReply::finished, &event, &QEventLoop::quit);
+    event.exec();
+
+    if (reply->error() != QNetworkReply::NoError) {
+        qDebug() << reply->errorString();
+        return;
+    }
+
+    QBuffer *buffer = new QBuffer(reply->readAll());
     buffer->open(QIODevice::ReadOnly);
     player->setMedia(apiUrl, buffer);
 #endif
@@ -165,7 +188,23 @@ void QOnlineTranslator::say(const QString &text, QString language)
     if (language == "auto") {
         QUrl languageUrl("https://translate.googleapis.com/translate_a/single");
         languageUrl.setQuery("client=gtx&sl=auto&tl=en&dt=t&q=" + text);
-        language = receiveReply(languageUrl);
+
+        // Send request
+        QNetworkAccessManager manager;
+        QNetworkReply *reply = manager.get(QNetworkRequest(languageUrl));
+
+        // Wait for the response
+        QEventLoop event;
+        QObject::connect(reply, &QNetworkReply::finished, &event, &QEventLoop::quit);
+        event.exec();
+
+        if (reply->error() != QNetworkReply::NoError) {
+            qDebug() << reply->errorString();
+            return;
+        }
+
+        // Parse language
+        language = reply->readAll();
         language.chop(4);
         language = language.mid(language.lastIndexOf("\"") + 1);
     }
@@ -179,8 +218,22 @@ void QOnlineTranslator::say(const QString &text, QString language)
     player->setMedia(apiUrl);
 #elif defined(Q_OS_WIN)
     // A workaround for Windows, without this, Cyrillic characters are reproduced as "?"
-    QByteArray *reply = new QByteArray(receiveReply(apiUrl));
-    QBuffer *buffer = new QBuffer(reply);
+
+    // Send request
+    QNetworkAccessManager manager;
+    QNetworkReply *reply = manager.get(QNetworkRequest(apiUrl));
+
+    // Wait for the response
+    QEventLoop event;
+    QObject::connect(reply, &QNetworkReply::finished, &event, &QEventLoop::quit);
+    event.exec();
+
+    if (reply->error() != QNetworkReply::NoError) {
+        qDebug() << reply->errorString();
+        return;
+    }
+
+    QBuffer *buffer = new QBuffer(reply->readAll());
     buffer->open(QIODevice::ReadOnly);
     player->setMedia(apiUrl, buffer);
 #endif
@@ -196,14 +249,21 @@ QString QOnlineTranslator::translateText(const QString &text, QString translatio
     // Generate short API url only for translation and and receive a reply
     QUrl apiUrl("https://translate.googleapis.com/translate_a/single");
     apiUrl.setQuery("client=gtx&sl=" + sourceLanguage +"&tl=" + translationLanguage + "&dt=t&q=" + text);
-    QByteArray reply = receiveReply(apiUrl);
 
-    // Check for network error
-    if(!reply.startsWith("["))
-        return reply;
+    // Send request
+    QNetworkAccessManager manager;
+    QNetworkReply *reply = manager.get(QNetworkRequest(apiUrl));
+
+    // Wait for the response
+    QEventLoop event;
+    QObject::connect(reply, &QNetworkReply::finished, &event, &QEventLoop::quit);
+    event.exec();
+
+    if (reply->error() != QNetworkReply::NoError)
+        return reply->errorString();
 
     // Convert to JsonArray
-    QJsonDocument jsonResponse = QJsonDocument::fromJson(reply);
+    QJsonDocument jsonResponse = QJsonDocument::fromJson(reply->readAll());
     QJsonArray jsonData = jsonResponse.array();
 
     // Parse first sentense. If the answer contains more than one sentence, then at the end of the first one there will be a space
@@ -230,21 +290,4 @@ QString QOnlineTranslator::defaultLocaleToCode()
 {
     QLocale locale;
     return locale.name().left(locale.name().indexOf("_"));
-}
-
-QByteArray QOnlineTranslator::receiveReply(const QUrl &url)
-{
-    // Send request
-    QNetworkAccessManager manager;
-    QNetworkReply *reply = manager.get(QNetworkRequest(url));
-
-    // Wait for the response
-    QEventLoop event;
-    QObject::connect(reply, &QNetworkReply::finished, &event, &QEventLoop::quit);
-    event.exec();
-
-    if (reply->error() == QNetworkReply::NoError)
-        return reply->readAll();
-    else
-        return reply->errorString().toUtf8();
 }

@@ -62,6 +62,7 @@ Then include the `qonlinetranslator.pri` file in your `.pro` project file:
 | QString                             | [**translationLanguage**()](#translation-language)                                                                                                 |
 | QString                             | [**translationTranscription**()](translation-transcription)                                                                                        |
 | QList<QPair<QString, QStringList> > | [**options**()](#options)                                                                                                                          |
+| bool                                | [**error**()](#error)                                                                                                                              |
 
 ## Static Public Functions
 
@@ -248,7 +249,7 @@ Speaks translated text from the object using [QMediaPlayer](http://doc.qt.io/qt-
 ___
 
 ### <a id='text'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::text()
-Returns the translated text.
+Returns the translated text or text with network error.
 ___
 
 ### <a id='source-language'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::sourceLanguage()
@@ -274,12 +275,16 @@ Example:
 
 ```cpp
 QOnlineTranslator translator("say", "de", "en", "en"); // Translate "say" into German form English with English names of speech types
-foreach (auto typeOfSpeech, translator.options()) {
-    qInfo() << typeOfSpeech.first + ":";  // Output type of speech with a colon
-    foreach (auto translationOptions, typeOfSpeech.second) {
-        qInfo() << translationOptions; // Output translation option of this type (each received line already contains a colon after the first word)
+if (translator.error()) // Check for network error
+    qDebug() << translator.text();
+else {
+    foreach (auto typeOfSpeech, translator.options()) {
+        qInfo() << typeOfSpeech.first + ":";  // Output type of speech with a colon
+        foreach (auto translationOptions, typeOfSpeech.second) {
+            qInfo() << translationOptions; // Output translation option of this type (each received line already contains a colon after the first word)
+        }
+        qInfo() << "\r";
     }
-    qInfo() << "\r";
 }
 
 /* Returns:
@@ -298,6 +303,10 @@ foreach (auto typeOfSpeech, translator.options()) {
 "Mitspracherecht: say"
 */
 ```
+___
+
+### <a id='error'/> bool QOnlineTranslator::error()
+Returns `true` if could not get translation or `true` if translation received. The text of the error can be obtained by [**text**()](#text)
 ___
 
 ### <a id='translate-text-static'/> static [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::translateText(*const QString &text, QString translationLanguage = "auto", QString sourceLanguage = "auto"*)

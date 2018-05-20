@@ -24,6 +24,7 @@
 #include <QString>
 #include <QPair>
 #include <QUrl>
+#include <QNetworkReply>
 
 class QOnlineTranslator
 {
@@ -48,6 +49,8 @@ public:
     { return m_translationLanguage; }
     inline QList<QPair<QString, QStringList> > options()
     { return m_options; }
+    inline bool error()
+    { return m_error; }
 
     static void say(const QString &text, QString language = "auto");
     static QString translateText(const QString &text, QString translationLanguage = "auto", QString sourceLanguage = "auto");
@@ -60,14 +63,13 @@ public:
     static const QStringList LANGUAGE_SHORT_CODES;
 
 private:
-    static QByteArray receiveReply(const QUrl &url);
-
     QString m_text;
     QString m_sourceLanguage;
     QString m_sourceTranscription;
     QString m_translationTranscription;
     QString m_translationLanguage;
     QList<QPair<QString, QStringList> > m_options;
+    bool m_error = false;
 };
 
 #endif // QONLINETRANSLATOR_H
