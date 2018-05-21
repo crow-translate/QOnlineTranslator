@@ -63,6 +63,8 @@ public:
     static const QStringList LANGUAGE_SHORT_CODES;
 
 private:
+    static int getSplitIndex(const QString &untranslatedText);
+
     QString m_text;
     QString m_sourceLanguage;
     QString m_sourceTranscription;

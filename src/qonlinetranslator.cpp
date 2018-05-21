@@ -99,87 +99,142 @@ void QOnlineTranslator::translate(const QString &text, const QString &translatio
     else
         autocorrection = "qc";
 
-    // Generate API url and receive a reply
-    QUrl apiUrl("https://translate.googleapis.com/translate_a/single");
-    apiUrl.setQuery("client=gtx&ie=UTF-8&oe=UTF-8&dt=bd&dt=ex&dt=ld&dt=md&dt=rw&dt=rm&dt=ss&dt=t&dt=at&dt=" + autocorrection +"&sl=" + sourceLanguage + "&tl=" +
-                    translationLanguage + "&hl=" + translatorLanguage + "&q=" + QUrl::toPercentEncoding(text));
-
-    // Send request
-    QNetworkAccessManager manager;
-    QNetworkReply *reply = manager.get(QNetworkRequest(apiUrl));
-
-    // Wait for the response
-    QEventLoop event;
-    QObject::connect(reply, &QNetworkReply::finished, &event, &QEventLoop::quit);
-    event.exec();
-
-    // Check for network error
-    if (reply->error() != QNetworkReply::NoError) {
-        m_error = true;
-        m_text = reply->errorString();
-        return;
-    }
-
-    // Convert to JsonArray
-    QJsonDocument jsonResponse = QJsonDocument::fromJson(reply->readAll());
-    QJsonArray jsonData = jsonResponse.array();
-
-    // Parse first sentense. If the answer contains more than one sentence, then at the end of the first one there will be a space
-    m_text = jsonData.at(0).toArray().at(0).toArray().at(0).toString();
-    for (int i = 1; m_text.endsWith(" ") || m_text.endsWith("\n") || m_text.endsWith("\u00a0"); i++)
-        m_text.append(jsonData.at(0).toArray().at(i).toArray().at(0).toString());
-
-    m_translationTranscription = jsonData.at(0).toArray().last().toArray().at(2).toString();
-    m_sourceTranscription = jsonData.at(0).toArray().last().toArray().at(3).toString().replace(",", ", ");
-
-    // Translation options
+    // Reset old data
+    m_text.clear();
+    m_translationTranscription.clear();
+    m_sourceTranscription.clear();
+    m_sourceLanguage.clear();
     m_options.clear();
-    foreach (QJsonValue typeOfSpeach, jsonData.at(1).toArray()) {
-        m_options.append(QPair<QString, QStringList>());
-        m_options.last().first = typeOfSpeach.toArray().at(0).toString();
-        foreach (QJsonValue translationOption, typeOfSpeach.toArray().at(2).toArray()) {
-             m_options.last().second.append(translationOption.toArray().at(0).toString() + ": ");
-             // Add the first word without ",", and then add the remaining words
-             m_options.last().second.last().append(translationOption.toArray().at(1).toArray().at(0).toString());
-             for (int i = 1; i < translationOption.toArray().at(1).toArray().size(); i++)
-                 m_options.last().second.last().append(", " + translationOption.toArray().at(1).toArray().at(i).toString());
+    m_error = false;
+
+    // Google has a limit of up to 5000 characters per request. If the query is larger, then it should be splited into several
+    QString untranslatedText = text;
+    while (!untranslatedText.isEmpty()) {
+        int splitIndex = getSplitIndex(untranslatedText); // Split the part by special symbol
+        if (splitIndex == -1) {
+            // Do not translate the part if it looks like garbage
+            m_text.append(untranslatedText.left(5000));
+            untranslatedText = untranslatedText.mid(5000);
+            continue;
+        }
+
+        // Generate API url
+        QUrl apiUrl("https://translate.googleapis.com/translate_a/single");
+        apiUrl.setQuery("client=gtx&ie=UTF-8&oe=UTF-8&dt=bd&dt=ex&dt=ld&dt=md&dt=rw&dt=rm&dt=ss&dt=t&dt=at&dt=" + autocorrection +"&sl=" + sourceLanguage + "&tl=" +
+                        translationLanguage + "&hl=" + translatorLanguage + "&q=" + QUrl::toPercentEncoding(untranslatedText.left(splitIndex)));
+
+        // Send request
+        QNetworkAccessManager manager;
+        QNetworkReply *reply = manager.get(QNetworkRequest(apiUrl));
+
+        // Wait for the response
+        QEventLoop event;
+        QObject::connect(reply, &QNetworkReply::finished, &event, &QEventLoop::quit);
+        event.exec();
+
+        // Check for network error
+        if (reply->error() != QNetworkReply::NoError) {
+            m_error = true;
+            m_text = reply->errorString();
+            return;
+        }
+
+        // Convert to JsonArray
+        QJsonDocument jsonResponse = QJsonDocument::fromJson(reply->readAll());
+        QJsonArray jsonData = jsonResponse.array();
+
+        // Parse first sentense. If the answer contains more than one sentence, then at the end of the first one there will be a space
+        m_text.append(jsonData.at(0).toArray().at(0).toArray().at(0).toString());
+        for (int i = 1; m_text.endsWith(" ") || m_text.endsWith("\n") || m_text.endsWith("\u00a0"); i++)
+            m_text.append(jsonData.at(0).toArray().at(i).toArray().at(0).toString());
+
+        // Parse transcriptions and source language
+        m_translationTranscription.append(jsonData.at(0).toArray().last().toArray().at(2).toString());
+        m_sourceTranscription.append(jsonData.at(0).toArray().last().toArray().at(3).toString());
+        if (m_sourceLanguage.isEmpty())
+            m_sourceLanguage = jsonData.at(2).toString();
+
+        // Remove the parsed part from the next parsing
+        untranslatedText = untranslatedText.mid(splitIndex);
+
+        // Add a space between parts
+        if (!untranslatedText.isEmpty() && !m_text.endsWith("\n")) {
+            m_text.append(" ");
+            m_translationTranscription.append(" ");
+            m_sourceTranscription.append(" ");
+        }
+
+        // Translation options
+        if (text.size() < 5000) {
+            foreach (QJsonValue typeOfSpeach, jsonData.at(1).toArray()) {
+                m_options.append(QPair<QString, QStringList>());
+                m_options.last().first = typeOfSpeach.toArray().at(0).toString();
+                foreach (QJsonValue translationOption, typeOfSpeach.toArray().at(2).toArray()) {
+                    m_options.last().second.append(translationOption.toArray().at(0).toString() + ": ");
+                    // Add the first word without ",", and then add the remaining words
+                    m_options.last().second.last().append(translationOption.toArray().at(1).toArray().at(0).toString());
+                    for (int i = 1; i < translationOption.toArray().at(1).toArray().size(); i++)
+                        m_options.last().second.last().append(", " + translationOption.toArray().at(1).toArray().at(i).toString());
+                }
+            }
         }
     }
-
-    m_sourceLanguage = jsonData.at(2).toString();
 }
 
 void QOnlineTranslator::say()
 {
-    // Generate API url for tts
-    QUrl apiUrl("http://translate.googleapis.com/translate_tts");
-    apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + m_translationLanguage +"&q=" + QUrl::toPercentEncoding(m_text));
-
     QMediaPlayer *player = new QMediaPlayer;
-#if defined(Q_OS_LINUX)
-    player->setMedia(apiUrl);
-#elif defined(Q_OS_WIN)
-    // A workaround for Windows, without this, Cyrillic characters are reproduced as "?
+    QObject::connect(player, qOverload<QMediaPlayer::Error>(&QMediaPlayer::error), [&](QMediaPlayer::Error error) {
+        if (error != QMediaPlayer::NoError)
+            qDebug() << player->errorString();
+            return;
+    });
 
-    // Send request
-    QNetworkAccessManager manager;
-    QNetworkReply *reply = manager.get(QNetworkRequest(apiUrl));
+    QEventLoop waitUntilPlayedLoop;
+    QObject::connect(player, &QMediaPlayer::stateChanged, [&](QMediaPlayer::State state) {
+        if (state == QMediaPlayer::StoppedState)
+            waitUntilPlayedLoop.quit();
+    });
 
-    // Wait for the response
-    QEventLoop event;
-    QObject::connect(reply, &QNetworkReply::finished, &event, &QEventLoop::quit);
-    event.exec();
+    // Google has a limit of up to 5000 characters per request. If the query is larger, then it should be splited into several
+    QString unsaidText = m_text;
+    while (!unsaidText.isEmpty()) {
+        int splitIndex = getSplitIndex(unsaidText); // Split the part by special symbol
 
-    if (reply->error() != QNetworkReply::NoError) {
-        qDebug() << reply->errorString();
-        return;
+        // Generate URL API for tts
+        QUrl apiUrl("http://translate.googleapis.com/translate_tts");
+        apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + m_translationLanguage +"&q=" + QUrl::toPercentEncoding(unsaidText.left(splitIndex)));
+
+    #if defined(Q_OS_LINUX)
+        player->setMedia(apiUrl);
+    #elif defined(Q_OS_WIN)
+        // A workaround for Windows, without this, Cyrillic characters are reproduced as "?
+
+        // Send request
+        QNetworkAccessManager manager;
+        QNetworkReply *reply = manager.get(QNetworkRequest(apiUrl));
+
+        // Wait for the response
+        QEventLoop event;
+        QObject::connect(reply, &QNetworkReply::finished, &event, &QEventLoop::quit);
+        event.exec();
+
+        if (reply->error() != QNetworkReply::NoError) {
+            qDebug() << reply->errorString();
+            return;
+        }
+
+        QBuffer *buffer = new QBuffer(reply->readAll());
+        buffer->open(QIODevice::ReadOnly);
+        player->setMedia(apiUrl, buffer);
+    #endif
+        player->play();
+        waitUntilPlayedLoop.exec();
+
+        // Remove the said part from the next saying
+        unsaidText = unsaidText.mid(splitIndex);
     }
-
-    QBuffer *buffer = new QBuffer(reply->readAll());
-    buffer->open(QIODevice::ReadOnly);
-    player->setMedia(apiUrl, buffer);
-#endif
-    player->play();
+    delete player;
 }
 
 void QOnlineTranslator::say(const QString &text, QString language)
@@ -187,7 +242,7 @@ void QOnlineTranslator::say(const QString &text, QString language)
     // Google don't support "auto" as argument for text-to-speech, so need to detect language manually from translation request
     if (language == "auto") {
         QUrl languageUrl("https://translate.googleapis.com/translate_a/single");
-        languageUrl.setQuery("client=gtx&sl=auto&tl=en&dt=t&q=" + QUrl::toPercentEncoding(text));
+        languageUrl.setQuery("client=gtx&sl=auto&tl=en&dt=t&q=" + QUrl::toPercentEncoding(text.left(getSplitIndex(text))));
 
         // Send request
         QNetworkAccessManager manager;
@@ -209,35 +264,58 @@ void QOnlineTranslator::say(const QString &text, QString language)
         language = language.mid(language.lastIndexOf("\"") + 1);
     }
 
-    // Generate API url for tts
-    QUrl apiUrl("http://translate.googleapis.com/translate_tts");
-    apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + language +"&q=" + QUrl::toPercentEncoding(text));
-
     QMediaPlayer *player = new QMediaPlayer;
+    QObject::connect(player, qOverload<QMediaPlayer::Error>(&QMediaPlayer::error), [&](QMediaPlayer::Error error) {
+        if (error != QMediaPlayer::NoError)
+            qDebug() << player->errorString();
+            return;
+    });
+
+    QEventLoop waitUntilPlayedLoop;
+    QObject::connect(player, &QMediaPlayer::stateChanged, [&](QMediaPlayer::State state) {
+        if (state == QMediaPlayer::StoppedState)
+            waitUntilPlayedLoop.quit();
+    });
+
+    // Google has a limit of up to 5000 characters per request. If the query is larger, then it should be splited into several
+    QString unsaidText = text;
+    while (!unsaidText.isEmpty()) {
+        int splitIndex = getSplitIndex(unsaidText); // Split the part by special symbol
+
+        // Generate URL API for tts
+        QUrl apiUrl("http://translate.googleapis.com/translate_tts");
+        apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + language +"&q=" + QUrl::toPercentEncoding(unsaidText.left(splitIndex)));
+
 #if defined(Q_OS_LINUX)
-    player->setMedia(apiUrl);
+        player->setMedia(apiUrl);
 #elif defined(Q_OS_WIN)
-    // A workaround for Windows, without this, Cyrillic characters are reproduced as "?"
+        // A workaround for Windows, without this, Cyrillic characters are reproduced as "?"
 
-    // Send request
-    QNetworkAccessManager manager;
-    QNetworkReply *reply = manager.get(QNetworkRequest(apiUrl));
+        // Send request
+        QNetworkAccessManager manager;
+        QNetworkReply *reply = manager.get(QNetworkRequest(apiUrl));
 
-    // Wait for the response
-    QEventLoop event;
-    QObject::connect(reply, &QNetworkReply::finished, &event, &QEventLoop::quit);
-    event.exec();
+        // Wait for the response
+        QEventLoop event;
+        QObject::connect(reply, &QNetworkReply::finished, &event, &QEventLoop::quit);
+        event.exec();
 
-    if (reply->error() != QNetworkReply::NoError) {
-        qDebug() << reply->errorString();
-        return;
-    }
+        if (reply->error() != QNetworkReply::NoError) {
+            qDebug() << reply->errorString();
+            return;
+        }
 
-    QBuffer *buffer = new QBuffer(reply->readAll());
-    buffer->open(QIODevice::ReadOnly);
-    player->setMedia(apiUrl, buffer);
+        QBuffer *buffer = new QBuffer(reply->readAll());
+        buffer->open(QIODevice::ReadOnly);
+        player->setMedia(apiUrl, buffer);
 #endif
-    player->play();
+        player->play();
+        waitUntilPlayedLoop.exec();
+
+        // Remove the said part from the next saying
+        unsaidText = unsaidText.mid(splitIndex);
+    }
+    delete player;
 }
 
 QString QOnlineTranslator::translateText(const QString &text, QString translationLanguage, QString sourceLanguage)
@@ -246,30 +324,52 @@ QString QOnlineTranslator::translateText(const QString &text, QString translatio
     if (translationLanguage == "auto")
         translationLanguage = defaultLocaleToCode();
 
-    // Generate short API url only for translation and and receive a reply
-    QUrl apiUrl("https://translate.googleapis.com/translate_a/single");
-    apiUrl.setQuery("client=gtx&sl=" + sourceLanguage +"&tl=" + translationLanguage + "&dt=t&q=" + QUrl::toPercentEncoding(text));
+    QString untranslatedText = text;
+    QString translatedText;
 
-    // Send request
-    QNetworkAccessManager manager;
-    QNetworkReply *reply = manager.get(QNetworkRequest(apiUrl));
+    // Google has a limit of up to 5000 characters per request. If the query is larger, then it should be splited into several
+    while (!untranslatedText.isEmpty()) {
+        int splitIndex = getSplitIndex(untranslatedText); // Split part by special symbols
+        if (splitIndex == -1) {
+            // Do not translate the part if it looks like garbage
+            translatedText.append(untranslatedText.left(5000));
+            untranslatedText = untranslatedText.mid(5000);
+            continue;
+        }
 
-    // Wait for the response
-    QEventLoop event;
-    QObject::connect(reply, &QNetworkReply::finished, &event, &QEventLoop::quit);
-    event.exec();
+        // Generate short URL API only for translation and and receive a reply
+        QUrl apiUrl("https://translate.googleapis.com/translate_a/single");
+        apiUrl.setQuery("client=gtx&sl=" + sourceLanguage +"&tl=" + translationLanguage + "&dt=t&q=" + QUrl::toPercentEncoding(untranslatedText.left(splitIndex)));
 
-    if (reply->error() != QNetworkReply::NoError)
-        return reply->errorString();
+        // Send request
+        QNetworkAccessManager manager;
+        QNetworkReply *reply = manager.get(QNetworkRequest(apiUrl));
 
-    // Convert to JsonArray
-    QJsonDocument jsonResponse = QJsonDocument::fromJson(reply->readAll());
-    QJsonArray jsonData = jsonResponse.array();
+        // Wait for the response
+        QEventLoop event;
+        QObject::connect(reply, &QNetworkReply::finished, &event, &QEventLoop::quit);
+        event.exec();
 
-    // Parse first sentense. If the answer contains more than one sentence, then at the end of the first one there will be a space
-    QString translatedText = jsonData.at(0).toArray().at(0).toArray().at(0).toString();
-    for (int i = 1; translatedText.endsWith(" ") || translatedText.endsWith("\n"); i++)
-        translatedText.append(jsonData.at(0).toArray().at(i).toArray().at(0).toString());
+        // Check for network error
+        if (reply->error() != QNetworkReply::NoError)
+            return reply->errorString();
+
+        // Convert to JsonArray
+        QJsonDocument jsonResponse = QJsonDocument::fromJson(reply->readAll());
+        QJsonArray jsonData = jsonResponse.array();
+
+        // Parse first sentense. If the answer contains more than one sentence, then at the end of the first one there will be a space
+        translatedText.append(jsonData.at(0).toArray().at(0).toArray().at(0).toString());
+        for (int i = 1; translatedText.endsWith(" ") || translatedText.endsWith("\n") || translatedText.endsWith("\u00a0"); i++)
+            translatedText.append(jsonData.at(0).toArray().at(i).toArray().at(0).toString());
+
+        // Remove the parsed part from the next parsing
+        untranslatedText = untranslatedText.mid(splitIndex);
+
+        // Add a space between parts
+        if (!untranslatedText.isEmpty() && !translatedText.endsWith("\n"))
+            translatedText.append(" ");
+    }
 
     return translatedText;
 }
@@ -290,4 +390,30 @@ QString QOnlineTranslator::defaultLocaleToCode()
 {
     QLocale locale;
     return locale.name().left(locale.name().indexOf("_"));
+}
+
+// Split the first part of the 5000 characters by last special symbol
+int QOnlineTranslator::getSplitIndex(const QString &untranslatedText)
+{
+    if (untranslatedText.size() < 5000)
+        return 5000;
+
+    int splitIndex = untranslatedText.lastIndexOf(". ", 4999);
+    if (splitIndex != -1)
+        return splitIndex + 1;
+
+    splitIndex = untranslatedText.lastIndexOf(" ", 4999);
+    if (splitIndex != -1)
+        return splitIndex + 1;
+
+    splitIndex = untranslatedText.lastIndexOf("\n", 4999);
+    if (splitIndex != -1)
+        return splitIndex + 1;
+
+    // Non-breaking gap
+    splitIndex = untranslatedText.lastIndexOf("\u00a0", 4999);
+    if (splitIndex != -1)
+        return splitIndex + 1;
+    else
+        return 5000;
 }
