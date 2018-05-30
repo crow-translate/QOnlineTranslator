@@ -55,10 +55,12 @@ Then include the `qonlinetranslator.pri` file in your `.pro` project file:
 |                                     | [**QOnlineTranslator**()](#c1)                                                                                                                     |
 |                                     | [**QOnlineTranslator**(const QString &text, QString &translationLanguage = "auto", QString &sourceLanguage = "auto", QString &translatorLanguage = "auto", bool &autoCorrect = false)](#c2) |
 | void                                | [**translate**(const QString &text, QString &translationLanguage = "auto", QString &sourceLanguage = "auto", QString &translatorLanguage = "auto", bool &autoCorrect = false)](#translate) |
-| void                                | [**say**()](#say)                                                                                                                                  |
-| QString                             | [**text**()](#text)                                                                                                                                |
+| QList<QMediaContent>                | [**sourceMedia**()](#source-media)                                                                                                                 |
+| QList<QMediaContent>                | [**translationMedia**()](#translation-media)                                                                                                       |
+| QString                             | [**source**()](#source)                                                                                                                            |
 | QString                             | [**sourceLanguage**()](#source-language)                                                                                                           |
 | QString                             | [**sourceTranscription**()](#source-transcription)                                                                                                 |
+| QString                             | [**translation**()](#translation)                                                                                                                  |
 | QString                             | [**translationLanguage**()](#translation-language)                                                                                                 |
 | QString                             | [**translationTranscription**()](translation-transcription)                                                                                        |
 | QList<QPair<QString, QStringList> > | [**options**()](#options)                                                                                                                          |
@@ -69,10 +71,9 @@ Then include the `qonlinetranslator.pri` file in your `.pro` project file:
 | Return type | Function                                                                                                                                |
 |------------:|:----------------------------------------------------------------------------------------------------------------------------------------|
 | QString     | [**translateText**(const QString &text, QString translationLanguage = "auto", QString sourceLanguage = "auto")](#translate-text-static) |
-| void        | [**say**(const QString &text, QString language = "auto")](#say-static)                                                                  |
 | QString     | [**codeToLanguage**(const QString &code)](#code-to-language-static)                                                                     |
 | QString     | [**languageToCode**(const QString &language)](#language-to-code-static)                                                                 |
-| QString     | [**defaultLocaleToCode**()](#default-locale-to-code-static)                                                                                             |
+| QString     | [**defaultLocaleToCode**()](#default-locale-to-code-static)                                                                             |
 
 ## Detailed Description
 
@@ -83,13 +84,10 @@ Example:
 QCoreApplication a(argc, argv); // Always need to create app instance for QEventLoop
 ...
 QOnlineTranslator onlineTranslator("hello");
-qInfo() << onlineTranslator.text // Returns "hello" translated to the language of your system
+qInfo() << onlineTranslator.text; // Returns "hello" translated to the language of your system
 
-onlineTranslator.translate("Hello world!", "de"); // Returns "Hello world!" translated into German
-onlineTranslator.say(); // Speaks "Hello world!" in German
-
-QString testString = "Microsoft must die"
-QOnlineTranslator::say(testString) // Autodetects language of testString and says this string
+onlineTranslator.translate("Hello world!", "de");
+qInfo() << onlineTranslator.text; // Returns "Hello world!" translated into German
 ```
 
 For real example of usage you can look into my other project: [Crow Translate](https://github.com/Shatur95/CrowTranslate "A simple and lightweight translator that allows to translate and say the selected text using the Google Translate API").
@@ -244,12 +242,32 @@ ___
 Parse *text* and translate into language of *translationLanguage* code from language of *sourceLanguage* code with hints on language of *translatorLanguage* code and send data into object fields. Also Google try automatically correct grammatical errors and typos of *text* if *autoCorrect* is set to **true**. For languages see the column **LANGUAGE_SHORT_CODES** in the table [above](#languages-table).
 ___
 
-### <a id='say'/> void QOnlineTranslator::say()
-Speaks translated text from the object using [QMediaPlayer](http://doc.qt.io/qt-5/qmediaplayer.html "Qt Documentation").
+### <a id='source-media'/> [QList](https://doc.qt.io/qt-5/qlist.html "Qt Documentation")<[QMediaContent](https://doc.qt.io/qt-5/qmediacontent.html "Qt Documentation")> QOnlineTranslator::sourceMedia()
+Splits the source text into parts (if required) and returns list with the generated API URLs to play this text. Google has a limit of up to 5000 characters per request. If the query is larger, then it will be splitted into several.
+
+Example:
+```cpp
+QOnlineTranslator translator("Hello world!");
+
+QMediaPlayer *player = new QMediaPlayer(this);
+QMediaPlaylist *playlist = new QMediaPlaylist(player);
+
+playlist->addMedia(translator.sourceMedia());
+player->setPlaylist(playlist);
+
+
+player->play(); // Plays "Hello World!"
+
+```
 ___
 
-### <a id='text'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::text()
-Returns the translated text or text with network error.
+### <a id='translation-media'/> [QList](https://doc.qt.io/qt-5/qlist.html "Qt Documentation")<[QMediaContent](https://doc.qt.io/qt-5/qmediacontent.html "Qt Documentation")> QOnlineTranslator::translationMedia()
+Splits the translation into parts (if required) and returns list with the generated API URLs to play this text.
+Google has a limit of up to 5000 characters per request. If the query is larger, then it will be splitted into several.
+___
+
+### <a id='source'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::source()
+Returns the source text.
 ___
 
 ### <a id='source-language'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::sourceLanguage()
@@ -258,6 +276,10 @@ ___
 
 ### <a id='source-transcription'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::sourceTranscription()
 Returns the transcription of the source text. Google sends source transcription only if the source text is one word, otherwise function returns empty string.
+___
+
+### <a id='translation'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::translation()
+Returns the translated text or text with network error.
 ___
 
 ### <a id='translation-language'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::translationLanguage()
@@ -313,16 +335,13 @@ ___
 Returns the translated text from language of *sourceLanguage* code to language of *translationLanguage* code from the source *text*. For languages see the column **LANGUAGE_SHORT_CODES** in the table [above](#languages-table).
 ___
 
-### <a id='say-static'/> static void QOnlineTranslator::say(*const QString &text, QString language = "auto"*)
-Speaks *text* in the language of *language* code using [QMediaPlayer](http://doc.qt.io/qt-5/qmediaplayer.html "Qt Documentation"). Works faster if the language of *text* is specified. For languages see the column **LANGUAGE_SHORT_CODES** in the table [above](#languages-table).
-___
-
 ### <a id='code-to-language-static'/> static [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::codeToLanguage(*const QString &code*)
 Returns a [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") containing the language of *code*.
 ___
 
 ### <a id='language-to-code-static'/> static [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::languageToCode(*const QString &language*)
 Returns a [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") containing the code of *language*.
+___
 
 ### <a id='default-locale-to-code-static'/> static [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::defaultLocaleToCode()
 Returns a [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") containing the code of the default [QLocale](https://doc.qt.io/qt-5/qlocale.html "Qt Documentation") language.

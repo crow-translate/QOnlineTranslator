@@ -25,6 +25,7 @@
 #include <QPair>
 #include <QUrl>
 #include <QNetworkReply>
+#include <QMediaPlaylist>
 
 class QOnlineTranslator
 {
@@ -34,26 +35,31 @@ public:
     inline QOnlineTranslator(const QString &text, const QString &translationLanguage = "auto", const QString &sourceLanguage = "auto", const QString &translatorLanguage = "auto", const bool &autoCorrect = false)
     { translate(text, translationLanguage, sourceLanguage, translatorLanguage, autoCorrect); }
 
-    void translate(const QString &text, const QString &translationLanguage = "auto", const QString &sourceLanguage = "auto", const QString &translatorLanguage = "auto", const bool &autoCorrect = false);
-    void say();
+    void translate(const QString &translation, const QString &translationLanguage = "auto", const QString &sourceLanguage = "auto", const QString &translatorLanguage = "auto", const bool &autoCorrect = false);
 
-    inline QString text()
-    { return m_text; }
+    QList<QMediaContent> sourceMedia();
+    QList<QMediaContent> translationMedia();
+
+    inline QString source()
+    { return m_source; }
     inline QString sourceLanguage()
     { return m_sourceLanguage; }
     inline QString sourceTranscription()
     { return m_sourceTranscription; }
+
+    inline QString translation()
+    { return m_translation; }
     inline QString translationTranscription()
     { return m_translationTranscription; }
     inline QString translationLanguage()
     { return m_translationLanguage; }
     inline QList<QPair<QString, QStringList> > options()
     { return m_options; }
+
     inline bool error()
     { return m_error; }
 
-    static void say(const QString &text, QString language = "auto");
-    static QString translateText(const QString &text, QString translationLanguage = "auto", QString sourceLanguage = "auto");
+    static QString translateText(const QString &translation, QString translationLanguage = "auto", QString sourceLanguage = "auto");
     static QString codeToLanguage(const QString &code);
     static QString languageToCode(const QString &language);
     static QString defaultLocaleToCode();
@@ -65,12 +71,15 @@ public:
 private:
     static int getSplitIndex(const QString &untranslatedText);
 
-    QString m_text;
+    QString m_source;
     QString m_sourceLanguage;
     QString m_sourceTranscription;
+
+    QString m_translation;
     QString m_translationTranscription;
     QString m_translationLanguage;
     QList<QPair<QString, QStringList> > m_options;
+
     bool m_error = false;
 };
 
