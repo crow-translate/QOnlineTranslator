@@ -52,8 +52,8 @@ const QStringList QOnlineTranslator::LANGUAGE_NAMES = { QT_TR_NOOP("Automaticall
                                                         QT_TR_NOOP("Querétaro Otomi"), QT_TR_NOOP("Punjabi"), QT_TR_NOOP("Polish"), QT_TR_NOOP("Pashto"),
                                                         QT_TR_NOOP("Portuguese"), QT_TR_NOOP("Romanian"), QT_TR_NOOP("Russian"), QT_TR_NOOP("Sindhi"),
                                                         QT_TR_NOOP("Sinhala"), QT_TR_NOOP("Slovak"), QT_TR_NOOP("Slovenian"), QT_TR_NOOP("Samoan"),
-                                                        QT_TR_NOOP("Shona"), QT_TR_NOOP("Somali"), QT_TR_NOOP("Albanian"), QT_TR_NOOP("Serbian (Cyrillic)"),
-                                                        QT_TR_NOOP("Serbian (Latin)"), QT_TR_NOOP("Sesotho"), QT_TR_NOOP("Sundanese"), QT_TR_NOOP("Swedish"),
+                                                        QT_TR_NOOP("Shona"), QT_TR_NOOP("Somali"), QT_TR_NOOP("Albanian"), QT_TR_NOOP("Serbian"),
+                                                        QT_TR_NOOP("Sesotho"), QT_TR_NOOP("Sundanese"), QT_TR_NOOP("Swedish"),
                                                         QT_TR_NOOP("Swahili"), QT_TR_NOOP("Tamil"), QT_TR_NOOP("Telugu"), QT_TR_NOOP("Tajik"),
                                                         QT_TR_NOOP("Thai"), QT_TR_NOOP("Filipino"), QT_TR_NOOP("Klingon"), QT_TR_NOOP("Klingon (pIqaD)"),
                                                         QT_TR_NOOP("Tongan"), QT_TR_NOOP("Turkish"), QT_TR_NOOP("Tatar"), QT_TR_NOOP("Tahitian"),
@@ -80,7 +80,7 @@ const QStringList QOnlineTranslator::LANGUAGE_SHORT_CODES = { "auto", "af", "am"
                                                               "et", "eu", "fa", "fi", "fj", "fr", "fy", "ga", "gd", "gl", "gu", "ha", "haw", "he", "hi", "hmn", "hr", "ht", "hu",
                                                               "hy", "id", "ig", "is", "it", "ja", "jv", "ka", "kk", "km", "kn", "ko", "ku", "ky", "la", "lb", "lo", "lt", "lv",
                                                               "mg", "mi", "mk", "ml", "mn", "mr", "ms", "mt", "mww", "my", "ne", "nl", "no", "ny", "otq", "pa", "pl", "ps", "pt",
-                                                              "ro", "ru", "sd", "si", "sk", "sl", "sm", "sn", "so", "sq", "sr-cyrl", "sr-latn", "st", "su", "sv", "sw", "ta",
+                                                              "ro", "ru", "sd", "si", "sk", "sl", "sm", "sn", "so", "sq", "sr", "st", "su", "sv", "sw", "ta",
                                                               "te", "tg", "th", "tl", "tlh", "tlh-qaak", "to", "tr", "tt", "ty", "udm", "uk", "ur", "uz", "vi", "xh", "yi", "yo",
                                                               "yua", "yue", "zh-cn", "zh-tw", "zu" };
 
