@@ -63,6 +63,7 @@ public:
     static QString codeToLanguage(const QString &code);
     static QString languageToCode(const QString &language);
     static QString defaultLocaleToCode();
+    static QList<QMediaContent> media(const QString &text, QString language = "auto");
 
     static const QStringList LANGUAGE_NAMES;
     static const QStringList LANGUAGE_LONG_CODES;

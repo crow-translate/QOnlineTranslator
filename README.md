@@ -74,6 +74,7 @@ Then include the `qonlinetranslator.pri` file in your `.pro` project file:
 | QString     | [**codeToLanguage**(const QString &code)](#code-to-language-static)                                                                     |
 | QString     | [**languageToCode**(const QString &language)](#language-to-code-static)                                                                 |
 | QString     | [**defaultLocaleToCode**()](#default-locale-to-code-static)                                                                             |
+| QString     | [**media**(const QString &text, QString language = "auto")](#media)                                                                     |
 
 ## Detailed Description
 
@@ -345,3 +346,21 @@ ___
 
 ### <a id='default-locale-to-code-static'/> static [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::defaultLocaleToCode()
 Returns a [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") containing the code of the default [QLocale](https://doc.qt.io/qt-5/qlocale.html "Qt Documentation") language.
+___
+
+### <a id='media-static'/> [QList](https://doc.qt.io/qt-5/qlist.html "Qt Documentation")<[QMediaContent](https://doc.qt.io/qt-5/qmediacontent.html "Qt Documentation")> QOnlineTranslator::media(const QString &text, QString language = "auto")
+Splits the *text* into parts (if required) and returns list with the generated API URLs with the language of *code* to play this text.
+Google has a limit of up to 5000 characters per request. If the query is larger, then it will be splitted into several.
+
+Example:
+```cpp
+QMediaPlayer *player = new QMediaPlayer(this);
+QMediaPlaylist *playlist = new QMediaPlaylist(player);
+
+playlist->addMedia(QOnlineTranslator::media("Hello World!"));
+player->setPlaylist(playlist);
+
+
+player->play(); // Plays "Hello World!"
+
+```

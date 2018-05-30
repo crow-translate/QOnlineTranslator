@@ -297,6 +297,51 @@ QString QOnlineTranslator::defaultLocaleToCode()
     return locale.name().left(locale.name().indexOf("_"));
 }
 
+QList<QMediaContent> QOnlineTranslator::media(const QString &text, QString language)
+{
+    QList<QMediaContent> mediaList;
+
+    // Google don't support "auto" as argument for text-to-speech, so need to detect language manually from translation request
+    if (language == "auto") {
+        QUrl languageUrl("https://translate.googleapis.com/translate_a/single");
+        languageUrl.setQuery("client=gtx&sl=auto&tl=en&dt=t&q=" + QUrl::toPercentEncoding(text.left(getSplitIndex(text))));
+
+        // Send request
+        QNetworkAccessManager manager;
+        QNetworkReply *reply = manager.get(QNetworkRequest(languageUrl));
+
+        // Wait for the response
+        QEventLoop event;
+        QObject::connect(reply, &QNetworkReply::finished, &event, &QEventLoop::quit);
+        event.exec();
+
+        if (reply->error() != QNetworkReply::NoError) {
+            qDebug() << reply->errorString();
+            return mediaList;
+        }
+
+        // Parse language
+        language = reply->readAll();
+        language.chop(4);
+        language = language.mid(language.lastIndexOf("\"") + 1);
+    }
+
+    // Google has a limit of up to 5000 characters per request. If the query is larger, then it should be splited into several
+    QString unparsedText = text;
+    while (!unparsedText.isEmpty()) {
+        int splitIndex = getSplitIndex(unparsedText); // Split the part by special symbol
+
+        // Generate URL API for add it to the playlist
+        QUrl apiUrl("http://translate.googleapis.com/translate_tts");
+        apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + language +"&q=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)));
+        mediaList.append(apiUrl);
+
+        // Remove the said part from the next saying
+        unparsedText = unparsedText.mid(splitIndex);
+    }
+    return mediaList;
+}
+
 // Split the first part of the 5000 characters by last special symbol
 int QOnlineTranslator::getSplitIndex(const QString &untranslatedText)
 {
