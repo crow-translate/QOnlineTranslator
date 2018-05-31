@@ -62,21 +62,7 @@ const QStringList QOnlineTranslator::LANGUAGE_NAMES = { QT_TR_NOOP("Automaticall
                                                         QT_TR_NOOP("Yucatec Maya"), QT_TR_NOOP("Cantonese"), QT_TR_NOOP("Chinese Simplified"), QT_TR_NOOP("Chinese Traditional"),
                                                         QT_TR_NOOP("Zulu") };
 
-const QStringList QOnlineTranslator::LANGUAGE_LONG_CODES = { "automatic", "afrikaans", "amharic", "arabic", "azerbaijani", "belarusian", "bulgarian", "bengali", "bosnian", "catalan",
-                                                             "cebuano", "corsican", "czech", "welsh", "danish", "german", "greek", "english", "esperanto", "spanish",
-                                                             "estonian", "basque", "persian", "finnish", "fijian", "french", "frisian", "irish", "scots-gaelic", "galician",
-                                                             "gujarati", "hausa", "hawaiian", "hebrew", "hindi", "hmong", "croatian", "haitian-creole", "hungarian",
-                                                             "armenian", "indonesian", "igbo", "icelandic", "italian", "japanese", "javanese", "georgian", "kazakh",
-                                                             "khmer", "kannada", "korean", "kurdish", "kyrgyz", "latin", "luxembourgish", "lao", "lithuanian", "latvian",
-                                                             "malagasy", "maori", "macedonian", "malayalam", "mongolian", "marathi", "malay", "maltese", "hmong-daw",
-                                                             "myanmar", "nepali", "dutch", "norwegian", "chichewa", "querétaro-otomi", "punjabi", "polish", "pashto",
-                                                             "portuguese", "romanian", "russian", "sindhi", "sinhala", "slovak", "slovenian", "samoan", "shona", "somali",
-                                                             "albanian", "serbian-cyrillic", "serbian-latin", "sesotho", "sundanese", "swedish", "swahili", "tamil",
-                                                             "telugu", "tajik", "thai", "filipino", "klingon", "klingon-piqad", "tongan", "turkish", "tatar", "tahitian",
-                                                             "udmurt", "ukrainian", "urdu", "uzbek", "vietnamese", "xhosa", "yiddish", "yoruba", "yucatec-maya",
-                                                             "cantonese", "chinese-simplified", "chinese-traditional", "zulu" };
-
-const QStringList QOnlineTranslator::LANGUAGE_SHORT_CODES = { "auto", "af", "am", "ar", "az", "be", "bg", "bn", "bs", "ca", "ceb", "co", "cs", "cy", "da", "de", "el", "en", "eo", "es",
+const QStringList QOnlineTranslator::LANGUAGE_CODES = { "auto", "af", "am", "ar", "az", "be", "bg", "bn", "bs", "ca", "ceb", "co", "cs", "cy", "da", "de", "el", "en", "eo", "es",
                                                               "et", "eu", "fa", "fi", "fj", "fr", "fy", "ga", "gd", "gl", "gu", "ha", "haw", "he", "hi", "hmn", "hr", "ht", "hu",
                                                               "hy", "id", "ig", "is", "it", "ja", "jv", "ka", "kk", "km", "kn", "ko", "ku", "ky", "la", "lb", "lo", "lt", "lv",
                                                               "mg", "mi", "mk", "ml", "mn", "mr", "ms", "mt", "mww", "my", "ne", "nl", "no", "ny", "otq", "pa", "pl", "ps", "pt",
@@ -281,14 +267,14 @@ QString QOnlineTranslator::translateText(const QString &text, QString translatio
 
 QString QOnlineTranslator::codeToLanguage(const QString &code)
 {
-    int index = LANGUAGE_SHORT_CODES.indexOf(code);
+    int index = LANGUAGE_CODES.indexOf(code);
     return LANGUAGE_NAMES.at(index);
 }
 
 QString QOnlineTranslator::languageToCode(const QString &language)
 {
     int index = LANGUAGE_NAMES.indexOf(language);
-    return LANGUAGE_SHORT_CODES.at(index);
+    return LANGUAGE_CODES.at(index);
 }
 
 QString QOnlineTranslator::defaultLocaleToCode()

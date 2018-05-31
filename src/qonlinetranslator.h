@@ -66,8 +66,7 @@ public:
     static QList<QMediaContent> media(const QString &text, QString language = "auto");
 
     static const QStringList LANGUAGE_NAMES;
-    static const QStringList LANGUAGE_LONG_CODES;
-    static const QStringList LANGUAGE_SHORT_CODES;
+    static const QStringList LANGUAGE_CODES;
 
 private:
     static int getSplitIndex(const QString &untranslatedText);

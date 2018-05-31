@@ -45,8 +45,7 @@ Then include the `qonlinetranslator.pri` file in your `.pro` project file:
 | Return type     | Data member                                       |
 |----------------:|:--------------------------------------------------|
 | QStringList     | [**LANGUAGE_NAMES**](#language-names)             |
-| QStringList     | [**LANGUAGE_LONG_CODES**](#language-long-codes)   |
-| QStringList     | [**LANGUAGE_SHORT_CODES**](#language-short-codes) |
+| QStringList     | [**LANGUAGE_CODES**](#language-codes)             |
 
 ## Public Functions
 
@@ -99,135 +98,130 @@ For real example of usage you can look into my other project: [Crow Translate](h
 Provides language names that can be used for the text of buttons. See table [below](#languages-table).
 ___
 
-### <a id='language-long-codes'/> static [QStringList](http://doc.qt.io/qt-5/qstringlist.html "Qt Documentation") QOnlineTranslator::LANGUAGE_LONG_CODES const
-Provides language long codes that can be used as arguments for console applications. See table [below](#languages-table).
-___
-
-### <a id='language-short-codes'/> static [QStringList](http://doc.qt.io/qt-5/qstringlist.html "Qt Documentation") QOnlineTranslator::LANGUAGE_SHORT_CODES const
+### <a id='language-codes'/> static [QStringList](http://doc.qt.io/qt-5/qstringlist.html "Qt Documentation") QOnlineTranslator::LANGUAGE_CODES const
 Provides language short codes that are used for the Google API. See table [below](#languages-table).
 ___
 
-### <a id='languages-table'/> Members table of LANGUAGE_NAMES, LANGUAGE_LONG_CODES and LANGUAGE_SHORT_CODES
+### <a id='languages-table'/> Members table of LANGUAGE_NAMES and LANGUAGE_CODES
 
-| Index | LANGUAGE_NAMES       | LANGUAGE_LONG_CODES | LANGUAGE_SHORT_CODES | 
-|:-----:|:--------------------:|:-------------------:|:--------------------:|
-| 1     | Automatically detect | automatic           | auto                 |
-| 2     | Afrikaans            | afrikaans           | af                   |
-| 3     | Amharic              | amharic             | am                   |
-| 4     | Arabic               | arabic              | ar                   |
-| 5     | Azerbaijani          | azerbaijani         | az                   |
-| 6     | Belarusian           | belarusian          | be                   |
-| 7     | Bulgarian            | bulgarian           | bg                   |
-| 8 | Bengali | bengali | bn |
-| 9 | Bosnian | bosnian | bs |
-| 10 | Catalan | catalan | ca |
-| 11 | Cebuano | cebuano | ceb |
-| 12 | Corsican | corsican | co |
-| 13 | Czech | czech | cs |
-| 14 | Welsh | welsh | cy |
-| 15 | Danish | danish | da |
-| 16 | German | german | de |
-| 17 | Greek | greek | el |
-| 18 | English | english | en |
-| 19 | Esperanto | esperanto | eo |
-| 20 | Spanish | spanish | es |
-| 21 | Estonian | estonian | et |
-| 22 | Basque | basque | eu |
-| 23 | Persian | persian | fa |
-| 24 | Finnish | finnish | fi |
-| 25 | Fijian | fijian | fj |
-| 26 | French | french | fr |
-| 27 | Frisian | frisian | fy |
-| 28 | Irish | irish | ga |
-| 29 | Scots Gaelic  | scots-gaelic | gd |
-| 30 | Galician  | galician | gl |
-| 31 | Gujarati  | gujarati | gu |
-| 32 | Hausa | hausa | ha |
-| 33 | Hawaiian  | hawaiian | haw |
-| 34 | Hebrew  | hebrew | he |
-| 35 | Hindi  | hindi | hi |
-| 36 | Hmong | hmong | hmn |
-| 37 | Croatian  | croatian | hr |
-| 38 | Haitian Creole  | haitian-creole | ht |
-| 39 | Hungarian  | hungarian | hu |
-| 40 | Armenian | armenian | hy |
-| 41 | Indonesian  | indonesian | id |
-| 42 | Igbo  | igbo | ig |
-| 43 | Icelandic  | icelandic | is |
-| 44 | Italian | italian | it |
-| 45 | Japanese  | japanese | ja |
-| 46 | Javanese  | javanese | jv |
-| 47 | Georgian  | georgian | ka |
-| 48 | Kazakh | kazakh | kk |
-| 49 | Khmer  | khmer | km |
-| 50 | Kannada  | kannada | kn |
-| 51 | Korean  | korean | ko |
-| 52 | Kurdish | kurdish | ku |
-| 53 | Kyrgyz  | kyrgyz | ky |
-| 54 | Latin  | latin | la |
-| 55 | Luxembourgish  | luxembourgish | lb |
-| 56 | Lao | lao | lo |
-| 57 | Lithuanian  | lithuanian | lt |
-| 58 | Latvian  | latvian | lv |
-| 59 | Malagasy  | malagasy | mg |
-| 60 | Maori | maori | mi |
-| 61 | Macedonian  | macedonian | mk |
-| 62 | Malayalam  | malayalam | ml |
-| 63 | Mongolian  | mongolian | mn |
-| 64 | Marathi | marathi | mr |
-| 65 | Malay  | malay | ms |
-| 66 | Maltese  | maltese | mt |
-| 67 | Hmong Daw  | hmong-daw | mww |
-| 68 | Myanmar | myanmar | my |
-| 69 | Nepali  | nepali | ne |
-| 70 | Dutch  | dutch | nl |
-| 71 | Norwegian  | norwegian | no |
-| 72 | Chichewa   | chichewa | ny |
-| 73 | Querétaro Otomi  | querétaro-otomi | otq |
-| 74 | Punjabi  | punjabi | pa |
-| 75 | Polish  | polish | pl |
-| 76 | Pashto | pashto | ps |
-| 77 | Portuguese  | portuguese | pt |
-| 78 | Romanian  | romanian | ro |
-| 79 | Russian  | russian | ru |
-| 80 | Sindhi | sindhi | sd |
-| 81 | Sinhala  | sinhala | si |
-| 82 | Slovak  | slovak | sk |
-| 83 | Slovenian  | slovenian | sl |
-| 84 | Samoan | samoan | sm |
-| 85 | Shona  | shona | sn |
-| 86 | Somali  | somali | so |
-| 87 | Albanian  | albanian | sq |
-| 88 | Serbian (Cyrillic) | serbian-cyrillic | sr-cyrl |
-| 89 | Serbian (Latin)  | serbian-latin | sr-latn |
-| 90 | Sesotho  | sesotho | st |
-| 91 | Sundanese  | sundanese | su |
-| 92 | Swedish | swedish | sv |
-| 93 | Swahili  | swahili | sw |
-| 94 | Tamil  | tamil | ta |
-| 95 | Telugu  | telugu | te |
-| 96 | Tajik | tajik | tg |
-| 97 | Thai  | thai | th |
-| 98 | Filipino  | filipino | tl |
-| 99 | Klingon  | klingon | tlh |
-| 100 | Klingon (pIqaD) | klingon-piqad | tlh-qaak |
-| 101 | Tongan  | tongan | to |
-| 102 | Turkish  | turkish | tr |
-| 103 | Tatar  | tatar | tt |
-| 104 | Tahitian | tahitian | ty |
-| 105 | Udmurt  | udmurt | udm |
-| 106 | Ukrainian  | ukrainian | uk |
-| 107 | Urdu  | urdu | ur |
-| 108 | Uzbek | uzbek | uz |
-| 109 | Vietnamese  | vietnamese | vi |
-| 110 | Xhosa  | xhosa | xh |
-| 111 | Yiddish  | yiddish | yi |
-| 112 | Yoruba | yoruba | yo |
-| 113 | Yucatec Maya  | yucatec-maya | yua |
-| 114 | Cantonese  | cantonese | yue |
-| 115 | Chinese Simplified  | chinese-simplified | zh-cn |
-| 116 | Chinese Traditional | chinese-traditional | zh-tw |
-| 117 | Zulu | zulu | zu |
+| Index | LANGUAGE_NAMES       | LANGUAGE_CODES       | 
+|:-----:|:--------------------:|:--------------------:|
+| 1     | Automatically detect | auto                 |
+| 2     | Afrikaans            | af                   |
+| 3     | Amharic              | am                   |
+| 4     | Arabic               | ar                   |
+| 5     | Azerbaijani          | az                   |
+| 6     | Belarusian           | be                   |
+| 7     | Bulgarian            | bg                   |
+| 8 | Bengali | bn |
+| 9 | Bosnian | bs |
+| 10 | Catalan | ca |
+| 11 | Cebuano | ceb |
+| 12 | Corsican | co |
+| 13 | Czech | cs |
+| 14 | Welsh | cy |
+| 15 | Danish | da |
+| 16 | German | de |
+| 17 | Greek | el |
+| 18 | English | en |
+| 19 | Esperanto | eo |
+| 20 | Spanish | es |
+| 21 | Estonian | et |
+| 22 | Basque | eu |
+| 23 | Persian | fa |
+| 24 | Finnish | fi |
+| 25 | Fijian | fj |
+| 26 | French | fr |
+| 27 | Frisian | fy |
+| 28 | Irish | ga |
+| 29 | Scots Gaelic | gd |
+| 30 | Galician | gl |
+| 31 | Gujarati | gu |
+| 32 | Hausa | ha |
+| 33 | Hawaiian | haw |
+| 34 | Hebrew | he |
+| 35 | Hindi | hi |
+| 36 | Hmong | hmn |
+| 37 | Croatian | hr |
+| 38 | Haitian Creole | ht |
+| 39 | Hungarian | hu |
+| 40 | Armenian | hy |
+| 41 | Indonesian | id |
+| 42 | Igbo | ig |
+| 43 | Icelandic | is |
+| 44 | Italian | it |
+| 45 | Japanese | ja |
+| 46 | Javanese | jv |
+| 47 | Georgian | ka |
+| 48 | Kazakh | kk |
+| 49 | Khmer | km |
+| 50 | Kannada | kn |
+| 51 | Korean | ko |
+| 52 | Kurdish | ku |
+| 53 | Kyrgyz | ky |
+| 54 | Latin | la |
+| 55 | Luxembourgish | lb |
+| 56 | Lao | lo |
+| 57 | Lithuanian | lt |
+| 58 | Latvian | lv |
+| 59 | Malagasy | mg |
+| 60 | Maori | mi |
+| 61 | Macedonian | mk |
+| 62 | Malayalam | ml |
+| 63 | Mongolian | mn |
+| 64 | Marathi | mr |
+| 65 | Malay | ms |
+| 66 | Maltese | mt |
+| 67 | Hmong Daw | mww |
+| 68 | Myanmar | my |
+| 69 | Nepali | ne |
+| 70 | Dutch | nl |
+| 71 | Norwegian | no |
+| 72 | Chichewa | ny |
+| 73 | Querétaro Otomi | otq |
+| 74 | Punjabi  | pa |
+| 75 | Polish  | pl |
+| 76 | Pashto | ps |
+| 77 | Portuguese  | pt |
+| 78 | Romanian  | ro |
+| 79 | Russian  | ru |
+| 80 | Sindhi | sd |
+| 81 | Sinhala  | si |
+| 82 | Slovak  | sk |
+| 83 | Slovenian  | sl |
+| 84 | Samoan | sm |
+| 85 | Shona  | sn |
+| 86 | Somali  | so |
+| 87 | Albanian  | sq |
+| 88 | Serbian | sr |
+| 89 | Sesotho  | st |
+| 90 | Sundanese  | su |
+| 91 | Swedish | sv |
+| 92 | Swahili  | sw |
+| 93 | Tamil  | ta |
+| 94 | Telugu  | te |
+| 95 | Tajik | tg |
+| 96 | Thai  | th |
+| 97 | Filipino  | tl |
+| 98 | Klingon  | tlh |
+| 199 | Klingon (pIqaD) | tlh-qaak |
+| 100 | Tongan  | to |
+| 101 | Turkish  | tr |
+| 102 | Tatar  | tt |
+| 103 | Tahitian | ty |
+| 104 | Udmurt  | udm |
+| 105 | Ukrainian  | uk |
+| 106 | Urdu  | ur |
+| 107 | Uzbek | uz |
+| 108 | Vietnamese  | vi |
+| 109 | Xhosa  | xh |
+| 110 | Yiddish  | yi |
+| 111 | Yoruba | yo |
+| 112 | Yucatec Maya  | yua |
+| 113 | Cantonese  | yue |
+| 114 | Chinese Simplified  | zh-cn |
+| 115 | Chinese Traditional | zh-tw |
+| 116 | Zulu | zu |
 
 ## Member Function Documentation
 
@@ -236,11 +230,11 @@ Constructs an object with empty data. You can use [translate()](#translate) to s
 ___
 
 ### <a id='c2'/> QOnlineTranslator::QOnlineTranslator(*const QString &text, QString &translationLanguage = "auto", QString &sourceLanguage = "auto", QString &translatorLanguage = "auto", bool &autoCorrect = false*)
-Constructs an object initialized with the *text* translated into language of *translationLanguage* code from language of *sourceLanguage* code with hints on language of *translatorLanguage* code. Also Google try automatically correct grammatical errors and typos of *text* if *autoCorrect* is set to *true*. For languages see the column **LANGUAGE_SHORT_CODES** in the table [above](#languages-table).
+Constructs an object initialized with the *text* translated into language of *translationLanguage* code from language of *sourceLanguage* code with hints on language of *translatorLanguage* code. Also Google try automatically correct grammatical errors and typos of *text* if *autoCorrect* is set to *true*. For languages see the column **LANGUAGE_CODES** in the table [above](#languages-table).
 ___
 
 ### <a id='translate'/> void QOnlineTranslator::translate(*const QString &text, QString &translationLanguage = "auto", QString &sourceLanguage = "auto", QString &translatorLanguage = "auto", bool &autoCorrect = false*)
-Parse *text* and translate into language of *translationLanguage* code from language of *sourceLanguage* code with hints on language of *translatorLanguage* code and send data into object fields. Also Google try automatically correct grammatical errors and typos of *text* if *autoCorrect* is set to **true**. For languages see the column **LANGUAGE_SHORT_CODES** in the table [above](#languages-table).
+Parse *text* and translate into language of *translationLanguage* code from language of *sourceLanguage* code with hints on language of *translatorLanguage* code and send data into object fields. Also Google try automatically correct grammatical errors and typos of *text* if *autoCorrect* is set to **true**. For languages see the column **LANGUAGE_CODES** in the table [above](#languages-table).
 ___
 
 ### <a id='source-media'/> [QList](https://doc.qt.io/qt-5/qlist.html "Qt Documentation")<[QMediaContent](https://doc.qt.io/qt-5/qmediacontent.html "Qt Documentation")> QOnlineTranslator::sourceMedia()
@@ -333,7 +327,7 @@ Returns `true` if could not get translation or `true` if translation received. T
 ___
 
 ### <a id='translate-text-static'/> static [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::translateText(*const QString &text, QString translationLanguage = "auto", QString sourceLanguage = "auto"*)
-Returns the translated text from language of *sourceLanguage* code to language of *translationLanguage* code from the source *text*. For languages see the column **LANGUAGE_SHORT_CODES** in the table [above](#languages-table).
+Returns the translated text from language of *sourceLanguage* code to language of *translationLanguage* code from the source *text*. For languages see the column **LANGUAGE_CODES** in the table [above](#languages-table).
 ___
 
 ### <a id='code-to-language-static'/> static [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::codeToLanguage(*const QString &code*)
