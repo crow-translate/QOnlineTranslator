@@ -70,6 +70,16 @@ const QStringList QOnlineTranslator::LANGUAGE_CODES = { "auto", "af", "am", "ar"
                                                               "te", "tg", "th", "tl", "tlh", "tlh-qaak", "to", "tr", "tt", "ty", "udm", "uk", "ur", "uz", "vi", "xh", "yi", "yo",
                                                               "yua", "yue", "zh-cn", "zh-tw", "zu" };
 
+QOnlineTranslator::QOnlineTranslator(QObject *parent) :
+    QObject(parent)
+{}
+
+QOnlineTranslator::QOnlineTranslator(const QString &text, const QString &translationLanguage, const QString &sourceLanguage, const QString &translatorLanguage, const bool &autoCorrect, QObject *parent) :
+    QObject(parent)
+{
+    translate(text, translationLanguage, sourceLanguage, translatorLanguage, autoCorrect);
+}
+
 void QOnlineTranslator::translate(const QString &text, const QString &translationLanguage, const QString &sourceLanguage, const QString &translatorLanguage, const bool &autoCorrect)
 {
     m_source = text;

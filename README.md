@@ -51,8 +51,8 @@ Then include the `qonlinetranslator.pri` file in your `.pro` project file:
 
 | Return type                         | Data member                                                                                                                                        |
 |------------------------------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------|
-|                                     | [**QOnlineTranslator**()](#c1)                                                                                                                     |
-|                                     | [**QOnlineTranslator**(const QString &text, QString &translationLanguage = "auto", QString &sourceLanguage = "auto", QString &translatorLanguage = "auto", bool &autoCorrect = false)](#c2) |
+|                                     | [**QOnlineTranslator**(QWidget *parent = nullptr)](#c1)                                                                                            |
+|                                     | [**QOnlineTranslator**(const QString &text, QString &translationLanguage = "auto", QString &sourceLanguage = "auto", QString &translatorLanguage = "auto", bool &autoCorrect = false, QObject *parent = nullptr)](#c2) |
 | void                                | [**translate**(const QString &text, QString &translationLanguage = "auto", QString &sourceLanguage = "auto", QString &translatorLanguage = "auto", bool &autoCorrect = false)](#translate) |
 | QList<QMediaContent>                | [**sourceMedia**()](#source-media)                                                                                                                 |
 | QList<QMediaContent>                | [**translationMedia**()](#translation-media)                                                                                                       |
@@ -225,12 +225,12 @@ ___
 
 ## Member Function Documentation
 
-### <a id='c1'/> QOnlineTranslator::QOnlineTranslator()
-Constructs an object with empty data. You can use [translate()](#translate) to send text to object.
+### <a id='c1'/> QOnlineTranslator::QOnlineTranslator(*QObject \*parent = nullptr*)
+Constructs an object with empty data and with parent object *parent*. You can use [translate()](#translate) to send text to object. The destructor of a parent object destroys all child objects. Setting parent to 0 constructs an object with no parent. The parent of an object may be viewed as the object's owner.
 ___
 
-### <a id='c2'/> QOnlineTranslator::QOnlineTranslator(*const QString &text, QString &translationLanguage = "auto", QString &sourceLanguage = "auto", QString &translatorLanguage = "auto", bool &autoCorrect = false*)
-Constructs an object initialized with the *text* translated into language of *translationLanguage* code from language of *sourceLanguage* code with hints on language of *translatorLanguage* code. Also Google try automatically correct grammatical errors and typos of *text* if *autoCorrect* is set to *true*. For languages see the column **LANGUAGE_CODES** in the table [above](#languages-table).
+### <a id='c2'/> QOnlineTranslator::QOnlineTranslator(*const QString &text, QString &translationLanguage = "auto", QString &sourceLanguage = "auto", QString &translatorLanguage = "auto", bool &autoCorrect = false, QObject \*parent = nullptr*)
+Constructs an object initialized with the *text* translated into language of *translationLanguage* code from language of *sourceLanguage* code with hints on language of *translatorLanguage* code with parent object *parent*. Also Google try automatically correct grammatical errors and typos of *text* if *autoCorrect* is set to *true*. For languages see the column **LANGUAGE_CODES** in the table [above](#languages-table). The destructor of a parent object destroys all child objects. Setting parent to 0 constructs an object with no parent. The parent of an object may be viewed as the object's owner.
 ___
 
 ### <a id='translate'/> void QOnlineTranslator::translate(*const QString &text, QString &translationLanguage = "auto", QString &sourceLanguage = "auto", QString &translatorLanguage = "auto", bool &autoCorrect = false*)
@@ -342,7 +342,7 @@ ___
 Returns a [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") containing the code of the default [QLocale](https://doc.qt.io/qt-5/qlocale.html "Qt Documentation") language.
 ___
 
-### <a id='media-static'/> [QList](https://doc.qt.io/qt-5/qlist.html "Qt Documentation")<[QMediaContent](https://doc.qt.io/qt-5/qmediacontent.html "Qt Documentation")> QOnlineTranslator::media(const QString &text, QString language = "auto")
+### <a id='media-static'/> [QList](https://doc.qt.io/qt-5/qlist.html "Qt Documentation")<[QMediaContent](https://doc.qt.io/qt-5/qmediacontent.html "Qt Documentation")> QOnlineTranslator::media(*const QString &text, QString language = "auto"*)
 Splits the *text* into parts (if required) and returns list with the generated API URLs with the language of *code* to play this text.
 Google has a limit of up to 5000 characters per request. If the query is larger, then it will be splitted into several.
 

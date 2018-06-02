@@ -27,13 +27,13 @@
 #include <QNetworkReply>
 #include <QMediaPlaylist>
 
-class QOnlineTranslator
+class QOnlineTranslator : public QObject
 {
+    Q_OBJECT
 
 public:
-    inline QOnlineTranslator() {}
-    inline QOnlineTranslator(const QString &text, const QString &translationLanguage = "auto", const QString &sourceLanguage = "auto", const QString &translatorLanguage = "auto", const bool &autoCorrect = false)
-    { translate(text, translationLanguage, sourceLanguage, translatorLanguage, autoCorrect); }
+    explicit QOnlineTranslator(QObject *parent = nullptr);
+    explicit QOnlineTranslator(const QString &text, const QString &translationLanguage = "auto", const QString &sourceLanguage = "auto", const QString &translatorLanguage = "auto", const bool &autoCorrect = false, QObject *parent = nullptr);
 
     void translate(const QString &translation, const QString &translationLanguage = "auto", const QString &sourceLanguage = "auto", const QString &translatorLanguage = "auto", const bool &autoCorrect = false);
 
