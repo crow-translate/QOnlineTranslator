@@ -31,32 +31,6 @@
 
 #include "qonlinetranslator.h"
 
-const QStringList QOnlineTranslator::LANGUAGE_NAMES = { tr("Automatically detect"), tr("Afrikaans"), tr("Amharic"), tr("Arabic"), tr("Azerbaijani"), tr("Belarusian"),
-                                                        tr("Bulgarian"), tr("Bengali"), tr("Bosnian"), tr("Catalan"), tr("Cebuano"), tr("Corsican"), tr("Czech"),
-                                                        tr("Welsh"), tr("Danish"), tr("German"), tr("Greek"), tr("English"), tr("Esperanto"), tr("Spanish"),
-                                                        tr("Estonian"), tr("Basque"), tr("Persian"), tr("Finnish"), tr("Fijian"), tr("French"), tr("Frisian"), tr("Irish"),
-                                                        tr("Scots Gaelic"), tr("Galician"), tr("Gujarati"), tr("Hausa"), tr("Hawaiian"), tr("Hebrew"), tr("Hindi"),
-                                                        tr("Hmong"), tr("Croatian"), tr("Haitian Creole"), tr("Hungarian"), tr("Armenian"), tr("Indonesian"), tr("Igbo"),
-                                                        tr("Icelandic"), tr("Italian"), tr("Japanese"), tr("Javanese"), tr("Georgian"), tr("Kazakh"), tr("Khmer"),
-                                                        tr("Kannada"), tr("Korean"), tr("Kurdish"), tr("Kyrgyz"), tr("Latin"), tr("Luxembourgish"), tr("Lao"),
-                                                        tr("Lithuanian"), tr("Latvian"), tr("Malagasy"), tr("Maori"), tr("Macedonian"), tr("Malayalam"), tr("Mongolian"),
-                                                        tr("Marathi"), tr("Malay"), tr("Maltese"), tr("Hmong Daw"), tr("Myanmar"), tr("Nepali"), tr("Dutch"),
-                                                        tr("Norwegian"), tr("Chichewa"), tr("Querétaro Otomi"), tr("Punjabi"), tr("Polish"), tr("Pashto"), tr("Portuguese"),
-                                                        tr("Romanian"), tr("Russian"), tr("Sindhi"), tr("Sinhala"), tr("Slovak"), tr("Slovenian"), tr("Samoan"), tr("Shona"),
-                                                        tr("Somali"), tr("Albanian"), tr("Serbian"), tr("Sesotho"), tr("Sundanese"), tr("Swedish"), tr("Swahili"),
-                                                        tr("Tamil"), tr("Telugu"), tr("Tajik"), tr("Thai"), tr("Filipino"), tr("Klingon"), tr("Klingon (pIqaD)"),
-                                                        tr("Tongan"), tr("Turkish"), tr("Tatar"), tr("Tahitian"), tr("Udmurt"), tr("Ukrainian"), tr("Urdu"), tr("Uzbek"),
-                                                        tr("Vietnamese"), tr("Xhosa"), tr("Yiddish"), tr("Yoruba"), tr("Yucatec Maya"), tr("Cantonese"),
-                                                        tr("Chinese Simplified"), tr("Chinese Traditional"), tr("Zulu") };
-
-const QStringList QOnlineTranslator::LANGUAGE_CODES = { "auto", "af", "am", "ar", "az", "be", "bg", "bn", "bs", "ca", "ceb", "co", "cs", "cy", "da", "de", "el", "en", "eo", "es",
-                                                              "et", "eu", "fa", "fi", "fj", "fr", "fy", "ga", "gd", "gl", "gu", "ha", "haw", "he", "hi", "hmn", "hr", "ht", "hu",
-                                                              "hy", "id", "ig", "is", "it", "ja", "jv", "ka", "kk", "km", "kn", "ko", "ku", "ky", "la", "lb", "lo", "lt", "lv",
-                                                              "mg", "mi", "mk", "ml", "mn", "mr", "ms", "mt", "mww", "my", "ne", "nl", "no", "ny", "otq", "pa", "pl", "ps", "pt",
-                                                              "ro", "ru", "sd", "si", "sk", "sl", "sm", "sn", "so", "sq", "sr", "st", "su", "sv", "sw", "ta",
-                                                              "te", "tg", "th", "tl", "tlh", "tlh-qaak", "to", "tr", "tt", "ty", "udm", "uk", "ur", "uz", "vi", "xh", "yi", "yo",
-                                                              "yua", "yue", "zh-cn", "zh-tw", "zu" };
-
 QOnlineTranslator::QOnlineTranslator(QObject *parent) :
     QObject(parent)
 {}
@@ -206,6 +180,16 @@ QList<QMediaContent> QOnlineTranslator::translationMedia()
     return mediaList;
 }
 
+QStringList QOnlineTranslator::languages()
+{
+    return languageNames;
+}
+
+QStringList QOnlineTranslator::codes()
+{
+    return languageCodes;
+}
+
 QString QOnlineTranslator::translateText(const QString &text, QString translationLanguage, QString sourceLanguage)
 {
     // Detect system language if translationLanguage not specified
@@ -264,14 +248,14 @@ QString QOnlineTranslator::translateText(const QString &text, QString translatio
 
 QString QOnlineTranslator::codeToLanguage(const QString &code)
 {
-    int index = LANGUAGE_CODES.indexOf(code);
-    return LANGUAGE_NAMES.at(index);
+    int index = languageCodes.indexOf(code);
+    return languageNames.at(index);
 }
 
 QString QOnlineTranslator::languageToCode(const QString &language)
 {
-    int index = LANGUAGE_NAMES.indexOf(language);
-    return LANGUAGE_CODES.at(index);
+    int index = languageNames.indexOf(language);
+    return languageCodes.at(index);
 }
 
 QString QOnlineTranslator::defaultLocaleToCode()

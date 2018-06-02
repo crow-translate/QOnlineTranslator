@@ -7,11 +7,9 @@ The **QOnlineTranslator** library provides free usage of Google Translate API fo
 ## Contents
 
 * [Installation](#installation)
-* [Static Public Members](#static-public-members)
 * [Public Functions](#public-functions)
 * [Static Public Functions](#static-public-functions)
 * [Detailed Description](#detailed-description)
-* [Members Documentation](#members-documentation)
 * [Member Function Documentation](#member-function-documentation)
 
 ## Installation
@@ -40,13 +38,6 @@ Then include the `qonlinetranslator.pri` file in your `.pro` project file:
 #include <QOnlineTranslator>
 ```
 
-## Static Public Members
-
-| Return type     | Data member                                       |
-|----------------:|:--------------------------------------------------|
-| QStringList     | [**LANGUAGE_NAMES**](#language-names)             |
-| QStringList     | [**LANGUAGE_CODES**](#language-codes)             |
-
 ## Public Functions
 
 | Return type                         | Data member                                                                                                                                        |
@@ -64,16 +55,18 @@ Then include the `qonlinetranslator.pri` file in your `.pro` project file:
 | QString                             | [**translationTranscription**()](translation-transcription)                                                                                        |
 | QList<QPair<QString, QStringList> > | [**options**()](#options)                                                                                                                          |
 | bool                                | [**error**()](#error)                                                                                                                              |
+| QStringList                         | [**languages**(int index)](#languages-static)                                                                                                      |
+| QStringList                         | [**codes**(int index)](#codes-static)                                                                                                              |
+| QString                             | [**codeToLanguage**(const QString &code)](#code-to-language)                                                                                       |
+| QString                             | [**languageToCode**(const QString &language)](#language-to-code)                                                                                   |
 
 ## Static Public Functions
 
-| Return type | Function                                                                                                                                |
-|------------:|:----------------------------------------------------------------------------------------------------------------------------------------|
-| QString     | [**translateText**(const QString &text, QString translationLanguage = "auto", QString sourceLanguage = "auto")](#translate-text-static) |
-| QString     | [**codeToLanguage**(const QString &code)](#code-to-language-static)                                                                     |
-| QString     | [**languageToCode**(const QString &language)](#language-to-code-static)                                                                 |
-| QString     | [**defaultLocaleToCode**()](#default-locale-to-code-static)                                                                             |
-| QString     | [**media**(const QString &text, QString language = "auto")](#media)                                                                     |
+| Return type          | Function                                                                                                                                |
+|---------------------:|:----------------------------------------------------------------------------------------------------------------------------------------|
+| QString              | [**defaultLocaleToCode**()](#default-locale-to-code-static)                                                                             |
+| QString              | [**translateText**(const QString &text, QString translationLanguage = "auto", QString sourceLanguage = "auto")](#translate-text-static) |
+| QList<QMediaContent> | [**media**(const QString &text, QString language = "auto")](#media)                                                                     |
 
 ## Detailed Description
 
@@ -92,137 +85,6 @@ qInfo() << onlineTranslator.text; // Returns "Hello world!" translated into Germ
 
 For real example of usage you can look into my other project: [Crow Translate](https://github.com/Shatur95/CrowTranslate "A simple and lightweight translator that allows to translate and say the selected text using the Google Translate API").
 
-## Members Documentation
-
-### <a id='language-names'/> static [QStringList](http://doc.qt.io/qt-5/qstringlist.html "Qt Documentation") QOnlineTranslator::LANGUAGE_NAMES const
-Provides language names that can be used for the text of buttons. See table [below](#languages-table).
-___
-
-### <a id='language-codes'/> static [QStringList](http://doc.qt.io/qt-5/qstringlist.html "Qt Documentation") QOnlineTranslator::LANGUAGE_CODES const
-Provides language short codes that are used for the Google API. See table [below](#languages-table).
-___
-
-### <a id='languages-table'/> Members table of LANGUAGE_NAMES and LANGUAGE_CODES
-
-| Index | LANGUAGE_NAMES       | LANGUAGE_CODES       | 
-|:-----:|:--------------------:|:--------------------:|
-| 1     | Automatically detect | auto                 |
-| 2     | Afrikaans            | af                   |
-| 3     | Amharic              | am                   |
-| 4     | Arabic               | ar                   |
-| 5     | Azerbaijani          | az                   |
-| 6     | Belarusian           | be                   |
-| 7     | Bulgarian            | bg                   |
-| 8 | Bengali | bn |
-| 9 | Bosnian | bs |
-| 10 | Catalan | ca |
-| 11 | Cebuano | ceb |
-| 12 | Corsican | co |
-| 13 | Czech | cs |
-| 14 | Welsh | cy |
-| 15 | Danish | da |
-| 16 | German | de |
-| 17 | Greek | el |
-| 18 | English | en |
-| 19 | Esperanto | eo |
-| 20 | Spanish | es |
-| 21 | Estonian | et |
-| 22 | Basque | eu |
-| 23 | Persian | fa |
-| 24 | Finnish | fi |
-| 25 | Fijian | fj |
-| 26 | French | fr |
-| 27 | Frisian | fy |
-| 28 | Irish | ga |
-| 29 | Scots Gaelic | gd |
-| 30 | Galician | gl |
-| 31 | Gujarati | gu |
-| 32 | Hausa | ha |
-| 33 | Hawaiian | haw |
-| 34 | Hebrew | he |
-| 35 | Hindi | hi |
-| 36 | Hmong | hmn |
-| 37 | Croatian | hr |
-| 38 | Haitian Creole | ht |
-| 39 | Hungarian | hu |
-| 40 | Armenian | hy |
-| 41 | Indonesian | id |
-| 42 | Igbo | ig |
-| 43 | Icelandic | is |
-| 44 | Italian | it |
-| 45 | Japanese | ja |
-| 46 | Javanese | jv |
-| 47 | Georgian | ka |
-| 48 | Kazakh | kk |
-| 49 | Khmer | km |
-| 50 | Kannada | kn |
-| 51 | Korean | ko |
-| 52 | Kurdish | ku |
-| 53 | Kyrgyz | ky |
-| 54 | Latin | la |
-| 55 | Luxembourgish | lb |
-| 56 | Lao | lo |
-| 57 | Lithuanian | lt |
-| 58 | Latvian | lv |
-| 59 | Malagasy | mg |
-| 60 | Maori | mi |
-| 61 | Macedonian | mk |
-| 62 | Malayalam | ml |
-| 63 | Mongolian | mn |
-| 64 | Marathi | mr |
-| 65 | Malay | ms |
-| 66 | Maltese | mt |
-| 67 | Hmong Daw | mww |
-| 68 | Myanmar | my |
-| 69 | Nepali | ne |
-| 70 | Dutch | nl |
-| 71 | Norwegian | no |
-| 72 | Chichewa | ny |
-| 73 | Querétaro Otomi | otq |
-| 74 | Punjabi  | pa |
-| 75 | Polish  | pl |
-| 76 | Pashto | ps |
-| 77 | Portuguese  | pt |
-| 78 | Romanian  | ro |
-| 79 | Russian  | ru |
-| 80 | Sindhi | sd |
-| 81 | Sinhala  | si |
-| 82 | Slovak  | sk |
-| 83 | Slovenian  | sl |
-| 84 | Samoan | sm |
-| 85 | Shona  | sn |
-| 86 | Somali  | so |
-| 87 | Albanian  | sq |
-| 88 | Serbian | sr |
-| 89 | Sesotho  | st |
-| 90 | Sundanese  | su |
-| 91 | Swedish | sv |
-| 92 | Swahili  | sw |
-| 93 | Tamil  | ta |
-| 94 | Telugu  | te |
-| 95 | Tajik | tg |
-| 96 | Thai  | th |
-| 97 | Filipino  | tl |
-| 98 | Klingon  | tlh |
-| 199 | Klingon (pIqaD) | tlh-qaak |
-| 100 | Tongan  | to |
-| 101 | Turkish  | tr |
-| 102 | Tatar  | tt |
-| 103 | Tahitian | ty |
-| 104 | Udmurt  | udm |
-| 105 | Ukrainian  | uk |
-| 106 | Urdu  | ur |
-| 107 | Uzbek | uz |
-| 108 | Vietnamese  | vi |
-| 109 | Xhosa  | xh |
-| 110 | Yiddish  | yi |
-| 111 | Yoruba | yo |
-| 112 | Yucatec Maya  | yua |
-| 113 | Cantonese  | yue |
-| 114 | Chinese Simplified  | zh-cn |
-| 115 | Chinese Traditional | zh-tw |
-| 116 | Zulu | zu |
-
 ## Member Function Documentation
 
 ### <a id='c1'/> QOnlineTranslator::QOnlineTranslator(*QObject \*parent = nullptr*)
@@ -230,11 +92,11 @@ Constructs an object with empty data and with parent object *parent*. You can us
 ___
 
 ### <a id='c2'/> QOnlineTranslator::QOnlineTranslator(*const QString &text, QString &translationLanguage = "auto", QString &sourceLanguage = "auto", QString &translatorLanguage = "auto", bool &autoCorrect = false, QObject \*parent = nullptr*)
-Constructs an object initialized with the *text* translated into language of *translationLanguage* code from language of *sourceLanguage* code with hints on language of *translatorLanguage* code with parent object *parent*. Also Google try automatically correct grammatical errors and typos of *text* if *autoCorrect* is set to *true*. For languages see the column **LANGUAGE_CODES** in the table [above](#languages-table). The destructor of a parent object destroys all child objects. Setting parent to 0 constructs an object with no parent. The parent of an object may be viewed as the object's owner.
+Constructs an object initialized with the *text* translated into language of *translationLanguage* code from language of *sourceLanguage* code with hints on language of *translatorLanguage* code with parent object *parent*. Also Google try automatically correct grammatical errors and typos of *text* if *autoCorrect* is set to *true*. For languages see the column **Language code** in the table [above](#languages-table). The destructor of a parent object destroys all child objects. Setting parent to 0 constructs an object with no parent. The parent of an object may be viewed as the object's owner.
 ___
 
 ### <a id='translate'/> void QOnlineTranslator::translate(*const QString &text, QString &translationLanguage = "auto", QString &sourceLanguage = "auto", QString &translatorLanguage = "auto", bool &autoCorrect = false*)
-Parse *text* and translate into language of *translationLanguage* code from language of *sourceLanguage* code with hints on language of *translatorLanguage* code and send data into object fields. Also Google try automatically correct grammatical errors and typos of *text* if *autoCorrect* is set to **true**. For languages see the column **LANGUAGE_CODES** in the table [above](#languages-table).
+Parse *text* and translate into language of *translationLanguage* code from language of *sourceLanguage* code with hints on language of *translatorLanguage* code and send data into object fields. Also Google try automatically correct grammatical errors and typos of *text* if *autoCorrect* is set to **true**. For languages see the column **Language code** in the table [above](#languages-table).
 ___
 
 ### <a id='source-media'/> [QList](https://doc.qt.io/qt-5/qlist.html "Qt Documentation")<[QMediaContent](https://doc.qt.io/qt-5/qmediacontent.html "Qt Documentation")> QOnlineTranslator::sourceMedia()
@@ -323,23 +185,142 @@ else {
 ___
 
 ### <a id='error'/> bool QOnlineTranslator::error()
-Returns `true` if could not get translation or `true` if translation received. The text of the error can be obtained by [**text**()](#text)
+Returns `true` if could not get translation or `true` if translation received. The text of the error can be obtained by [**text**()](#text).
 ___
 
-### <a id='translate-text-static'/> static [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::translateText(*const QString &text, QString translationLanguage = "auto", QString sourceLanguage = "auto"*)
-Returns the translated text from language of *sourceLanguage* code to language of *translationLanguage* code from the source *text*. For languages see the column **LANGUAGE_CODES** in the table [above](#languages-table).
+### <a id='languages-static'/> static [QStringList](http://doc.qt.io/qt-5/qstringlist.html "Qt Documentation") QOnlineTranslator::languages()
+Returns the list of languages names. See the column **Language name** in the table [below](#languages-table).
 ___
 
-### <a id='code-to-language-static'/> static [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::codeToLanguage(*const QString &code*)
+### <a id='codes-static'/> static [QStringList](http://doc.qt.io/qt-5/qstringlist.html "Qt Documentation") QOnlineTranslator::codes()
+Returns the list of language code. See the column **Language code** in the table [below](#languages-table).
+___
+
+### <a id='languages-table'/> Languages
+
+| Index | Language name        | Language code        | 
+|:-----:|:--------------------:|:--------------------:|
+| 0     | Automatically detect | auto                 |
+| 1 | Afrikaans | af |
+| 2 | Albanian | sq |
+| 3 | Amharic | am |
+| 4 | Arabic | ar |
+| 5 | Armenian | hy |
+| 6 | Azeerbaijani | az |
+| 7 | Basque | eu |
+| 8 | Belarusian | be |
+| 9 | Bengali | bn |
+| 10 | Bosnian | bs |
+| 11 | Bulgarian | bg |
+| 12 | Catalan | ca |
+| 13 | Cebuano | ceb |
+| 14 | Chinese(Simplified) | zh-CN |
+| 15 | Chinese(Traditional) | zh-TW |
+| 16 | Corsican | co |
+| 17 | Croatian | hr |
+| 18 | Czech | cs |
+| 19 | Danish | da |
+| 20 | Dutch | nl |
+| 21 | English | en |
+| 22 | Esperanto | eo |
+| 23 | Estonian | et |
+| 24 | Finnish | fi |
+| 25 | French | fr |
+| 26 | Frisian | fy |
+| 27 | Galician | gl |
+| 28 | Georgian | ka |
+| 29 | German | de |
+| 30 | Greek | el |
+| 31 | Gujarati | gu |
+| 32 | HaitianCreole | ht |
+| 33 | Hausa | ha |
+| 34 | Hawaiian | haw |
+| 35 | Hebrew | iw |
+| 36 | Hindi | hi |
+| 37 | Hmong | hmn |
+| 38 | Hungarian | hu |
+| 39 | Icelandic | is |
+| 40 | Igbo | ig |
+| 41 | Indonesian | id |
+| 42 | Irish | ga |
+| 43 | Italian | it |
+| 44 | Japanese | ja |
+| 45 | Javanese | jw |
+| 46 | Kannada | kn |
+| 47 | Kazakh | kk |
+| 48 | Khmer | km |
+| 49 | Korean | ko |
+| 50 | Kurdish | ku |
+| 51 | Kyrgyz | ky |
+| 52 | Lao | lo |
+| 53 | Latin | la |
+| 54 | Latvian | lv |
+| 55 | Lithuanian | lt |
+| 56 | Luxembourgish | lb |
+| 57 | Macedonian | mk |
+| 58 | Malagasy | mg |
+| 59 | Malay | ms |
+| 60 | Malayalam | ml |
+| 61 | Maltese | mt |
+| 62 | Maori | mi |
+| 63 | Marathi | mr |
+| 64 | Mongolian | mn |
+| 65 | Myanmar | my |
+| 66 | Nepali | ne |
+| 67 | Norwegian | no |
+| 68 | Chichewa | ny |
+| 69 | Pashto | ps |
+| 70 | Persian | fa |
+| 71 | Polish | pl |
+| 72 | Portuguese | pt |
+| 73 | Punjabi | pa |
+| 74 | Romanian | ro |
+| 75 | Russian | ru |
+| 76 | Samoan | sm |
+| 77 | ScotsGaelic | gd |
+| 78 | Serbian | sr |
+| 79 | Sesotho | st |
+| 80 | Shona | sn |
+| 81 | Sindhi | sd |
+| 82 | Sinhala | si |
+| 83 | Slovak | sk |
+| 84 | Slovenian | sl |
+| 85 | Somali | so |
+| 86 | Spanish | es |
+| 87 | Sundanese | su |
+| 88 | Swahili | sw |
+| 89 | Swedish | sv |
+| 90 | Tagalog | tl |
+| 91 | Tajik | tg |
+| 92 | Tamil | ta |
+| 93 | Telugu | te |
+| 94 | Thai | th |
+| 95 | Turkish | tr |
+| 96 | Ukrainian | uk |
+| 97 | Urdu | ur |
+| 100 | Uzbek | uz |
+| 101 | Vietnamese | vi |
+| 102 | Welsh | cy |
+| 103 | Xhosa | xh |
+| 104 | Yiddish | yi |
+| 105 | Yoruba | yo |
+| 106 | Zulu | zu |
+---
+
+### <a id='code-to-language'/> static [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::codeToLanguage(*const QString &code*)
 Returns a [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") containing the language of *code*.
-___
+---
 
-### <a id='language-to-code-static'/> static [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::languageToCode(*const QString &language*)
+### <a id='language-to-code'/> static [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::codeToLanguage(*const QString &language*)
 Returns a [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") containing the code of *language*.
-___
+---
 
 ### <a id='default-locale-to-code-static'/> static [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::defaultLocaleToCode()
 Returns a [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") containing the code of the default [QLocale](https://doc.qt.io/qt-5/qlocale.html "Qt Documentation") language.
+___
+
+### <a id='translate-text-static'/> static [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::translateText(*const QString &text, QString translationLanguage = "auto", QString sourceLanguage = "auto"*)
+Returns the translated text from language of *sourceLanguage* code to language of *translationLanguage* code from the source *text*. For languages see the column **Language code** in the table [above](#languages-table).
 ___
 
 ### <a id='media-static'/> [QList](https://doc.qt.io/qt-5/qlist.html "Qt Documentation")<[QMediaContent](https://doc.qt.io/qt-5/qmediacontent.html "Qt Documentation")> QOnlineTranslator::media(*const QString &text, QString language = "auto"*)
