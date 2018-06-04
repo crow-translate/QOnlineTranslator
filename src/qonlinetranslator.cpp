@@ -151,8 +151,13 @@ QList<QMediaContent> QOnlineTranslator::sourceMedia()
 
         // Generate URL API for add it to the playlist
         QUrl apiUrl("http://translate.googleapis.com/translate_tts");
+#if defined(Q_OS_LINUX)
         apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + m_sourceLanguage +"&q=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)));
+#elif defined(Q_OS_WIN)
+        apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + m_sourceLanguage +"&q=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)), QUrl::DecodedMode);
+#endif
         mediaList.append(apiUrl);
+
 
         // Remove the said part from the next saying
         unparsedText = unparsedText.mid(splitIndex);
@@ -171,7 +176,11 @@ QList<QMediaContent> QOnlineTranslator::translationMedia()
 
         // Generate URL API for add it to the playlist
         QUrl apiUrl("http://translate.googleapis.com/translate_tts");
+#if defined(Q_OS_LINUX)
         apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + m_translationLanguage +"&q=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)));
+#elif defined(Q_OS_WIN)
+        apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + m_translationLanguage +"&q=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)), QUrl::DecodedMode);
+#endif
         mediaList.append(apiUrl);
 
         // Remove the said part from the next saying
@@ -300,7 +309,11 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, QString langu
 
         // Generate URL API for add it to the playlist
         QUrl apiUrl("http://translate.googleapis.com/translate_tts");
+#if defined(Q_OS_LINUX)
         apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + language +"&q=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)));
+#elif defined(Q_OS_WIN)
+        apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + language +"&q=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)), QUrl::DecodedMode);
+#endif
         mediaList.append(apiUrl);
 
         // Remove the said part from the next saying
