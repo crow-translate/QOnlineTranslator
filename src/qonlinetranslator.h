@@ -21,11 +21,12 @@
 #ifndef QONLINETRANSLATOR_H
 #define QONLINETRANSLATOR_H
 
-#include <QString>
 #include <QPair>
 #include <QUrl>
 #include <QNetworkReply>
 #include <QMediaPlaylist>
+
+#include "qtranslationoptions.h"
 
 class QOnlineTranslator : public QObject
 {
@@ -53,8 +54,8 @@ public:
     { return m_translationTranscription; }
     inline QString translationLanguage()
     { return m_translationLanguage; }
-    inline QList<QPair<QString, QStringList> > options()
-    { return m_options; }
+    inline QList<QTranslationOptions> translationOptionsList()
+    { return m_translationOptionsList; }
 
     inline bool error()
     { return m_error; }
@@ -79,7 +80,8 @@ private:
     QString m_translation;
     QString m_translationTranscription;
     QString m_translationLanguage;
-    QList<QPair<QString, QStringList> > m_options;
+//    QList<QPair<QString, QStringList> > m_options;
+    QList<QTranslationOptions> m_translationOptionsList;
 
     bool m_error = false;
 

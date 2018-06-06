@@ -63,7 +63,7 @@ void QOnlineTranslator::translate(const QString &text, const QString &translatio
     m_translationTranscription.clear();
     m_sourceTranscription.clear();
     m_sourceLanguage.clear();
-    m_options.clear();
+    m_translationOptionsList.clear();
     m_error = false;
 
     // Google has a limit of up to 5000 characters per request. If the query is larger, then it should be splited into several
@@ -126,14 +126,12 @@ void QOnlineTranslator::translate(const QString &text, const QString &translatio
         // Translation options
         if (text.size() < 5000) {
             foreach (QJsonValue typeOfSpeach, jsonData.at(1).toArray()) {
-                m_options.append(QPair<QString, QStringList>());
-                m_options.last().first = typeOfSpeach.toArray().at(0).toString();
+                m_translationOptionsList << QTranslationOptions(typeOfSpeach.toArray().at(0).toString());
                 foreach (QJsonValue translationOption, typeOfSpeach.toArray().at(2).toArray()) {
-                    m_options.last().second.append(translationOption.toArray().at(0).toString() + ": ");
-                    // Add the first word without ",", and then add the remaining words
-                    m_options.last().second.last().append(translationOption.toArray().at(1).toArray().at(0).toString());
-                    for (int i = 1; i < translationOption.toArray().at(1).toArray().size(); i++)
-                        m_options.last().second.last().append(", " + translationOption.toArray().at(1).toArray().at(i).toString());
+                    m_translationOptionsList.last().appendOption(translationOption.toArray().at(0).toString());
+                    foreach (auto translationForOption, translationOption.toArray().at(1).toArray()) {
+                        m_translationOptionsList.last().appendTranslation(translationForOption.toString());
+                    }
                 }
             }
         }
