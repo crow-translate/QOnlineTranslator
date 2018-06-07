@@ -128,7 +128,7 @@ void QOnlineTranslator::translate(const QString &text, const QString &translatio
             foreach (QJsonValue typeOfSpeach, jsonData.at(1).toArray()) {
                 m_translationOptionsList << QTranslationOptions(typeOfSpeach.toArray().at(0).toString());
                 foreach (QJsonValue translationOption, typeOfSpeach.toArray().at(2).toArray()) {
-                    m_translationOptionsList.last().appendOption(translationOption.toArray().at(0).toString());
+                    m_translationOptionsList.last().appendOption(translationOption.toArray().at(0).toString(), translationOption.toArray().at(4).toString());
                     foreach (auto translationForOption, translationOption.toArray().at(1).toArray()) {
                         m_translationOptionsList.last().appendTranslation(translationForOption.toString());
                     }

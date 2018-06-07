@@ -18,16 +18,11 @@ void QTranslationOptions::setTypeOfSpeech(const QString &typeOfSpeech)
     m_typeOfSpeech = typeOfSpeech;
 }
 
-void QTranslationOptions::appendOption(const QString &word)
+void QTranslationOptions::appendOption(const QString &word, const QString &gender, const QStringList &translations)
 {
     m_words.append(word);
-    m_translations.append(QStringList());
-}
-
-void QTranslationOptions::appendOption(const QString &word, const QStringList &translation)
-{
-    m_words.append(word);
-    m_translations.append(translation);
+    m_genders.append(gender);
+    m_translations.append(translations);
 }
 
 void QTranslationOptions::appendTranslation(int index, const QString &translation)
@@ -43,6 +38,11 @@ void QTranslationOptions::appendTranslation(const QString &translation)
 QString QTranslationOptions::word(int index) const
 {
     return m_words.at(index);
+}
+
+QString QTranslationOptions::gender(int index) const
+{
+    return m_genders.at(index);
 }
 
 QStringList QTranslationOptions::translations(int index) const

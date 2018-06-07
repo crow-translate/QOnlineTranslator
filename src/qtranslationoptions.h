@@ -12,17 +12,18 @@ public:
     QString typeOfSpeech() const;
     void setTypeOfSpeech(const QString &typeOfSpeech);
 
-    void appendOption(const QString &word);
-    void appendOption(const QString &word, const QStringList &translation);
+    void appendOption(const QString &word, const QString &gender = "", const QStringList &translations = QStringList());
     void appendTranslation(int index, const QString &translation);
     void appendTranslation(const QString &translation);
     QString word(int index) const;
+    QString gender(int index) const;
     QStringList translations(int index) const;
     int count() const;
 
 private:
     QString m_typeOfSpeech;
     QStringList m_words;
+    QStringList m_genders;
     QList<QStringList> m_translations;
 };
 
