@@ -236,13 +236,13 @@ ___
 | 95 | Turkish | tr |
 | 96 | Ukrainian | uk |
 | 97 | Urdu | ur |
-| 100 | Uzbek | uz |
-| 101 | Vietnamese | vi |
-| 102 | Welsh | cy |
-| 103 | Xhosa | xh |
-| 104 | Yiddish | yi |
-| 105 | Yoruba | yo |
-| 106 | Zulu | zu |
+| 98 | Uzbek | uz |
+| 99 | Vietnamese | vi |
+| 100 | Welsh | cy |
+| 101 | Xhosa | xh |
+| 102 | Yiddish | yi |
+| 103 | Yoruba | yo |
+| 104 | Zulu | zu |
 ---
 
 ### <a id='code-to-language'/> static [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::codeToLanguage(*const QString &code*)
