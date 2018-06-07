@@ -138,7 +138,7 @@ void QOnlineTranslator::translate(const QString &text, const QString &translatio
     }
 }
 
-QList<QMediaContent> QOnlineTranslator::sourceMedia()
+QList<QMediaContent> QOnlineTranslator::sourceMedia() const
 {
     QList<QMediaContent> mediaList;
 
@@ -163,7 +163,7 @@ QList<QMediaContent> QOnlineTranslator::sourceMedia()
     return mediaList;
 }
 
-QList<QMediaContent> QOnlineTranslator::translationMedia()
+QList<QMediaContent> QOnlineTranslator::translationMedia() const
 {
     QList<QMediaContent> mediaList;
 
@@ -187,12 +187,52 @@ QList<QMediaContent> QOnlineTranslator::translationMedia()
     return mediaList;
 }
 
-QStringList QOnlineTranslator::languages()
+QString QOnlineTranslator::source() const
+{
+    return m_source;
+}
+
+QString QOnlineTranslator::sourceLanguage() const
+{
+    return m_sourceLanguage;
+}
+
+QString QOnlineTranslator::sourceTranscription() const
+{
+    return m_sourceTranscription;
+}
+
+QString QOnlineTranslator::translation() const
+{
+    return m_translation;
+}
+
+QString QOnlineTranslator::translationTranscription() const
+{
+    return m_translationTranscription;
+}
+
+QString QOnlineTranslator::translationLanguage() const
+{
+    return m_translationLanguage;
+}
+
+QList<QTranslationOptions> QOnlineTranslator::translationOptionsList() const
+{
+    return m_translationOptionsList;
+}
+
+bool QOnlineTranslator::error() const
+{
+    return m_error;
+}
+
+QStringList QOnlineTranslator::languages() const
 {
     return languageNames;
 }
 
-QStringList QOnlineTranslator::codes()
+QStringList QOnlineTranslator::codes() const
 {
     return languageCodes;
 }
@@ -253,13 +293,13 @@ QString QOnlineTranslator::translateText(const QString &text, QString translatio
     return translatedText;
 }
 
-QString QOnlineTranslator::codeToLanguage(const QString &code)
+QString QOnlineTranslator::codeToLanguage(const QString &code) const
 {
     int index = languageCodes.indexOf(code);
     return languageNames.at(index);
 }
 
-QString QOnlineTranslator::languageToCode(const QString &language)
+QString QOnlineTranslator::languageToCode(const QString &language) const
 {
     int index = languageNames.indexOf(language);
     return languageCodes.at(index);

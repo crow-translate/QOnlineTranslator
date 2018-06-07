@@ -38,32 +38,23 @@ public:
 
     void translate(const QString &translation, const QString &translationLanguage = "auto", const QString &sourceLanguage = "auto", const QString &translatorLanguage = "auto", const bool &autoCorrect = false);
 
-    QList<QMediaContent> sourceMedia();
-    QList<QMediaContent> translationMedia();
+    QList<QMediaContent> sourceMedia() const;
+    QList<QMediaContent> translationMedia() const;
 
-    inline QString source()
-    { return m_source; }
-    inline QString sourceLanguage()
-    { return m_sourceLanguage; }
-    inline QString sourceTranscription()
-    { return m_sourceTranscription; }
+    QString source() const;
+    QString sourceLanguage() const;
+    QString sourceTranscription() const;
 
-    inline QString translation()
-    { return m_translation; }
-    inline QString translationTranscription()
-    { return m_translationTranscription; }
-    inline QString translationLanguage()
-    { return m_translationLanguage; }
-    inline QList<QTranslationOptions> translationOptionsList()
-    { return m_translationOptionsList; }
+    QString translation() const;
+    QString translationTranscription() const;
+    QString translationLanguage() const;
+    QList<QTranslationOptions> translationOptionsList() const;
+    bool error() const;
 
-    inline bool error()
-    { return m_error; }
-
-    QStringList languages();
-    QStringList codes();
-    QString codeToLanguage(const QString &code);
-    QString languageToCode(const QString &language);
+    QStringList languages() const;
+    QStringList codes() const;
+    QString codeToLanguage(const QString &code) const;
+    QString languageToCode(const QString &language) const;
 
     static QString defaultLocaleToCode();
     static QString translateText(const QString &translation, QString translationLanguage = "auto", QString sourceLanguage = "auto");
@@ -80,32 +71,30 @@ private:
     QString m_translation;
     QString m_translationTranscription;
     QString m_translationLanguage;
-//    QList<QPair<QString, QStringList> > m_options;
     QList<QTranslationOptions> m_translationOptionsList;
-
     bool m_error = false;
 
     QStringList languageNames = { tr("Automatically detect"), tr("Afrikaans"), tr("Albanian"), tr("Amharic"), tr("Arabic"), tr("Armenian"),
-                                   tr("Azeerbaijani"), tr("Basque"), tr("Belarusian"), tr("Bengali"), tr("Bosnian"), tr("Bulgarian"), tr("Catalan"),
-                                   tr("Cebuano"), tr("Chinese (Simplified)"), tr("Chinese (Traditional)"), tr("Corsican"), tr("Croatian"), tr("Czech"),
-                                   tr("Danish"), tr("Dutch"), tr("English"), tr("Esperanto"), tr("Estonian"), tr("Finnish"), tr("French"), tr("Frisian"),
-                                   tr("Galician"), tr("Georgian"), tr("German"), tr("Greek"), tr("Gujarati"), tr("Haitian Creole"), tr("Hausa"),
-                                   tr("Hawaiian"), tr("Hebrew"), tr("Hindi"), tr("Hmong"), tr("Hungarian"), tr("Icelandic"), tr("Igbo"), tr("Indonesian"),
-                                   tr("Irish"), tr("Italian"), tr("Japanese"), tr("Javanese"), tr("Kannada"), tr("Kazakh"), tr("Khmer"), tr("Korean"),
-                                   tr("Kurdish"), tr("Kyrgyz"), tr("Lao"), tr("Latin"), tr("Latvian"), tr("Lithuanian"), tr("Luxembourgish"),
-                                   tr("Macedonian"), tr("Malagasy"), tr("Malay"), tr("Malayalam"), tr("Maltese"), tr("Maori"), tr("Marathi"), tr("Mongolian"),
-                                   tr("Myanmar"), tr("Nepali"), tr("Norwegian"), tr("Chichewa"), tr("Pashto"), tr("Persian"), tr("Polish"), tr("Portuguese"),
-                                   tr("Punjabi"), tr("Romanian"), tr("Russian"), tr("Samoan"), tr("Scots Gaelic"), tr("Serbian"), tr("Sesotho"), tr("Shona"),
-                                   tr("Sindhi"), tr("Sinhala"), tr("Slovak"), tr("Slovenian"), tr("Somali"), tr("Spanish"), tr("Sundanese"), tr("Swahili"),
-                                   tr("Swedish"), tr("Tagalog"), tr("Tajik"), tr("Tamil"), tr("Telugu"), tr("Thai"), tr("Turkish"), tr("Ukrainian"),
-                                   tr("Urdu"), tr("Uzbek"), tr("Vietnamese"), tr("Welsh"), tr("Xhosa"), tr("Yiddish"), tr("Yoruba"), tr("Zulu") };
+                                  tr("Azeerbaijani"), tr("Basque"), tr("Belarusian"), tr("Bengali"), tr("Bosnian"), tr("Bulgarian"), tr("Catalan"),
+                                  tr("Cebuano"), tr("Chinese (Simplified)"), tr("Chinese (Traditional)"), tr("Corsican"), tr("Croatian"), tr("Czech"),
+                                  tr("Danish"), tr("Dutch"), tr("English"), tr("Esperanto"), tr("Estonian"), tr("Finnish"), tr("French"), tr("Frisian"),
+                                  tr("Galician"), tr("Georgian"), tr("German"), tr("Greek"), tr("Gujarati"), tr("Haitian Creole"), tr("Hausa"),
+                                  tr("Hawaiian"), tr("Hebrew"), tr("Hindi"), tr("Hmong"), tr("Hungarian"), tr("Icelandic"), tr("Igbo"), tr("Indonesian"),
+                                  tr("Irish"), tr("Italian"), tr("Japanese"), tr("Javanese"), tr("Kannada"), tr("Kazakh"), tr("Khmer"), tr("Korean"),
+                                  tr("Kurdish"), tr("Kyrgyz"), tr("Lao"), tr("Latin"), tr("Latvian"), tr("Lithuanian"), tr("Luxembourgish"),
+                                  tr("Macedonian"), tr("Malagasy"), tr("Malay"), tr("Malayalam"), tr("Maltese"), tr("Maori"), tr("Marathi"), tr("Mongolian"),
+                                  tr("Myanmar"), tr("Nepali"), tr("Norwegian"), tr("Chichewa"), tr("Pashto"), tr("Persian"), tr("Polish"), tr("Portuguese"),
+                                  tr("Punjabi"), tr("Romanian"), tr("Russian"), tr("Samoan"), tr("Scots Gaelic"), tr("Serbian"), tr("Sesotho"), tr("Shona"),
+                                  tr("Sindhi"), tr("Sinhala"), tr("Slovak"), tr("Slovenian"), tr("Somali"), tr("Spanish"), tr("Sundanese"), tr("Swahili"),
+                                  tr("Swedish"), tr("Tagalog"), tr("Tajik"), tr("Tamil"), tr("Telugu"), tr("Thai"), tr("Turkish"), tr("Ukrainian"),
+                                  tr("Urdu"), tr("Uzbek"), tr("Vietnamese"), tr("Welsh"), tr("Xhosa"), tr("Yiddish"), tr("Yoruba"), tr("Zulu") };
 
     QStringList languageCodes = { "auto", "af", "sq", "am", "ar", "hy", "az", "eu", "be", "bn", "bs", "bg", "ca", "ceb", "zh-CN", "zh-TW", "co", "hr", "cs",
-                                   "da", "nl", "en", "eo", "et", "fi", "fr", "fy", "gl", "ka", "de", "el", "gu", "ht", "ha", "haw", "iw", "hi", "hmn", "hu",
-                                   "is", "ig", "id", "ga", "it", "ja", "jw", "kn", "kk", "km", "ko", "ku", "ky", "lo", "la", "lv", "lt", "lb", "mk", "mg",
-                                   "ms", "ml", "mt", "mi", "mr", "mn", "my", "ne", "no", "ny", "ps", "fa", "pl", "pt", "pa", "ro", "ru", "sm", "gd", "sr",
-                                   "st", "sn", "sd", "si", "sk", "sl", "so", "es", "su", "sw", "sv", "tl", "tg", "ta", "te", "th", "tr", "uk", "ur", "uz",
-                                   "vi", "cy", "xh", "yi", "yo", "zu" };
+                                  "da", "nl", "en", "eo", "et", "fi", "fr", "fy", "gl", "ka", "de", "el", "gu", "ht", "ha", "haw", "iw", "hi", "hmn", "hu",
+                                  "is", "ig", "id", "ga", "it", "ja", "jw", "kn", "kk", "km", "ko", "ku", "ky", "lo", "la", "lv", "lt", "lb", "mk", "mg",
+                                  "ms", "ml", "mt", "mi", "mr", "mn", "my", "ne", "no", "ny", "ps", "fa", "pl", "pt", "pa", "ro", "ru", "sm", "gd", "sr",
+                                  "st", "sn", "sd", "si", "sk", "sl", "so", "es", "su", "sw", "sv", "tl", "tg", "ta", "te", "th", "tr", "uk", "ur", "uz",
+                                  "vi", "cy", "xh", "yi", "yo", "zu" };
 };
 
 #endif // QONLINETRANSLATOR_H
