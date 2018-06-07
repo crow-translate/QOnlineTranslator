@@ -71,7 +71,7 @@ public:
 
 
 private:
-    static int getSplitIndex(const QString &untranslatedText);
+    static int getSplitIndex(const QString &untranslatedText, int limit);
 
     QString m_source;
     QString m_sourceLanguage;

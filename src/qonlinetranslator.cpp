@@ -66,10 +66,10 @@ void QOnlineTranslator::translate(const QString &text, const QString &translatio
     m_translationOptionsList.clear();
     m_error = false;
 
-    // Google has a limit of up to 5000 characters per request. If the query is larger, then it should be splited into several
+    // Google has a limit of up to 5000 characters per translation request. If the query is larger, then it should be splited into several
     QString untranslatedText = text;
     while (!untranslatedText.isEmpty()) {
-        int splitIndex = getSplitIndex(untranslatedText); // Split the part by special symbol
+        int splitIndex = getSplitIndex(untranslatedText, 5000); // Split the part by special symbol
         if (splitIndex == -1) {
             // Do not translate the part if it looks like garbage
             m_translation.append(untranslatedText.left(5000));
@@ -142,10 +142,10 @@ QList<QMediaContent> QOnlineTranslator::sourceMedia()
 {
     QList<QMediaContent> mediaList;
 
-    // Google has a limit of up to 5000 characters per request. If the query is larger, then it should be splited into several
+    // Google has a limit of up to 200 characters per tts request. If the query is larger, then it should be splited into several
     QString unparsedText = m_source;
     while (!unparsedText.isEmpty()) {
-        int splitIndex = getSplitIndex(unparsedText); // Split the part by special symbol
+        int splitIndex = getSplitIndex(unparsedText, 200); // Split the part by special symbol
 
         // Generate URL API for add it to the playlist
         QUrl apiUrl("http://translate.googleapis.com/translate_tts");
@@ -167,10 +167,10 @@ QList<QMediaContent> QOnlineTranslator::translationMedia()
 {
     QList<QMediaContent> mediaList;
 
-    // Google has a limit of up to 5000 characters per request. If the query is larger, then it should be splited into several
+    // Google has a limit of up to 200 characters per tts request. If the query is larger, then it should be splited into several
     QString unparsedText = m_translation;
     while (!unparsedText.isEmpty()) {
-        int splitIndex = getSplitIndex(unparsedText); // Split the part by special symbol
+        int splitIndex = getSplitIndex(unparsedText, 200); // Split the part by special symbol
 
         // Generate URL API for add it to the playlist
         QUrl apiUrl("http://translate.googleapis.com/translate_tts");
@@ -206,9 +206,9 @@ QString QOnlineTranslator::translateText(const QString &text, QString translatio
     QString untranslatedText = text;
     QString translatedText;
 
-    // Google has a limit of up to 5000 characters per request. If the query is larger, then it should be splited into several
+    // Google has a limit of up to 5000 characters per translation request. If the query is larger, then it should be splited into several
     while (!untranslatedText.isEmpty()) {
-        int splitIndex = getSplitIndex(untranslatedText); // Split part by special symbols
+        int splitIndex = getSplitIndex(untranslatedText, 5000); // Split part by special symbols
         if (splitIndex == -1) {
             // Do not translate the part if it looks like garbage
             translatedText.append(untranslatedText.left(5000));
@@ -278,7 +278,7 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, QString langu
     // Google don't support "auto" as argument for text-to-speech, so need to detect language manually from translation request
     if (language == "auto") {
         QUrl languageUrl("https://translate.googleapis.com/translate_a/single");
-        languageUrl.setQuery("client=gtx&sl=auto&tl=en&dt=t&q=" + QUrl::toPercentEncoding(text.left(getSplitIndex(text))));
+        languageUrl.setQuery("client=gtx&sl=auto&tl=en&dt=t&q=" + QUrl::toPercentEncoding(text.left(getSplitIndex(text, 5000))));
 
         // Send request
         QNetworkAccessManager manager;
@@ -300,10 +300,10 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, QString langu
         language = language.mid(language.lastIndexOf("\"") + 1);
     }
 
-    // Google has a limit of up to 5000 characters per request. If the query is larger, then it should be splited into several
+    // Google has a limit of up to 200 characters per tts request. If the query is larger, then it should be splited into several
     QString unparsedText = text;
     while (!unparsedText.isEmpty()) {
-        int splitIndex = getSplitIndex(unparsedText); // Split the part by special symbol
+        int splitIndex = getSplitIndex(unparsedText, 200); // Split the part by special symbol
 
         // Generate URL API for add it to the playlist
         QUrl apiUrl("http://translate.googleapis.com/translate_tts");
@@ -320,28 +320,29 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, QString langu
     return mediaList;
 }
 
-// Split the first part of the 5000 characters by last special symbol
-int QOnlineTranslator::getSplitIndex(const QString &untranslatedText)
+// Get split index of the text according to the limit
+int QOnlineTranslator::getSplitIndex(const QString &untranslatedText, int limit)
 {
-    if (untranslatedText.size() < 5000)
-        return 5000;
+    if (untranslatedText.size() < limit)
+        return limit;
 
-    int splitIndex = untranslatedText.lastIndexOf(". ", 4999);
+    int splitIndex = untranslatedText.lastIndexOf(". ", limit - 1);
     if (splitIndex != -1)
         return splitIndex + 1;
 
-    splitIndex = untranslatedText.lastIndexOf(" ", 4999);
+    splitIndex = untranslatedText.lastIndexOf(" ", limit - 1);
     if (splitIndex != -1)
         return splitIndex + 1;
 
-    splitIndex = untranslatedText.lastIndexOf("\n", 4999);
+    splitIndex = untranslatedText.lastIndexOf("\n", limit - 1);
     if (splitIndex != -1)
         return splitIndex + 1;
 
     // Non-breaking gap
-    splitIndex = untranslatedText.lastIndexOf("\u00a0", 4999);
+    splitIndex = untranslatedText.lastIndexOf("\u00a0", limit - 1);
     if (splitIndex != -1)
         return splitIndex + 1;
-    else
-        return 5000;
+
+    // If the text has not passed any check and is most likely garbage
+    return limit;
 }
