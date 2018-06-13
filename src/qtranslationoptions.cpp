@@ -1,8 +1,5 @@
 #include "qtranslationoptions.h"
 
-QTranslationOptions::QTranslationOptions()
-{}
-
 QTranslationOptions::QTranslationOptions(const QString &typeOfSpeech)
 {
     m_typeOfSpeech = typeOfSpeech;
@@ -11,6 +8,21 @@ QTranslationOptions::QTranslationOptions(const QString &typeOfSpeech)
 QString QTranslationOptions::typeOfSpeech() const
 {
     return m_typeOfSpeech;
+}
+
+QString QTranslationOptions::word(int index) const
+{
+    return m_words.at(index);
+}
+
+QString QTranslationOptions::gender(int index) const
+{
+    return m_genders.at(index);
+}
+
+QStringList QTranslationOptions::translations(int index) const
+{
+    return m_translations.at(index);
 }
 
 void QTranslationOptions::setTypeOfSpeech(const QString &typeOfSpeech)
@@ -33,21 +45,6 @@ void QTranslationOptions::appendTranslation(int index, const QString &translatio
 void QTranslationOptions::appendTranslation(const QString &translation)
 {
     m_translations.last().append(translation);
-}
-
-QString QTranslationOptions::word(int index) const
-{
-    return m_words.at(index);
-}
-
-QString QTranslationOptions::gender(int index) const
-{
-    return m_genders.at(index);
-}
-
-QStringList QTranslationOptions::translations(int index) const
-{
-    return m_translations.at(index);
 }
 
 int QTranslationOptions::count() const

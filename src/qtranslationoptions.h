@@ -6,18 +6,17 @@
 class QTranslationOptions
 {
 public:
-    QTranslationOptions();
-    QTranslationOptions(const QString &typeOfSpeech);
+    QTranslationOptions(const QString &typeOfSpeech = "");
 
     QString typeOfSpeech() const;
-    void setTypeOfSpeech(const QString &typeOfSpeech);
-
-    void appendOption(const QString &word, const QString &gender = "", const QStringList &translations = QStringList());
-    void appendTranslation(int index, const QString &translation);
-    void appendTranslation(const QString &translation);
     QString word(int index) const;
     QString gender(int index) const;
     QStringList translations(int index) const;
+
+    void setTypeOfSpeech(const QString &typeOfSpeech);
+    void appendOption(const QString &word, const QString &gender = "", const QStringList &translations = QStringList());
+    void appendTranslation(int index, const QString &translation);
+    void appendTranslation(const QString &translation);
     int count() const;
 
 private:

@@ -64,6 +64,7 @@ void QOnlineTranslator::translate(const QString &text, const QString &translatio
     m_sourceTranscription.clear();
     m_sourceLanguage.clear();
     m_translationOptionsList.clear();
+    m_definitionsList.clear();
     m_error = false;
 
     // Google has a limit of up to 5000 characters per translation request. If the query is larger, then it should be splited into several
@@ -81,7 +82,7 @@ void QOnlineTranslator::translate(const QString &text, const QString &translatio
         QUrl apiUrl("https://translate.googleapis.com/translate_a/single");
         apiUrl.setQuery("client=gtx&ie=UTF-8&oe=UTF-8&dt=bd&dt=ex&dt=ld&dt=md&dt=rw&dt=rm&dt=ss&dt=t&dt=at&dt=" + autocorrection +"&sl=" + sourceLanguage + "&tl=" +
                         translationLanguage + "&hl=" + translatorLanguage + "&q=" + QUrl::toPercentEncoding(untranslatedText.left(splitIndex)));
-
+        
         // Send request
         QNetworkAccessManager manager;
         QNetworkReply *reply = manager.get(QNetworkRequest(apiUrl));
@@ -123,16 +124,24 @@ void QOnlineTranslator::translate(const QString &text, const QString &translatio
             m_sourceTranscription.append(" ");
         }
 
-        // Translation options
         if (text.size() < 5000) {
-            foreach (QJsonValue typeOfSpeach, jsonData.at(1).toArray()) {
-                m_translationOptionsList << QTranslationOptions(typeOfSpeach.toArray().at(0).toString());
-                foreach (QJsonValue translationOption, typeOfSpeach.toArray().at(2).toArray()) {
-                    m_translationOptionsList.last().appendOption(translationOption.toArray().at(0).toString(), translationOption.toArray().at(4).toString());
-                    foreach (auto translationForOption, translationOption.toArray().at(1).toArray()) {
-                        m_translationOptionsList.last().appendTranslation(translationForOption.toString());
+            // Translation options
+            foreach (QJsonValue translationOption, jsonData.at(1).toArray()) {
+                m_translationOptionsList << QTranslationOptions(translationOption.toArray().at(0).toString());
+                foreach (QJsonValue word, translationOption.toArray().at(2).toArray()) {
+                    m_translationOptionsList.last().appendOption(word.toArray().at(0).toString(), word.toArray().at(4).toString());
+                    foreach (auto translationsForWord, word.toArray().at(1).toArray()) {
+                        m_translationOptionsList.last().appendTranslation(translationsForWord.toString());
                     }
                 }
+            }
+
+            // Definitions
+            foreach (QJsonValue definition, jsonData.at(12).toArray()) {
+                m_definitionsList << QDefinition();
+                m_definitionsList.last().setTypeOfSpeech(definition.toArray().at(0).toString());
+                m_definitionsList.last().setDescription(definition.toArray().at(1).toArray().at(0).toArray().at(0).toString());
+                m_definitionsList.last().setExample(definition.toArray().at(1).toArray().at(0).toArray().at(2).toString());
             }
         }
     }
@@ -385,4 +394,9 @@ int QOnlineTranslator::getSplitIndex(const QString &untranslatedText, int limit)
 
     // If the text has not passed any check and is most likely garbage
     return limit;
+}
+
+QList<QDefinition> QOnlineTranslator::definitionsList() const
+{
+    return m_definitionsList;
 }

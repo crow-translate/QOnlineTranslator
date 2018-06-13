@@ -25,6 +25,7 @@ The **QOnlineTranslator** class provides translation data.
 | QString                      | [**translationLanguage**()](#translation-language)                                                                                                 |
 | QString                      | [**translationTranscription**()](translation-transcription)                                                                                        |
 | QList\<QTranslationOptions\> | [**translationOptionsList**()](#translation-options-list)                                                                                          |
+| QList\<QDefinition\>         | [**definitionsList**()](#definitions-list)                                                                                                         |
 | bool                         | [**error**()](#error)                                                                                                                              |
 | QStringList                  | [**languages**(int index)](#languages-static)                                                                                                      |
 | QStringList                  | [**codes**(int index)](#codes-static)                                                                                                              |
@@ -120,6 +121,10 @@ ___
 
 ### <a id='translation-options-list'/> [QList](http://doc.qt.io/qt-5/qlist.html "Qt Documentation")<[QTranslationOptions](QTranslationOptions.md "Class documentation")>  QOnlineTranslator::translationOptionsList()
 Returns a list of [QTranslationOptions](QTranslationOptions.md "Class documentation"). Read the class documentation for details.
+___
+
+### <a id='definitions-list'/> [QList](http://doc.qt.io/qt-5/qlist.html "Qt Documentation")<[QDefinition](QDefinition.md "Class documentation")>  QOnlineTranslator::definitionsList()
+Returns a list of [QDefinition](QDefinition.md "Class documentation"). Read the class documentation for details.
 ___
 
 ### <a id='error'/> bool QOnlineTranslator::error()

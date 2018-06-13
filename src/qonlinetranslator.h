@@ -27,6 +27,7 @@
 #include <QMediaPlaylist>
 
 #include "qtranslationoptions.h"
+#include "qdefinition.h"
 
 class QOnlineTranslator : public QObject
 {
@@ -49,6 +50,7 @@ public:
     QString translationTranscription() const;
     QString translationLanguage() const;
     QList<QTranslationOptions> translationOptionsList() const;
+    QList<QDefinition> definitionsList() const;
     bool error() const;
 
     QStringList languages() const;
@@ -59,7 +61,6 @@ public:
     static QString defaultLocaleToCode();
     static QString translateText(const QString &translation, QString translationLanguage = "auto", QString sourceLanguage = "auto");
     static QList<QMediaContent> media(const QString &text, QString language = "auto");
-
 
 private:
     static int getSplitIndex(const QString &untranslatedText, int limit);
@@ -72,6 +73,7 @@ private:
     QString m_translationTranscription;
     QString m_translationLanguage;
     QList<QTranslationOptions> m_translationOptionsList;
+    QList<QDefinition> m_definitionsList;
     bool m_error = false;
 
     QStringList languageNames = { tr("Automatically detect"), tr("Afrikaans"), tr("Albanian"), tr("Amharic"), tr("Arabic"), tr("Armenian"),

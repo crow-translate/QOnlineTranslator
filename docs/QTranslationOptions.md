@@ -12,16 +12,15 @@ The **QTranslationOptions** class provides storage for translation options data 
 
 | Return type                         | Data member                                                                                                                                        |
 |------------------------------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------|
-|                                     | [**QTranslationOptions**()](#c1)                                                                                                                   |
-|                                     | [**QTranslationOptions**(const QString &typeOfSpeech)](#c2)                                                                                        |
+|                                     | [**QTranslationOptions**(const QString &typeOfSpeech = "")](#c1)                                                                                        |
 | QString                             | [**typeOfSpeech**()](#type-of-speech)                                                                                                              |
+| QString                             | [**word**(int index)](#word)                                                                                                                       |
+| QString                             | [**gender**(int index)](#gender)                                                                                                                   |
+| QStringList                         | [**translations**(int index)](#translations)                                                                                                       |
 | void                                | [**setTypeOfSpeech**(const QString &typeOfSpeech)](#set-type-of-speech)                                                                            |
 | void                                | [**appendOption**(const QString &word, const QString &gender = "", const QStringList &translations = QStringList())](#append-option)               |
 | void                                | [**appendTranslation**(int index, const QString &translation)](#append-translation-1)                                                              |
 | void                                | [**appendTranslation**(const QString &translation)](#append-translation-2)                                                                         |
-| QString                             | [**word**(int index)](#word)                                                                                                                       |
-| QString                             | [**gender**(int index)](#gender)                                                                                                                       |
-| QString                             | [**translations**(int index)](#translations)                                                                                                       |
 | int                                 | [**count**()](#count)                                                                                                                              |
 
 ## Detailed Description
@@ -71,46 +70,42 @@ Mitspracherecht: say
 
 ## Member Function Documentation
 
-### <a id='c1'/> QOnlineTranslator::QTranslationOptions()
-Constructs an empty object.
-___
-
-### <a id='c2'/> QOnlineTranslator::QTranslationOptions(*const QString &typeOfSpeech*)
+### <a id='c1'/> QTranslationOptions::QTranslationOptions(*const QString &typeOfSpeech = ""*)
 Constructs an empty object with the type of speech text *typeOfSpeech*.
 ___
 
-### <a id='type-of-speech'/> void QOnlineTranslator::typeOfSpeech()
-Returns the text of type of speech.
+### <a id='type-of-speech'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QTranslationOptions::typeOfSpeech()
+Returns type of speech of the text.
 ___
 
-### <a id='set-type-of-speech'/> void QOnlineTranslator::setTypeOfSpeech(*const QString &typeOfSpeech*)
-Sets type of speech text to *typeOfSpeech*.
-___
-
-### <a id='append-option'/> void QOnlineTranslator::appendOption(*const QString &word, const QString &gender = "", const QStringList &translations = QStringList()*)
-Appends the translation option *word* with *gender* and *translations* onto the end of translation options with.
-___
-
-### <a id='append-translation-1'/> void QOnlineTranslator::appendTranslation(*int index, const QString &translation*)
-Appends the translation *translation* onto the end of translations for the word with the *index*.
-___
-
-### <a id='append-translation-2'/> void QOnlineTranslator::appendTranslation(*const QString &translation*)
-Appends the *translation* onto the end of translations for the last translation option word.
-___
-
-### <a id='word'/> void QOnlineTranslator::word(*int index*)
+### <a id='word'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QTranslationOptions::word(*int index*)
 Returns the word of the *index*.
 ___
 
-### <a id='gender'/> void QOnlineTranslator::gender(*int index*)
+### <a id='gender'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QTranslationOptions::gender(*int index*)
 Returns the gender of the word with *index*. Used for some languages, such as German. Can be empty.
 ___
 
-### <a id='translations'/> void QOnlineTranslator::translations(*int index*)
+### <a id='translations'/> [QStringList](http://doc.qt.io/qt-5/qstringlist.html "Qt Documentation") QTranslationOptions::translations(*int index*)
 Returns the translations for the word with the *index*.
 ___
 
-### <a id='count'/> void QOnlineTranslator::count()
+### <a id='set-type-of-speech'/> void QTranslationOptions::setTypeOfSpeech(*const QString &typeOfSpeech*)
+Sets type of speech of the text to *typeOfSpeech*.
+___
+
+### <a id='append-option'/> void QTranslationOptions::appendOption(*const QString &word, const QString &gender = "", const QStringList &translations = QStringList()*)
+Appends the translation option *word* with *gender* and *translations* onto the end of translation options with.
+___
+
+### <a id='append-translation-1'/> void QTranslationOptions::appendTranslation(*int index, const QString &translation*)
+Appends the translation *translation* onto the end of translations for the word with the *index*.
+___
+
+### <a id='append-translation-2'/> void QTranslationOptions::appendTranslation(*const QString &translation*)
+Appends the *translation* onto the end of translations for the last translation option word.
+___
+
+### <a id='count'/> void QTranslationOptions::count()
 Returns the number of words.
 ___
