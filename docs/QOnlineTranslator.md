@@ -6,7 +6,6 @@ The **QOnlineTranslator** class provides translation data.
 
 * [Public Functions](#public-functions)
 * [Static Public Functions](#static-public-functions)
-* [Detailed Description](#detailed-description)
 * [Member Function Documentation](#member-function-documentation)
 
 ## Public Functions
@@ -39,23 +38,6 @@ The **QOnlineTranslator** class provides translation data.
 | QString              | [**defaultLocaleToCode**()](#default-locale-to-code-static)                                                                             |
 | QString              | [**translateText**(const QString &text, QString translationLanguage = "auto", QString sourceLanguage = "auto")](#translate-text-static) |
 | QList<QMediaContent> | [**media**(const QString &text, QString language = "auto")](#media)                                                                     |
-
-## Detailed Description
-
-The **QOnlineTranslator** uses the Google API URL to get the response, and then the parse the reply.
-
-Example:
-```cpp
-QCoreApplication a(argc, argv); // Always need to create app instance for QEventLoop
-...
-QOnlineTranslator onlineTranslator("hello");
-qInfo() << onlineTranslator.text; // Returns "hello" translated to the language of your system
-
-onlineTranslator.translate("Hello world!", "de");
-qInfo() << onlineTranslator.text; // Returns "Hello world!" translated into German
-```
-
-For real example of usage you can look into my other project: [Crow Translate](https://github.com/Shatur95/CrowTranslate "A simple and lightweight translator that allows to translate and say the selected text using the Google Translate API").
 
 ## Member Function Documentation
 

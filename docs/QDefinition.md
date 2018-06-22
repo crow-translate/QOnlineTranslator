@@ -10,19 +10,19 @@ The **QDefinition** class provides storage for definitions data.
 
 ## Public Functions
 
-| Return type                         | Data member                                                                                                                                        |
-|------------------------------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------|
-|                                     | [**QDefinition**(const QString &typeOfSpeech = "", const QString &description = "", const QString &example = "")](#c1)                             |
-| QString                             | [**typeOfSpeech**()](#type-of-speech)                                                                                                              |
-| QString                             | [**description**()](#description)                                                                                                                  |
-| QString                             | [**example**()](#example)                                                                                                                          |
-| void                                | [**setTypeOfSpeech**(const QString &typeOfSpeech)](#set-type-of-speech)                                                                            |
-| void                                | [**setDescription**(const QString &description)](#set-description)                                                                                 |
-| void                                | [**setExample**(const QString &example)](#set-example)                                                                                             |
+| Return type | Data member                                                                                                            |
+|------------:|:-----------------------------------------------------------------------------------------------------------------------|
+|             | [**QDefinition**(const QString &typeOfSpeech = "", const QString &description = "", const QString &example = "")](#c1) |
+| QString     | [**typeOfSpeech**()](#type-of-speech)                                                                                  |
+| QString     | [**description**()](#description)                                                                                      |
+| QString     | [**example**()](#example)                                                                                              |
+| void        | [**setTypeOfSpeech**(const QString &typeOfSpeech)](#set-type-of-speech)                                                |
+| void        | [**setDescription**(const QString &description)](#set-description)                                                     |
+| void        | [**setExample**(const QString &example)](#set-example)                                                                 |
 
 ## Detailed Description
 
-The **QDefinition** class provides storage for for definitions data.
+The **QDefinition** object can be obtained from the [QOnlineTranslator](docs/QOnlineTranslator.md "Class documentation") object, which contains a list of definitions.
 
 Example:
 

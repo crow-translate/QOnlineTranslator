@@ -10,22 +10,22 @@ The **QTranslationOptions** class provides storage for translation options data 
 
 ## Public Functions
 
-| Return type                         | Data member                                                                                                                                        |
-|------------------------------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------|
-|                                     | [**QTranslationOptions**(const QString &typeOfSpeech = "")](#c1)                                                                                        |
-| QString                             | [**typeOfSpeech**()](#type-of-speech)                                                                                                              |
-| QString                             | [**word**(int index)](#word)                                                                                                                       |
-| QString                             | [**gender**(int index)](#gender)                                                                                                                   |
-| QStringList                         | [**translations**(int index)](#translations)                                                                                                       |
-| void                                | [**setTypeOfSpeech**(const QString &typeOfSpeech)](#set-type-of-speech)                                                                            |
-| void                                | [**appendOption**(const QString &word, const QString &gender = "", const QStringList &translations = QStringList())](#append-option)               |
-| void                                | [**appendTranslation**(int index, const QString &translation)](#append-translation-1)                                                              |
-| void                                | [**appendTranslation**(const QString &translation)](#append-translation-2)                                                                         |
-| int                                 | [**count**()](#count)                                                                                                                              |
+| Return type | Data member                                                                                                                          |
+|------------:|:-------------------------------------------------------------------------------------------------------------------------------------|
+|             | [**QTranslationOptions**(const QString &typeOfSpeech = "")](#c1)                                                                     |
+| QString     | [**typeOfSpeech**()](#type-of-speech)                                                                                                |
+| QString     | [**word**(int index)](#word)                                                                                                         |
+| QString     | [**gender**(int index)](#gender)                                                                                                     |
+| QStringList | [**translations**(int index)](#translations)                                                                                         |
+| void        | [**setTypeOfSpeech**(const QString &typeOfSpeech)](#set-type-of-speech)                                                              |
+| void        | [**appendOption**(const QString &word, const QString &gender = "", const QStringList &translations = QStringList())](#append-option) |
+| void        | [**appendTranslation**(int index, const QString &translation)](#append-translation-1)                                                |
+| void        | [**appendTranslation**(const QString &translation)](#append-translation-2)                                                           |
+| int         | [**count**()](#count)                                                                                                                |
 
 ## Detailed Description
 
-The **QTranslationOptions** class provides storage for translation options data for a single type of speech.
+The **QTranslationOptions** object can be obtained from the [QOnlineTranslator](docs/QOnlineTranslator.md "Class documentation") object, which contains a list of translation options for a single type of speech.
 
 Example:
 
