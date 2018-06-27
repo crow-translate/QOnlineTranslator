@@ -89,7 +89,7 @@ void QOnlineTranslator::translate(const QString &text, const QString &translatio
 
         // Wait for the response
         QEventLoop event;
-        QObject::connect(reply, &QNetworkReply::finished, &event, &QEventLoop::quit);
+        connect(reply, &QNetworkReply::finished, &event, &QEventLoop::quit);
         event.exec();
 
         // Check for network error
@@ -165,7 +165,6 @@ QList<QMediaContent> QOnlineTranslator::sourceMedia() const
 #endif
         mediaList.append(apiUrl);
 
-
         // Remove the said part from the next saying
         unparsedText = unparsedText.mid(splitIndex);
     }
@@ -231,6 +230,11 @@ QList<QTranslationOptions> QOnlineTranslator::translationOptionsList() const
     return m_translationOptionsList;
 }
 
+QList<QDefinition> QOnlineTranslator::definitionsList() const
+{
+    return m_definitionsList;
+}
+
 bool QOnlineTranslator::error() const
 {
     return m_error;
@@ -238,12 +242,12 @@ bool QOnlineTranslator::error() const
 
 QStringList QOnlineTranslator::languages() const
 {
-    return languageNames;
+    return m_languageNames;
 }
 
 QStringList QOnlineTranslator::codes() const
 {
-    return languageCodes;
+    return m_languageCodes;
 }
 
 QString QOnlineTranslator::translateText(const QString &text, QString translationLanguage, QString sourceLanguage)
@@ -275,7 +279,7 @@ QString QOnlineTranslator::translateText(const QString &text, QString translatio
 
         // Wait for the response
         QEventLoop event;
-        QObject::connect(reply, &QNetworkReply::finished, &event, &QEventLoop::quit);
+        connect(reply, &QNetworkReply::finished, &event, &QEventLoop::quit);
         event.exec();
 
         // Check for network error
@@ -304,14 +308,14 @@ QString QOnlineTranslator::translateText(const QString &text, QString translatio
 
 QString QOnlineTranslator::codeToLanguage(const QString &code) const
 {
-    int index = languageCodes.indexOf(code);
-    return languageNames.at(index);
+    int index = m_languageCodes.indexOf(code);
+    return m_languageNames.at(index);
 }
 
 QString QOnlineTranslator::languageToCode(const QString &language) const
 {
-    int index = languageNames.indexOf(language);
-    return languageCodes.at(index);
+    int index = m_languageNames.indexOf(language);
+    return m_languageCodes.at(index);
 }
 
 QString QOnlineTranslator::defaultLocaleToCode()
@@ -335,7 +339,7 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, QString langu
 
         // Wait for the response
         QEventLoop event;
-        QObject::connect(reply, &QNetworkReply::finished, &event, &QEventLoop::quit);
+        connect(reply, &QNetworkReply::finished, &event, &QEventLoop::quit);
         event.exec();
 
         if (reply->error() != QNetworkReply::NoError) {
@@ -394,9 +398,4 @@ int QOnlineTranslator::getSplitIndex(const QString &untranslatedText, int limit)
 
     // If the text has not passed any check and is most likely garbage
     return limit;
-}
-
-QList<QDefinition> QOnlineTranslator::definitionsList() const
-{
-    return m_definitionsList;
 }

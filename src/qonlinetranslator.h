@@ -76,7 +76,7 @@ private:
     QList<QDefinition> m_definitionsList;
     bool m_error = false;
 
-    QStringList languageNames = { tr("Automatically detect"), tr("Afrikaans"), tr("Albanian"), tr("Amharic"), tr("Arabic"), tr("Armenian"),
+    QStringList m_languageNames = { tr("Automatically detect"), tr("Afrikaans"), tr("Albanian"), tr("Amharic"), tr("Arabic"), tr("Armenian"),
                                   tr("Azeerbaijani"), tr("Basque"), tr("Belarusian"), tr("Bengali"), tr("Bosnian"), tr("Bulgarian"), tr("Catalan"),
                                   tr("Cebuano"), tr("Chinese (Simplified)"), tr("Chinese (Traditional)"), tr("Corsican"), tr("Croatian"), tr("Czech"),
                                   tr("Danish"), tr("Dutch"), tr("English"), tr("Esperanto"), tr("Estonian"), tr("Finnish"), tr("French"), tr("Frisian"),
@@ -91,7 +91,7 @@ private:
                                   tr("Swedish"), tr("Tagalog"), tr("Tajik"), tr("Tamil"), tr("Telugu"), tr("Thai"), tr("Turkish"), tr("Ukrainian"),
                                   tr("Urdu"), tr("Uzbek"), tr("Vietnamese"), tr("Welsh"), tr("Xhosa"), tr("Yiddish"), tr("Yoruba"), tr("Zulu") };
 
-    QStringList languageCodes = { "auto", "af", "sq", "am", "ar", "hy", "az", "eu", "be", "bn", "bs", "bg", "ca", "ceb", "zh-CN", "zh-TW", "co", "hr", "cs",
+    QStringList m_languageCodes = { "auto", "af", "sq", "am", "ar", "hy", "az", "eu", "be", "bn", "bs", "bg", "ca", "ceb", "zh-CN", "zh-TW", "co", "hr", "cs",
                                   "da", "nl", "en", "eo", "et", "fi", "fr", "fy", "gl", "ka", "de", "el", "gu", "ht", "ha", "haw", "iw", "hi", "hmn", "hu",
                                   "is", "ig", "id", "ga", "it", "ja", "jw", "kn", "kk", "km", "ko", "ku", "ky", "lo", "la", "lv", "lt", "lb", "mk", "mg",
                                   "ms", "ml", "mt", "mi", "mr", "mn", "my", "ne", "no", "ny", "ps", "fa", "pl", "pt", "pa", "ro", "ru", "sm", "gd", "sr",
