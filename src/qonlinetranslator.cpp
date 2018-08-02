@@ -309,13 +309,23 @@ QString QOnlineTranslator::translateText(const QString &text, QString translatio
 QString QOnlineTranslator::codeToLanguage(const QString &code) const
 {
     int index = m_languageCodes.indexOf(code);
-    return m_languageNames.at(index);
+    if (index == -1) {
+        qDebug() << tr("Unable to find language with code ") << code;
+        return tr("Unknown");
+    }
+    else
+        return m_languageNames.at(index);
 }
 
 QString QOnlineTranslator::languageToCode(const QString &language) const
 {
     int index = m_languageNames.indexOf(language);
-    return m_languageCodes.at(index);
+    if (index == -1) {
+        qDebug() << tr("Unable to find code for language ") << language;
+        return "null";
+    }
+    else
+        return m_languageCodes.at(index);
 }
 
 QString QOnlineTranslator::defaultLocaleToCode()
