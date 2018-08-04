@@ -99,8 +99,17 @@ void QOnlineTranslator::translate(const QString &text, const QString &translatio
             return;
         }
 
+        QByteArray replyData = reply->readAll();
+
+        // Check availability of service
+        if (replyData.startsWith("<")) {
+            m_error = true;
+            m_translation = tr("Google systems have detected unusual traffic from your computer network. Please try your request again later.");
+            return;
+        }
+
         // Convert to JsonArray
-        QJsonDocument jsonResponse = QJsonDocument::fromJson(reply->readAll());
+        QJsonDocument jsonResponse = QJsonDocument::fromJson(replyData);
         QJsonArray jsonData = jsonResponse.array();
 
         // Parse first sentense. If the answer contains more than one sentence, then at the end of the first one there will be a space
