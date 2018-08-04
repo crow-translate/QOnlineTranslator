@@ -13,15 +13,15 @@ The **QOnlineTranslator** class provides translation data.
 | Return type                  | Data member                                                                                                                                        |
 |-----------------------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------|
 |                              | [**QOnlineTranslator**(QWidget *parent = nullptr)](#c1)                                                                                            |
-|                              | [**QOnlineTranslator**(const QString &text, QString &translationLanguage = "auto", QString &sourceLanguage = "auto", QString &translatorLanguage = "auto", bool &autoCorrect = false, QObject *parent = nullptr)](#c2) |
-| void                         | [**translate**(const QString &text, QString &translationLanguage = "auto", QString &sourceLanguage = "auto", QString &translatorLanguage = "auto", bool &autoCorrect = false)](#translate) |
+|                              | [**QOnlineTranslator**(const QString &text, QString &translationLanguageCode = "auto", QString &sourceLanguageCode = "auto", QString &translatorLanguageCode = "auto", bool &autoCorrect = false, QObject *parent = nullptr)](#c2) |
+| void                         | [**translate**(const QString &text, QString &translationLanguageCode = "auto", QString &sourceLanguageCode = "auto", QString &translatorLanguageCode = "auto", bool &autoCorrect = false)](#translate) |
 | QList\<QMediaContent\>       | [**sourceMedia**()](#source-media)                                                                                                                 |
 | QList\<QMediaContent\>       | [**translationMedia**()](#translation-media)                                                                                                       |
 | QString                      | [**source**()](#source)                                                                                                                            |
-| QString                      | [**sourceLanguage**()](#source-language)                                                                                                           |
+| QString                      | [**sourceLanguageCode**()](#source-language-code)                                                                                                  |
 | QString                      | [**sourceTranscription**()](#source-transcription)                                                                                                 |
 | QString                      | [**translation**()](#translation)                                                                                                                  |
-| QString                      | [**translationLanguage**()](#translation-language)                                                                                                 |
+| QString                      | [**translationLanguageCode**()](#translation-language-code)                                                                                        |
 | QString                      | [**translationTranscription**()](translation-transcription)                                                                                        |
 | QList\<QTranslationOptions\> | [**translationOptionsList**()](#translation-options-list)                                                                                          |
 | QList\<QDefinition\>         | [**definitionsList**()](#definitions-list)                                                                                                         |
@@ -33,11 +33,11 @@ The **QOnlineTranslator** class provides translation data.
 
 ## Static Public Functions
 
-| Return type          | Function                                                                                                                                |
-|---------------------:|:----------------------------------------------------------------------------------------------------------------------------------------|
-| QString              | [**defaultLocaleToCode**()](#default-locale-to-code-static)                                                                             |
-| QString              | [**translateText**(const QString &text, QString translationLanguage = "auto", QString sourceLanguage = "auto")](#translate-text-static) |
-| QList<QMediaContent> | [**media**(const QString &text, QString language = "auto")](#media)                                                                     |
+| Return type          | Function                                                                                                                                        |
+|---------------------:|:------------------------------------------------------------------------------------------------------------------------------------------------|
+| QString              | [**defaultLocaleToCode**()](#default-locale-to-code-static)                                                                                     |
+| QString              | [**translateText**(const QString &text, QString translationLanguageCode = "auto", QString sourceLanguageCode = "auto")](#translate-text-static) |
+| QList<QMediaContent> | [**media**(const QString &text, QString language = "auto")](#media)                                                                             |
 
 ## Member Function Documentation
 
@@ -45,12 +45,12 @@ The **QOnlineTranslator** class provides translation data.
 Constructs an object with empty data and with parent object *parent*. You can use [translate()](#translate) to send text to object. The destructor of a parent object destroys all child objects. Setting parent to 0 constructs an object with no parent. The parent of an object may be viewed as the object's owner.
 ___
 
-### <a id='c2'/> QOnlineTranslator::QOnlineTranslator(*const QString &text, QString &translationLanguage = "auto", QString &sourceLanguage = "auto", QString &translatorLanguage = "auto", bool &autoCorrect = false, QObject \*parent = nullptr*)
-Constructs an object initialized with the *text* translated into language of *translationLanguage* code from language of *sourceLanguage* code with hints on language of *translatorLanguage* code with parent object *parent*. Also Google try automatically correct grammatical errors and typos of *text* if *autoCorrect* is set to *true*. For languages see the column **Language code** in the table [above](#languages-table). The destructor of a parent object destroys all child objects. Setting parent to 0 constructs an object with no parent. The parent of an object may be viewed as the object's owner.
+### <a id='c2'/> QOnlineTranslator::QOnlineTranslator(*const QString &text, QString &translationLanguageCode = "auto", QString &sourceLanguageCode = "auto", QString &translatorLanguageCode = "auto", bool &autoCorrect = false, QObject \*parent = nullptr*)
+Constructs an object initialized with the *text* translated into language of *translationLanguageCode* from language of *sourceLanguageCode* with hints on language of *translatorLanguageCode* with parent object *parent*. Also Google try automatically correct grammatical errors and typos of *text* if *autoCorrect* is set to *true*. For languages see the column **Language code** in the table [above](#languages-table). The destructor of a parent object destroys all child objects. Setting parent to 0 constructs an object with no parent. The parent of an object may be viewed as the object's owner.
 ___
 
-### <a id='translate'/> void QOnlineTranslator::translate(*const QString &text, QString &translationLanguage = "auto", QString &sourceLanguage = "auto", QString &translatorLanguage = "auto", bool &autoCorrect = false*)
-Parse *text* and translate into language of *translationLanguage* code from language of *sourceLanguage* code with hints on language of *translatorLanguage* code and send data into object fields. Also Google try automatically correct grammatical errors and typos of *text* if *autoCorrect* is set to **true**. For languages see the column **Language code** in the table [above](#languages-table).
+### <a id='translate'/> void QOnlineTranslator::translate(*const QString &text, QString &translationLanguageCode = "auto", QString &sourceLanguageCode = "auto", QString &translatorLanguageCode = "auto", bool &autoCorrect = false*)
+Parse *text* and translate into language of *translationLanguageCode* from language of *sourceLanguageCode* with hints on language of *translatorLanguageCode* and send data into object fields. Also Google try automatically correct grammatical errors and typos of *text* if *autoCorrect* is set to **true**. For languages see the column **Language code** in the table [above](#languages-table).
 ___
 
 ### <a id='source-media'/> [QList](https://doc.qt.io/qt-5/qlist.html "Qt Documentation")<[QMediaContent](https://doc.qt.io/qt-5/qmediacontent.html "Qt Documentation")> QOnlineTranslator::sourceMedia()
@@ -78,27 +78,35 @@ Google has a limit of up to 5000 characters per request. If the query is larger,
 ___
 
 ### <a id='source'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::source()
-Returns the source text.
+Returns source text.
+___
+
+### <a id='source-language-code'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::sourceLanguageCode()
+Returns source language code of translated text.
 ___
 
 ### <a id='source-language'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::sourceLanguage()
-Returns the source language of the translated text.
+Returns a language that matches code of source language.
 ___
 
 ### <a id='source-transcription'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::sourceTranscription()
-Returns the transcription of the source text. Google sends source transcription only if the source text is one word, otherwise function returns empty string.
+Returns transcription of source text. Google sends source transcription only if source text is one word, otherwise function returns empty string.
 ___
 
 ### <a id='translation'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::translation()
-Returns the translated text or text with network error.
+Returns translated text or text with network error.
+___
+
+### <a id='translation-language-code'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::translationLanguageCode()
+Returns language to which text is translated.
 ___
 
 ### <a id='translation-language'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::translationLanguage()
-Returns the language to which the text is translated.
+Returns a language that matches code of translation language.
 ___
 
 ### <a id='translation-transcription'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::translationTranscription()
-Returns the transcription of the translated text.
+Returns transcription of translated text.
 ___
 
 ### <a id='translation-options-list'/> [QList](http://doc.qt.io/qt-5/qlist.html "Qt Documentation")<[QTranslationOptions](QTranslationOptions.md "Class documentation")>  QOnlineTranslator::translationOptionsList()
@@ -233,23 +241,23 @@ ___
 ---
 
 ### <a id='code-to-language'/> static [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::codeToLanguage(*const QString &code*)
-Returns a [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") containing the language of *code*. If such a code does not exist, it returns *Unknown*.
+Returns a [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") containing the language of *code*.
 ---
 
 ### <a id='language-to-code'/> static [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::codeToLanguage(*const QString &language*)
-Returns a [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") containing the code of *language*. If such a language does not exist, it returns *null*.
+Returns a [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") containing the code of *language*.
 ---
 
 ### <a id='default-locale-to-code-static'/> static [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::defaultLocaleToCode()
 Returns a [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") containing the code of the default [QLocale](https://doc.qt.io/qt-5/qlocale.html "Qt Documentation") language.
 ___
 
-### <a id='translate-text-static'/> static [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::translateText(*const QString &text, QString translationLanguage = "auto", QString sourceLanguage = "auto"*)
-Returns the translated text from language of *sourceLanguage* code to language of *translationLanguage* code from the source *text*. For languages see the column **Language code** in the table [above](#languages-table).
+### <a id='translate-text-static'/> static [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::translateText(*const QString &text, QString translationLanguageCode = "auto", QString sourceLanguageCode = "auto"*)
+Returns the translated text from language of *sourceLanguageCode* to language of *translationLanguageCode* from the source *text*. For languages see the column **Language code** in the table [above](#languages-table).
 ___
 
-### <a id='media-static'/> [QList](https://doc.qt.io/qt-5/qlist.html "Qt Documentation")<[QMediaContent](https://doc.qt.io/qt-5/qmediacontent.html "Qt Documentation")> QOnlineTranslator::media(*const QString &text, QString language = "auto"*)
-Splits the *text* into parts (if required) and returns list with the generated API URLs with the language of *code* to play this text.
+### <a id='media-static'/> [QList](https://doc.qt.io/qt-5/qlist.html "Qt Documentation")<[QMediaContent](https://doc.qt.io/qt-5/qmediacontent.html "Qt Documentation")> QOnlineTranslator::media(*const QString &text, QString languageCode = "auto"*)
+Splits the *text* into parts (if required) and returns list with the generated API URLs with the language of *languageCode* to play this text.
 Google has a limit of up to 5000 characters per request. If the query is larger, then it will be splitted into several.
 
 Example:

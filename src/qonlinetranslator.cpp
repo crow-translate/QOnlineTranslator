@@ -25,31 +25,27 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 
-#if defined(Q_OS_WIN)
-#include <QBuffer>
-#endif
-
 #include "qonlinetranslator.h"
 
 QOnlineTranslator::QOnlineTranslator(QObject *parent) :
     QObject(parent)
 {}
 
-QOnlineTranslator::QOnlineTranslator(const QString &text, const QString &translationLanguage, const QString &sourceLanguage, const QString &translatorLanguage, const bool &autoCorrect, QObject *parent) :
+QOnlineTranslator::QOnlineTranslator(const QString &text, const QString &translationLanguage, const QString &sourceLanguage, const QString &translatorLanguageCode, const bool &autoCorrect, QObject *parent) :
     QObject(parent)
 {
-    translate(text, translationLanguage, sourceLanguage, translatorLanguage, autoCorrect);
+    translate(text, translationLanguage, sourceLanguage, translatorLanguageCode, autoCorrect);
 }
 
-void QOnlineTranslator::translate(const QString &text, const QString &translationLanguage, const QString &sourceLanguage, const QString &translatorLanguage, const bool &autoCorrect)
+void QOnlineTranslator::translate(const QString &text, const QString &translationLanguage, const QString &sourceLanguage, const QString &translatorLanguageCode, const bool &autoCorrect)
 {
     m_source = text;
 
     // Detect system language if translateLanguage not specified
     if (translationLanguage == "auto")
-        m_translationLanguage = defaultLocaleToCode();
+        m_translationLanguageCode = defaultLocaleToCode();
     else
-        m_translationLanguage = translationLanguage;
+        m_translationLanguageCode = translationLanguage;
 
     // Set auto-correction query option
     QString autocorrection;
@@ -62,7 +58,7 @@ void QOnlineTranslator::translate(const QString &text, const QString &translatio
     m_translation.clear();
     m_translationTranscription.clear();
     m_sourceTranscription.clear();
-    m_sourceLanguage.clear();
+    m_sourceLanguageCode.clear();
     m_translationOptionsList.clear();
     m_definitionsList.clear();
     m_error = false;
@@ -81,7 +77,7 @@ void QOnlineTranslator::translate(const QString &text, const QString &translatio
         // Generate API url
         QUrl apiUrl("https://translate.googleapis.com/translate_a/single");
         apiUrl.setQuery("client=gtx&ie=UTF-8&oe=UTF-8&dt=bd&dt=ex&dt=ld&dt=md&dt=rw&dt=rm&dt=ss&dt=t&dt=at&dt=" + autocorrection +"&sl=" + sourceLanguage + "&tl=" +
-                        translationLanguage + "&hl=" + translatorLanguage + "&q=" + QUrl::toPercentEncoding(untranslatedText.left(splitIndex)));
+                        translationLanguage + "&hl=" + translatorLanguageCode + "&q=" + QUrl::toPercentEncoding(untranslatedText.left(splitIndex)));
         
         // Send request
         QNetworkAccessManager manager;
@@ -120,8 +116,8 @@ void QOnlineTranslator::translate(const QString &text, const QString &translatio
         // Parse transcriptions and source language
         m_translationTranscription.append(jsonData.at(0).toArray().last().toArray().at(2).toString());
         m_sourceTranscription.append(jsonData.at(0).toArray().last().toArray().at(3).toString());
-        if (m_sourceLanguage.isEmpty())
-            m_sourceLanguage = jsonData.at(2).toString();
+        if (m_sourceLanguageCode.isEmpty())
+            m_sourceLanguageCode = jsonData.at(2).toString();
 
         // Remove the parsed part from the next parsing
         untranslatedText = untranslatedText.mid(splitIndex);
@@ -168,9 +164,9 @@ QList<QMediaContent> QOnlineTranslator::sourceMedia() const
         // Generate URL API for add it to the playlist
         QUrl apiUrl("http://translate.googleapis.com/translate_tts");
 #if defined(Q_OS_LINUX)
-        apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + m_sourceLanguage +"&q=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)));
+        apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + m_sourceLanguageCode +"&q=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)));
 #elif defined(Q_OS_WIN)
-        apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + m_sourceLanguage +"&q=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)), QUrl::DecodedMode);
+        apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + m_sourceLanguageCode +"&q=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)), QUrl::DecodedMode);
 #endif
         mediaList.append(apiUrl);
 
@@ -192,9 +188,9 @@ QList<QMediaContent> QOnlineTranslator::translationMedia() const
         // Generate URL API for add it to the playlist
         QUrl apiUrl("http://translate.googleapis.com/translate_tts");
 #if defined(Q_OS_LINUX)
-        apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + m_translationLanguage +"&q=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)));
+        apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + m_translationLanguageCode +"&q=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)));
 #elif defined(Q_OS_WIN)
-        apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + m_translationLanguage +"&q=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)), QUrl::DecodedMode);
+        apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + m_translationLanguageCode +"&q=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)), QUrl::DecodedMode);
 #endif
         mediaList.append(apiUrl);
 
@@ -209,14 +205,25 @@ QString QOnlineTranslator::source() const
     return m_source;
 }
 
-QString QOnlineTranslator::sourceLanguage() const
-{
-    return m_sourceLanguage;
-}
-
 QString QOnlineTranslator::sourceTranscription() const
 {
     return m_sourceTranscription;
+}
+
+QString QOnlineTranslator::sourceLanguageCode() const
+{
+    return m_sourceLanguageCode;
+}
+
+QString QOnlineTranslator::sourceLanguage() const
+{
+    int index = m_languageCodes.indexOf(m_sourceLanguageCode);
+    if (index == -1) {
+        qDebug() << tr("Unable to find language with code ") << m_sourceLanguageCode;
+        return tr("Unknown");
+    }
+    else
+        return m_languageNames.at(index);
 }
 
 QString QOnlineTranslator::translation() const
@@ -229,9 +236,20 @@ QString QOnlineTranslator::translationTranscription() const
     return m_translationTranscription;
 }
 
+QString QOnlineTranslator::translationLanguageCode() const
+{
+    return m_translationLanguageCode;
+}
+
 QString QOnlineTranslator::translationLanguage() const
 {
-    return m_translationLanguage;
+    int index = m_languageCodes.indexOf(m_translationLanguageCode);
+    if (index == -1) {
+        qDebug() << tr("Unable to find language for code ") << m_translationLanguageCode;
+        return tr("Unknown");
+    }
+    else
+        return m_languageNames.at(index);
 }
 
 QList<QTranslationOptions> QOnlineTranslator::translationOptionsList() const
@@ -259,11 +277,33 @@ QStringList QOnlineTranslator::codes() const
     return m_languageCodes;
 }
 
-QString QOnlineTranslator::translateText(const QString &text, QString translationLanguage, QString sourceLanguage)
+QString QOnlineTranslator::codeToLanguage(const QString &code) const
+{
+    int index = m_languageCodes.indexOf(code);
+    if (index == -1) {
+        qDebug() << tr("Unable to find language for code ") << code;
+        return tr("Unknown");
+    }
+    else
+        return m_languageNames.at(index);
+}
+
+QString QOnlineTranslator::languageToCode(const QString &language) const
+{
+    int index = m_languageNames.indexOf(language);
+    if (index == -1) {
+        qDebug() << tr("Unable to find code for language ") << language;
+        return "null";
+    }
+    else
+        return m_languageCodes.at(index);
+}
+
+QString QOnlineTranslator::translateText(const QString &text, QString translationLanguageCode, QString sourceLanguageCode)
 {
     // Detect system language if translationLanguage not specified
-    if (translationLanguage == "auto")
-        translationLanguage = defaultLocaleToCode();
+    if (translationLanguageCode == "auto")
+        translationLanguageCode = defaultLocaleToCode();
 
     QString untranslatedText = text;
     QString translatedText;
@@ -280,7 +320,7 @@ QString QOnlineTranslator::translateText(const QString &text, QString translatio
 
         // Generate short URL API only for translation and and receive a reply
         QUrl apiUrl("https://translate.googleapis.com/translate_a/single");
-        apiUrl.setQuery("client=gtx&sl=" + sourceLanguage +"&tl=" + translationLanguage + "&dt=t&q=" + QUrl::toPercentEncoding(untranslatedText.left(splitIndex)));
+        apiUrl.setQuery("client=gtx&sl=" + sourceLanguageCode +"&tl=" + translationLanguageCode + "&dt=t&q=" + QUrl::toPercentEncoding(untranslatedText.left(splitIndex)));
 
         // Send request
         QNetworkAccessManager manager;
@@ -315,40 +355,18 @@ QString QOnlineTranslator::translateText(const QString &text, QString translatio
     return translatedText;
 }
 
-QString QOnlineTranslator::codeToLanguage(const QString &code) const
-{
-    int index = m_languageCodes.indexOf(code);
-    if (index == -1) {
-        qDebug() << tr("Unable to find language with code ") << code;
-        return tr("Unknown");
-    }
-    else
-        return m_languageNames.at(index);
-}
-
-QString QOnlineTranslator::languageToCode(const QString &language) const
-{
-    int index = m_languageNames.indexOf(language);
-    if (index == -1) {
-        qDebug() << tr("Unable to find code for language ") << language;
-        return "null";
-    }
-    else
-        return m_languageCodes.at(index);
-}
-
 QString QOnlineTranslator::defaultLocaleToCode()
 {
     QLocale locale;
     return locale.name().left(locale.name().indexOf("_"));
 }
 
-QList<QMediaContent> QOnlineTranslator::media(const QString &text, QString language)
+QList<QMediaContent> QOnlineTranslator::media(const QString &text, QString languageCode)
 {
     QList<QMediaContent> mediaList;
 
     // Google don't support "auto" as argument for text-to-speech, so need to detect language manually from translation request
-    if (language == "auto") {
+    if (languageCode == "auto") {
         QUrl languageUrl("https://translate.googleapis.com/translate_a/single");
         languageUrl.setQuery("client=gtx&sl=auto&tl=en&dt=t&q=" + QUrl::toPercentEncoding(text.left(getSplitIndex(text, 5000))));
 
@@ -367,9 +385,9 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, QString langu
         }
 
         // Parse language
-        language = reply->readAll();
-        language.chop(4);
-        language = language.mid(language.lastIndexOf("\"") + 1);
+        languageCode = reply->readAll();
+        languageCode.chop(4);
+        languageCode = languageCode.mid(languageCode.lastIndexOf("\"") + 1);
     }
 
     // Google has a limit of up to 200 characters per tts request. If the query is larger, then it should be splited into several
@@ -380,9 +398,9 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, QString langu
         // Generate URL API for add it to the playlist
         QUrl apiUrl("http://translate.googleapis.com/translate_tts");
 #if defined(Q_OS_LINUX)
-        apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + language +"&q=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)));
+        apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + languageCode +"&q=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)));
 #elif defined(Q_OS_WIN)
-        apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + language +"&q=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)), QUrl::DecodedMode);
+        apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + languageCode +"&q=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)), QUrl::DecodedMode);
 #endif
         mediaList.append(apiUrl);
 

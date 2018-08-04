@@ -35,19 +35,21 @@ class QOnlineTranslator : public QObject
 
 public:
     explicit QOnlineTranslator(QObject *parent = nullptr);
-    explicit QOnlineTranslator(const QString &text, const QString &translationLanguage = "auto", const QString &sourceLanguage = "auto", const QString &translatorLanguage = "auto", const bool &autoCorrect = false, QObject *parent = nullptr);
+    explicit QOnlineTranslator(const QString &text, const QString &translationLanguageCode = "auto", const QString &sourceLanguageCode = "auto", const QString &translatorLanguageCode = "auto", const bool &autoCorrect = false, QObject *parent = nullptr);
 
-    void translate(const QString &translation, const QString &translationLanguage = "auto", const QString &sourceLanguage = "auto", const QString &translatorLanguage = "auto", const bool &autoCorrect = false);
+    void translate(const QString &translation, const QString &translationLanguageCode = "auto", const QString &sourceLanguageCode = "auto", const QString &translatorLanguageCode = "auto", const bool &autoCorrect = false);
 
     QList<QMediaContent> sourceMedia() const;
     QList<QMediaContent> translationMedia() const;
 
     QString source() const;
-    QString sourceLanguage() const;
     QString sourceTranscription() const;
+    QString sourceLanguageCode() const;
+    QString sourceLanguage() const;
 
     QString translation() const;
     QString translationTranscription() const;
+    QString translationLanguageCode() const;
     QString translationLanguage() const;
     QList<QTranslationOptions> translationOptionsList() const;
     QList<QDefinition> definitionsList() const;
@@ -59,19 +61,19 @@ public:
     QString languageToCode(const QString &language) const;
 
     static QString defaultLocaleToCode();
-    static QString translateText(const QString &translation, QString translationLanguage = "auto", QString sourceLanguage = "auto");
-    static QList<QMediaContent> media(const QString &text, QString language = "auto");
+    static QString translateText(const QString &translation, QString translationLanguageCode = "auto", QString sourceLanguageCode = "auto");
+    static QList<QMediaContent> media(const QString &text, QString languageCode = "auto");
 
 private:
     static int getSplitIndex(const QString &untranslatedText, int limit);
 
     QString m_source;
-    QString m_sourceLanguage;
+    QString m_sourceLanguageCode;
     QString m_sourceTranscription;
 
     QString m_translation;
     QString m_translationTranscription;
-    QString m_translationLanguage;
+    QString m_translationLanguageCode;
     QList<QTranslationOptions> m_translationOptionsList;
     QList<QDefinition> m_definitionsList;
     bool m_error = false;
