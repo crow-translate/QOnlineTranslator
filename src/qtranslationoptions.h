@@ -26,7 +26,7 @@
 class QTranslationOptions
 {
 public:
-    QTranslationOptions(const QString &typeOfSpeech = "");
+    explicit QTranslationOptions(const QString &typeOfSpeech = "");
 
     QString typeOfSpeech() const;
     QString word(int index) const;
