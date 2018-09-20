@@ -35,9 +35,16 @@ class QOnlineTranslator : public QObject
 
 public:
     explicit QOnlineTranslator(QObject *parent = nullptr);
-    explicit QOnlineTranslator(const QString &text, const QString &translationLanguageCode = "auto", const QString &sourceLanguageCode = "auto", const QString &translatorLanguageCode = "auto", const bool &autoCorrect = false, QObject *parent = nullptr);
+    explicit QOnlineTranslator(const QString &text,
+                               const QString &translationLanguageCode = "auto",
+                               const QString &sourceLanguageCode = "auto",
+                               const QString &translatorLanguageCode = "auto",
+                               QObject *parent = nullptr);
 
-    void translate(const QString &translation, const QString &translationLanguageCode = "auto", const QString &sourceLanguageCode = "auto", const QString &translatorLanguageCode = "auto", const bool &autoCorrect = false);
+    void translate(const QString &text,
+                   const QString &translationLanguageCode = "auto",
+                   const QString &sourceLanguageCode = "auto",
+                   const QString &translatorLanguageCode = "auto");
 
     QList<QMediaContent> sourceMedia() const;
     QList<QMediaContent> translationMedia() const;

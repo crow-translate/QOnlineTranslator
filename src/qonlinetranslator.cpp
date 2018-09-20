@@ -31,13 +31,13 @@ QOnlineTranslator::QOnlineTranslator(QObject *parent) :
     QObject(parent)
 {}
 
-QOnlineTranslator::QOnlineTranslator(const QString &text, const QString &translationLanguage, const QString &sourceLanguage, const QString &translatorLanguageCode, const bool &autoCorrect, QObject *parent) :
+QOnlineTranslator::QOnlineTranslator(const QString &text, const QString &translationLanguage, const QString &sourceLanguage, const QString &translatorLanguageCode, QObject *parent) :
     QObject(parent)
 {
-    translate(text, translationLanguage, sourceLanguage, translatorLanguageCode, autoCorrect);
+    translate(text, translationLanguage, sourceLanguage, translatorLanguageCode);
 }
 
-void QOnlineTranslator::translate(const QString &text, const QString &translationLanguage, const QString &sourceLanguage, const QString &translatorLanguageCode, const bool &autoCorrect)
+void QOnlineTranslator::translate(const QString &text, const QString &translationLanguage, const QString &sourceLanguage, const QString &translatorLanguageCode)
 {
     m_source = text;
 
@@ -46,13 +46,6 @@ void QOnlineTranslator::translate(const QString &text, const QString &translatio
         m_translationLanguageCode = defaultLocaleToCode();
     else
         m_translationLanguageCode = translationLanguage;
-
-    // Set auto-correction query option
-    QString autocorrection;
-    if (autoCorrect == true)
-        autocorrection = "qca";
-    else
-        autocorrection = "qc";
 
     // Reset old data
     m_translation.clear();
@@ -67,8 +60,9 @@ void QOnlineTranslator::translate(const QString &text, const QString &translatio
     QString untranslatedText = text;
     while (!untranslatedText.isEmpty()) {
         int splitIndex = getSplitIndex(untranslatedText, 5000); // Split the part by special symbol
+
+        // Do not translate the part if it looks like garbage
         if (splitIndex == -1) {
-            // Do not translate the part if it looks like garbage
             m_translation.append(untranslatedText.left(5000));
             untranslatedText = untranslatedText.mid(5000);
             continue;
@@ -76,7 +70,7 @@ void QOnlineTranslator::translate(const QString &text, const QString &translatio
 
         // Generate API url
         QUrl apiUrl("https://translate.googleapis.com/translate_a/single");
-        apiUrl.setQuery("client=gtx&ie=UTF-8&oe=UTF-8&dt=bd&dt=ex&dt=ld&dt=md&dt=rw&dt=rm&dt=ss&dt=t&dt=at&dt=" + autocorrection +"&sl=" + sourceLanguage + "&tl=" +
+        apiUrl.setQuery("client=gtx&ie=UTF-8&oe=UTF-8&dt=bd&dt=ex&dt=ld&dt=md&dt=rw&dt=rm&dt=ss&dt=t&dt=at&dt=qc&sl=" + sourceLanguage + "&tl=" +
                         translationLanguage + "&hl=" + translatorLanguageCode + "&q=" + QUrl::toPercentEncoding(untranslatedText.left(splitIndex)));
         
         // Send request

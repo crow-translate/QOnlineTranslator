@@ -13,8 +13,8 @@ The **QOnlineTranslator** class provides translation data.
 | Return type                  | Data member                                                                                                                                        |
 |-----------------------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------|
 |                              | [**QOnlineTranslator**(QWidget *parent = nullptr)](#c1)                                                                                            |
-|                              | [**QOnlineTranslator**(const QString &text, QString &translationLanguageCode = "auto", QString &sourceLanguageCode = "auto", QString &translatorLanguageCode = "auto", bool &autoCorrect = false, QObject *parent = nullptr)](#c2) |
-| void                         | [**translate**(const QString &text, QString &translationLanguageCode = "auto", QString &sourceLanguageCode = "auto", QString &translatorLanguageCode = "auto", bool &autoCorrect = false)](#translate) |
+|                              | [**QOnlineTranslator**(const QString &text, QString &translationLanguageCode = "auto", QString &sourceLanguageCode = "auto", QString &translatorLanguageCode = "auto", QObject *parent = nullptr)](#c2) |
+| void                         | [**translate**(const QString &text, QString &translationLanguageCode = "auto", QString &sourceLanguageCode = "auto", QString &translatorLanguageCode = "auto")](#translate) |
 | QList\<QMediaContent\>       | [**sourceMedia**()](#source-media)                                                                                                                 |
 | QList\<QMediaContent\>       | [**translationMedia**()](#translation-media)                                                                                                       |
 | QString                      | [**source**()](#source)                                                                                                                            |
@@ -45,12 +45,12 @@ The **QOnlineTranslator** class provides translation data.
 Constructs an object with empty data and with parent object *parent*. You can use [translate()](#translate) to send text to object. The destructor of a parent object destroys all child objects. Setting parent to 0 constructs an object with no parent. The parent of an object may be viewed as the object's owner.
 ___
 
-### <a id='c2'/> QOnlineTranslator::QOnlineTranslator(*const QString &text, QString &translationLanguageCode = "auto", QString &sourceLanguageCode = "auto", QString &translatorLanguageCode = "auto", bool &autoCorrect = false, QObject \*parent = nullptr*)
-Constructs an object initialized with the *text* translated into language of *translationLanguageCode* from language of *sourceLanguageCode* with hints on language of *translatorLanguageCode* with parent object *parent*. Also Google try automatically correct grammatical errors and typos of *text* if *autoCorrect* is set to *true*. For languages see the column **Language code** in the table [above](#languages-table). The destructor of a parent object destroys all child objects. Setting parent to 0 constructs an object with no parent. The parent of an object may be viewed as the object's owner.
+### <a id='c2'/> QOnlineTranslator::QOnlineTranslator(*const QString &text, QString &translationLanguageCode = "auto", QString &sourceLanguageCode = "auto", QString &translatorLanguageCode = "auto", QObject \*parent = nullptr*)
+Constructs an object initialized with the *text* translated into language of *translationLanguageCode* from language of *sourceLanguageCode* with hints on language of *translatorLanguageCode* with parent object *parent*. For languages see the column **Language code** in the table [above](#languages-table). The destructor of a parent object destroys all child objects. Setting parent to 0 constructs an object with no parent. The parent of an object may be viewed as the object's owner.
 ___
 
-### <a id='translate'/> void QOnlineTranslator::translate(*const QString &text, QString &translationLanguageCode = "auto", QString &sourceLanguageCode = "auto", QString &translatorLanguageCode = "auto", bool &autoCorrect = false*)
-Parse *text* and translate into language of *translationLanguageCode* from language of *sourceLanguageCode* with hints on language of *translatorLanguageCode* and send data into object fields. Also Google try automatically correct grammatical errors and typos of *text* if *autoCorrect* is set to **true**. For languages see the column **Language code** in the table [above](#languages-table).
+### <a id='translate'/> void QOnlineTranslator::translate(*const QString &text, QString &translationLanguageCode = "auto", QString &sourceLanguageCode = "auto", QString &translatorLanguageCode = "auto"*)
+Parse *text* and translate into language of *translationLanguageCode* from language of *sourceLanguageCode* with hints on language of *translatorLanguageCode* and send data into object fields. For languages see the column **Language code** in the table [above](#languages-table).
 ___
 
 ### <a id='source-media'/> [QList](https://doc.qt.io/qt-5/qlist.html "Qt Documentation")<[QMediaContent](https://doc.qt.io/qt-5/qmediacontent.html "Qt Documentation")> QOnlineTranslator::sourceMedia()
