@@ -26,7 +26,7 @@
 #include <QNetworkReply>
 #include <QMediaPlaylist>
 
-#include "qtranslationoptions.h"
+#include "qdictionary.h"
 #include "qdefinition.h"
 
 class QOnlineTranslator : public QObject
@@ -34,14 +34,21 @@ class QOnlineTranslator : public QObject
     Q_OBJECT
 
 public:
+    enum Engine {
+        Google,
+        Yandex
+    };
+
     explicit QOnlineTranslator(QObject *parent = nullptr);
     explicit QOnlineTranslator(const QString &text,
+                               Engine engine = Google,
                                const QString &translationLanguageCode = "auto",
                                const QString &sourceLanguageCode = "auto",
                                const QString &translatorLanguageCode = "auto",
                                QObject *parent = nullptr);
 
     void translate(const QString &text,
+                   Engine engine = Google,
                    const QString &translationLanguageCode = "auto",
                    const QString &sourceLanguageCode = "auto",
                    const QString &translatorLanguageCode = "auto");
@@ -50,15 +57,17 @@ public:
     QList<QMediaContent> translationMedia() const;
 
     QString source() const;
-    QString sourceTranscription() const;
+    QString sourceTranslit() const;
     QString sourceLanguageCode() const;
     QString sourceLanguage() const;
 
     QString translation() const;
-    QString translationTranscription() const;
+    QString translationTranslit() const;
     QString translationLanguageCode() const;
     QString translationLanguage() const;
-    QList<QTranslationOptions> translationOptionsList() const;
+
+    QString translatorLanguageCode() const;
+    QList<QDictionary> dictionaryList() const;
     QList<QDefinition> definitionsList() const;
     bool error() const;
 
@@ -67,7 +76,7 @@ public:
     QString codeToLanguage(const QString &code) const;
     QString languageToCode(const QString &language) const;
 
-    static QString defaultLocaleToCode();
+    static QString systemLanguageCode();
     static QString translateText(const QString &translation, QString translationLanguageCode = "auto", QString sourceLanguageCode = "auto");
     static QList<QMediaContent> media(const QString &text, QString languageCode = "auto");
 
@@ -75,15 +84,20 @@ private:
     static int getSplitIndex(const QString &untranslatedText, int limit);
 
     QString m_source;
+    QString m_sourceTranslit;
     QString m_sourceLanguageCode;
-    QString m_sourceTranscription;
 
     QString m_translation;
-    QString m_translationTranscription;
+    QString m_translationTranslit;
     QString m_translationLanguageCode;
-    QList<QTranslationOptions> m_translationOptionsList;
+
+    QString m_translatorLanguageCode;
+    QList<QDictionary> m_dictionaryList;
     QList<QDefinition> m_definitionsList;
     bool m_error = false;
+
+    static QString m_yandexSid;
+    bool m_secondSidRequest = false;
 
     QStringList m_languageNames = { tr("Automatically detect"), tr("Afrikaans"), tr("Albanian"), tr("Amharic"), tr("Arabic"), tr("Armenian"),
                                   tr("Azeerbaijani"), tr("Basque"), tr("Belarusian"), tr("Bengali"), tr("Bosnian"), tr("Bulgarian"), tr("Catalan"),

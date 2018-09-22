@@ -2,7 +2,7 @@
 
 [![GitHub (pre-)release](https://img.shields.io/github/release/Shatur95/QOnlineTranslator/all.svg)](https://github.com/Shatur95/QOnlineTranslator/releases)
 
-**QOnlineTranslator** is a library for **Qt5** that provides free usage of Google Translate API. It uses the Google API URL to get the response, and then parse the reply. [Detailed documentation](docs/QOnlineTranslator.md "Class documentation").
+**QOnlineTranslator** is a library for **Qt5** that provides free usage of Google and Yandex translate API. [Detailed documentation](docs/QOnlineTranslator.md "Class documentation").
 
 Example:
 

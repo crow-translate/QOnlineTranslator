@@ -4,26 +4,33 @@ The **QOnlineTranslator** class provides translation data.
 
 ## Content
 
+* [Public Types](#public-types)
 * [Public Functions](#public-functions)
 * [Static Public Functions](#static-public-functions)
 * [Member Function Documentation](#member-function-documentation)
+
+## Public Types
+
+| Type | Name                                     |
+|-----:|:-----------------------------------------|
+| enum | [**Engine**](#engine) { Google, Yandex } |
 
 ## Public Functions
 
 | Return type                  | Data member                                                                                                                                        |
 |-----------------------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------|
 |                              | [**QOnlineTranslator**(QWidget *parent = nullptr)](#c1)                                                                                            |
-|                              | [**QOnlineTranslator**(const QString &text, QString &translationLanguageCode = "auto", QString &sourceLanguageCode = "auto", QString &translatorLanguageCode = "auto", QObject *parent = nullptr)](#c2) |
-| void                         | [**translate**(const QString &text, QString &translationLanguageCode = "auto", QString &sourceLanguageCode = "auto", QString &translatorLanguageCode = "auto")](#translate) |
+|                              | [**QOnlineTranslator**(const QString &text, QOnlineTranslator::Engine engine, QString &translationLanguageCode = "auto", QString &sourceLanguageCode = "auto", QString &translatorLanguageCode = "auto", QObject *parent = nullptr)](#c2) |
+| void                         | [**translate**(const QString &text, QOnlineTranslator::Engine engine, QString &translationLanguageCode = "auto", QString &sourceLanguageCode = "auto", QString &translatorLanguageCode = "auto")](#translate) |
 | QList\<QMediaContent\>       | [**sourceMedia**()](#source-media)                                                                                                                 |
 | QList\<QMediaContent\>       | [**translationMedia**()](#translation-media)                                                                                                       |
 | QString                      | [**source**()](#source)                                                                                                                            |
 | QString                      | [**sourceLanguageCode**()](#source-language-code)                                                                                                  |
-| QString                      | [**sourceTranscription**()](#source-transcription)                                                                                                 |
+| QString                      | [**sourceTranslit**()](#source-transliteration)                                                                                                    |
 | QString                      | [**translation**()](#translation)                                                                                                                  |
 | QString                      | [**translationLanguageCode**()](#translation-language-code)                                                                                        |
-| QString                      | [**translationTranscription**()](translation-transcription)                                                                                        |
-| QList\<QTranslationOptions\> | [**translationOptionsList**()](#translation-options-list)                                                                                          |
+| QString                      | [**translationTranslit**()](translation-translit)                                                                                                  |
+| QList\<QDictionary\>         | [**dictionaryList**()](#dictionary-list)                                                                                                           |
 | QList\<QDefinition\>         | [**definitionsList**()](#definitions-list)                                                                                                         |
 | bool                         | [**error**()](#error)                                                                                                                              |
 | QStringList                  | [**languages**(int index)](#languages-static)                                                                                                      |
@@ -35,9 +42,20 @@ The **QOnlineTranslator** class provides translation data.
 
 | Return type          | Function                                                                                                                                        |
 |---------------------:|:------------------------------------------------------------------------------------------------------------------------------------------------|
-| QString              | [**defaultLocaleToCode**()](#default-locale-to-code-static)                                                                                     |
+| QString              | [**systemLanguageCode**()](#system-language-code-static)                                                                                        |
 | QString              | [**translateText**(const QString &text, QString translationLanguageCode = "auto", QString sourceLanguageCode = "auto")](#translate-text-static) |
 | QList<QMediaContent> | [**media**(const QString &text, QString language = "auto")](#media)                                                                             |
+
+## Member Type Documentation
+
+### <a id='engine'/> enum QOnlineTranslator::Engine
+
+This enum has the following values:
+
+| Constant                  | Value | Description                                                  |
+|--------------------------:|:-----:|:-------------------------------------------------------------|
+| QOnlineTranslator::Google | 0     | [**Google Translate**](https://translate.google.com/) engine |
+| QOnlineTranslator::Yandex | 1     | [**Yandex.Translate**](https://translate.yandex.com/) engine |
 
 ## Member Function Documentation
 
@@ -45,16 +63,16 @@ The **QOnlineTranslator** class provides translation data.
 Constructs an object with empty data and with parent object *parent*. You can use [translate()](#translate) to send text to object. The destructor of a parent object destroys all child objects. Setting parent to 0 constructs an object with no parent. The parent of an object may be viewed as the object's owner.
 ___
 
-### <a id='c2'/> QOnlineTranslator::QOnlineTranslator(*const QString &text, QString &translationLanguageCode = "auto", QString &sourceLanguageCode = "auto", QString &translatorLanguageCode = "auto", QObject \*parent = nullptr*)
-Constructs an object initialized with the *text* translated into language of *translationLanguageCode* from language of *sourceLanguageCode* with hints on language of *translatorLanguageCode* with parent object *parent*. For languages see the column **Language code** in the table [above](#languages-table). The destructor of a parent object destroys all child objects. Setting parent to 0 constructs an object with no parent. The parent of an object may be viewed as the object's owner.
+### <a id='c2'/> QOnlineTranslator::QOnlineTranslator(*const QString &text, QOnlineTranslator::Engine engine, QString &translationLanguageCode = "auto", QString &sourceLanguageCode = "auto", QString &translatorLanguageCode = "auto", QObject \*parent = nullptr*)
+Constructs an object initialized with the *text* translated by *engine* into language of *translationLanguageCode* from language of *sourceLanguageCode* with hints on language of *translatorLanguageCode* with parent object *parent*. For languages see the column **Language code** in the table [above](#languages-table). The destructor of a parent object destroys all child objects. Setting parent to 0 constructs an object with no parent. The parent of an object may be viewed as the object's owner.
 ___
 
-### <a id='translate'/> void QOnlineTranslator::translate(*const QString &text, QString &translationLanguageCode = "auto", QString &sourceLanguageCode = "auto", QString &translatorLanguageCode = "auto"*)
-Parse *text* and translate into language of *translationLanguageCode* from language of *sourceLanguageCode* with hints on language of *translatorLanguageCode* and send data into object fields. For languages see the column **Language code** in the table [above](#languages-table).
+### <a id='translate'/> void QOnlineTranslator::translate(*const QString &text, QOnlineTranslator::Engine engine, QString &translationLanguageCode = "auto", QString &sourceLanguageCode = "auto", QString &translatorLanguageCode = "auto"*)
+Parse *text* and translate with *engine* into language of *translationLanguageCode* from language of *sourceLanguageCode* with hints on language of *translatorLanguageCode*. For language codes see the column **Language code** in the table [above](#languages-table).
 ___
 
 ### <a id='source-media'/> [QList](https://doc.qt.io/qt-5/qlist.html "Qt Documentation")<[QMediaContent](https://doc.qt.io/qt-5/qmediacontent.html "Qt Documentation")> QOnlineTranslator::sourceMedia()
-Splits the source text into parts (if required) and returns list with the generated API URLs to play this text. Google has a limit of up to 5000 characters per request. If the query is larger, then it will be splitted into several.
+Splits the source text into parts (Google and Yandex have limits on the size of the request) and returns list with the generated API URLs to play this text. If the query is larger, then it will be splitted into several.
 
 Example:
 ```cpp
@@ -73,8 +91,7 @@ player->play(); // Plays "Hello World!"
 ___
 
 ### <a id='translation-media'/> [QList](https://doc.qt.io/qt-5/qlist.html "Qt Documentation")<[QMediaContent](https://doc.qt.io/qt-5/qmediacontent.html "Qt Documentation")> QOnlineTranslator::translationMedia()
-Splits the translation into parts (if required) and returns list with the generated API URLs to play this text.
-Google has a limit of up to 5000 characters per request. If the query is larger, then it will be splitted into several.
+Splits the translation into parts (Google and Yandex have limits on the size of the request) and returns list with the generated API URLs to play this text.
 ___
 
 ### <a id='source'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::source()
@@ -89,8 +106,8 @@ ___
 Returns a language that matches code of source language.
 ___
 
-### <a id='source-transcription'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::sourceTranscription()
-Returns transcription of source text. Google sends source transcription only if source text is one word, otherwise function returns empty string.
+### <a id='source-transliteration'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::sourceTranslit()
+Returns transliteration of source text. Google sends source transliteration only if source text is one word, otherwise function returns empty string.
 ___
 
 ### <a id='translation'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::translation()
@@ -105,12 +122,12 @@ ___
 Returns a language that matches code of translation language.
 ___
 
-### <a id='translation-transcription'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::translationTranscription()
-Returns transcription of translated text.
+### <a id='translation-translit'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::translationTranslit()
+Returns transliteration of translated text.
 ___
 
-### <a id='translation-options-list'/> [QList](http://doc.qt.io/qt-5/qlist.html "Qt Documentation")<[QTranslationOptions](QTranslationOptions.md "Class documentation")>  QOnlineTranslator::translationOptionsList()
-Returns a list of [QTranslationOptions](QTranslationOptions.md "Class documentation"). Read the class documentation for details.
+### <a id='dictionary-list'/> [QList](http://doc.qt.io/qt-5/qlist.html "Qt Documentation")<[QDictionary](QDictionary.md "Class documentation")>  QOnlineTranslator::dictionaryList()
+Returns a list of [QDictionary](QDictionary.md "Class documentation"). Read the class documentation for details.
 ___
 
 ### <a id='definitions-list'/> [QList](http://doc.qt.io/qt-5/qlist.html "Qt Documentation")<[QDefinition](QDefinition.md "Class documentation")>  QOnlineTranslator::definitionsList()
@@ -248,7 +265,7 @@ Returns a [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") conta
 Returns a [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") containing the code of *language*.
 ---
 
-### <a id='default-locale-to-code-static'/> static [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::defaultLocaleToCode()
+### <a id='system-language-code-static'/> static [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::systemLanguageCode()
 Returns a [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") containing the code of the default [QLocale](https://doc.qt.io/qt-5/qlocale.html "Qt Documentation") language.
 ___
 
@@ -257,8 +274,7 @@ Returns the translated text from language of *sourceLanguageCode* to language of
 ___
 
 ### <a id='media-static'/> [QList](https://doc.qt.io/qt-5/qlist.html "Qt Documentation")<[QMediaContent](https://doc.qt.io/qt-5/qmediacontent.html "Qt Documentation")> QOnlineTranslator::media(*const QString &text, QString languageCode = "auto"*)
-Splits the *text* into parts (if required) and returns list with the generated API URLs with the language of *languageCode* to play this text.
-Google has a limit of up to 5000 characters per request. If the query is larger, then it will be splitted into several.
+Splits the *text* into parts (Google and Yandex have limits on the size of the request) and returns list with the generated API URLs with the language of *languageCode* to play this text.
 
 Example:
 ```cpp

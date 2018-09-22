@@ -18,32 +18,30 @@
  *
  */
 
-#ifndef QTRANSLATIONOPTIONS_H
-#define QTRANSLATIONOPTIONS_H
+#ifndef QDICTIONARY_H
+#define QDICTIONARY_H
 
 #include <QStringList>
 
-class QTranslationOptions
+class QDictionary
 {
 public:
-    explicit QTranslationOptions(const QString &typeOfSpeech = "");
+    explicit QDictionary(const QString &typeOfSpeech = "");
 
     QString typeOfSpeech() const;
     QString word(int index) const;
     QString gender(int index) const;
-    QStringList translations(int index) const;
+    QString translations(int index) const;
 
     void setTypeOfSpeech(const QString &typeOfSpeech);
-    void appendOption(const QString &word, const QString &gender = "", const QStringList &translations = QStringList());
-    void appendTranslation(int index, const QString &translation);
-    void appendTranslation(const QString &translation);
+    void appendWord(const QString &word, const QString &gender = "", const QStringList &translations = QStringList());
     int count() const;
 
 private:
     QString m_typeOfSpeech;
     QStringList m_words;
     QStringList m_genders;
-    QList<QStringList> m_translations;
+    QStringList m_translations;
 };
 
-#endif // QTRANSLATIONOPTIONS_H
+#endif // QDICTIONARY_H
