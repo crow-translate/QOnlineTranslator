@@ -211,18 +211,29 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, const QStr
             connect(apiReply, &QNetworkReply::finished, &waitForResponse, &QEventLoop::quit);
             waitForResponse.exec();
 
-            // Check for network error
+            // Check for error
             if (apiReply->error() != QNetworkReply::NoError) {
-                // Try to generate a new session ID, if the previous is invalid
-                if (apiReply->readAll().contains("Invalid parameter: id") && !m_secondSidRequest) {
+                if (apiReply->error() < 201) {
+                    // Network errors
+                    m_error = true;
+                    m_translation = apiReply->errorString();
+                    return;
+                }
+                if (apiReply->error() == QNetworkReply::ContentAccessDenied && !m_secondSidRequest) {
+                    // Try to generate a new session ID second time, if the previous is invalid
                     m_yandexSid.clear();
-                    m_secondSidRequest = true; // Do not generate the session ID third time if the previous was generated incorrectly
+                    m_secondSidRequest = true; // Do not generate the session ID third time if the second one was generated incorrectly
                     translate(m_source, Yandex, m_translationLanguageCode, m_sourceLanguageCode, m_translatorLanguageCode);
                     return;
                 }
-                m_error = true;
-                m_translation = apiReply->errorString();
-                return;
+                else {
+                    // Parse data to get request error type
+                    QJsonDocument jsonResponse = QJsonDocument::fromJson(apiReply->readAll());
+                    m_error = true;
+                    m_secondSidRequest = false;
+                    m_translation = jsonResponse.object().value("message").toString();
+                    return;
+                }
             }
             else
                 m_secondSidRequest = false;
