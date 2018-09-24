@@ -38,6 +38,19 @@ public:
         Google,
         Yandex
     };
+    enum Speaker {
+        Zahar,
+        Ermil,
+        Jane,
+        Oksana,
+        Alyss,
+        Omazh
+    };
+    enum Emotion {
+        Neutral,
+        Good,
+        Evil
+    };
 
     explicit QOnlineTranslator(QObject *parent = nullptr);
     explicit QOnlineTranslator(const QString &text,
@@ -53,8 +66,8 @@ public:
                    const QString &sourceLanguageCode = "auto",
                    const QString &translatorLanguageCode = "auto");
 
-    QList<QMediaContent> sourceMedia() const;
-    QList<QMediaContent> translationMedia() const;
+    QList<QMediaContent> sourceMedia(Engine engine, Speaker speaker = Zahar, Emotion emotion = Good) const;
+    QList<QMediaContent> translationMedia(Engine engine, Speaker speaker = Zahar, Emotion emotion = Good) const;
 
     QString source() const;
     QString sourceTranslit() const;
@@ -78,9 +91,11 @@ public:
 
     static QString systemLanguageCode();
     static QString translateText(const QString &translation, QString translationLanguageCode = "auto", QString sourceLanguageCode = "auto");
-    static QList<QMediaContent> media(const QString &text, QString languageCode = "auto");
+    static QList<QMediaContent> media(const QString &text, Engine engine, QString languageCode = "auto", Speaker speaker = Zahar, Emotion emotion = Neutral);
 
 private:
+    static QString speakerString(Speaker speaker);
+    static QString emotionString(Emotion emotion);
     static int getSplitIndex(const QString &untranslatedText, int limit);
 
     QString m_source;
@@ -97,7 +112,7 @@ private:
     bool m_error = false;
 
     static QString m_yandexSid;
-    bool m_secondSidRequest = false;
+    static bool m_secondSidRequest;
 
     QStringList m_languageNames = { tr("Automatically detect"), tr("Afrikaans"), tr("Albanian"), tr("Amharic"), tr("Arabic"), tr("Armenian"),
                                   tr("Azeerbaijani"), tr("Basque"), tr("Belarusian"), tr("Bengali"), tr("Bosnian"), tr("Bulgarian"), tr("Catalan"),

@@ -30,6 +30,8 @@
 
 QString QOnlineTranslator::m_yandexSid;
 
+bool QOnlineTranslator::m_secondSidRequest = false;
+
 QOnlineTranslator::QOnlineTranslator(QObject *parent) :
     QObject(parent)
 {}
@@ -70,7 +72,6 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, const QStr
 
     switch (engine) {
     case Google:
-    {
         // Google has a limit of up to 5000 characters per translation request. If the query is larger, then it should be splited into several
         unsendedText = m_source;
         while (!unsendedText.isEmpty()) {
@@ -159,9 +160,7 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, const QStr
             }
         }
         break;
-    }
     case Yandex:
-    {
         // Get translation
         // Yandex has a limit of up to 150 characters per translation request. If the query is larger, then it should be splited into several.
         unsendedText = m_source;
@@ -358,58 +357,18 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, const QStr
                 }
             }
         }
-
         break;
     }
-    }
 }
 
-QList<QMediaContent> QOnlineTranslator::sourceMedia() const
+QList<QMediaContent> QOnlineTranslator::sourceMedia(Engine engine, Speaker speaker, Emotion emotion) const
 {
-    QList<QMediaContent> mediaList;
-
-    // Google has a limit of up to 200 characters per tts request. If the query is larger, then it should be splited into several
-    QString unparsedText = m_source;
-    while (!unparsedText.isEmpty()) {
-        int splitIndex = getSplitIndex(unparsedText, 200); // Split the part by special symbol
-
-        // Generate URL API for add it to the playlist
-        QUrl apiUrl("http://translate.googleapis.com/translate_tts");
-#if defined(Q_OS_LINUX)
-        apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + m_sourceLanguageCode +"&q=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)));
-#elif defined(Q_OS_WIN)
-        apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + m_sourceLanguageCode +"&q=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)), QUrl::DecodedMode);
-#endif
-        mediaList.append(apiUrl);
-
-        // Remove the said part from the next saying
-        unparsedText = unparsedText.mid(splitIndex);
-    }
-    return mediaList;
+    return media(m_source, engine, m_sourceLanguageCode, speaker, emotion);
 }
 
-QList<QMediaContent> QOnlineTranslator::translationMedia() const
+QList<QMediaContent> QOnlineTranslator::translationMedia(Engine engine, Speaker speaker, Emotion emotion) const
 {
-    QList<QMediaContent> mediaList;
-
-    // Google has a limit of up to 200 characters per tts request. If the query is larger, then it should be splited into several
-    QString unparsedText = m_translation;
-    while (!unparsedText.isEmpty()) {
-        int splitIndex = getSplitIndex(unparsedText, 200); // Split the part by special symbol
-
-        // Generate URL API for add it to the playlist
-        QUrl apiUrl("http://translate.googleapis.com/translate_tts");
-#if defined(Q_OS_LINUX)
-        apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + m_translationLanguageCode +"&q=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)));
-#elif defined(Q_OS_WIN)
-        apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + m_translationLanguageCode +"&q=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)), QUrl::DecodedMode);
-#endif
-        mediaList.append(apiUrl);
-
-        // Remove the said part from the next saying
-        unparsedText = unparsedText.mid(splitIndex);
-    }
-    return mediaList;
+    return media(m_translation, engine, m_translation, speaker, emotion);
 }
 
 QString QOnlineTranslator::source() const
@@ -578,53 +537,208 @@ QString QOnlineTranslator::systemLanguageCode()
     return locale.name().left(locale.name().indexOf("_"));
 }
 
-QList<QMediaContent> QOnlineTranslator::media(const QString &text, QString languageCode)
+QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine, QString languageCode, Speaker speaker, Emotion emotion)
 {
     QList<QMediaContent> mediaList;
-
-    // Google don't support "auto" as argument for text-to-speech, so need to detect language manually from translation request
-    if (languageCode == "auto") {
-        QUrl languageUrl("https://translate.googleapis.com/translate_a/single");
-        languageUrl.setQuery("client=gtx&sl=auto&tl=en&dt=t&q=" + QUrl::toPercentEncoding(text.left(getSplitIndex(text, 5000))));
-
-        // Send request
-        QNetworkAccessManager manager;
-        QNetworkReply *reply = manager.get(QNetworkRequest(languageUrl));
-
-        // Wait for the response
-        QEventLoop event;
-        connect(reply, &QNetworkReply::finished, &event, &QEventLoop::quit);
-        event.exec();
-
-        if (reply->error() != QNetworkReply::NoError) {
-            qDebug() << reply->errorString();
-            return mediaList;
-        }
-
-        // Parse language
-        languageCode = reply->readAll();
-        languageCode.chop(4);
-        languageCode = languageCode.mid(languageCode.lastIndexOf("\"") + 1);
-    }
-
-    // Google has a limit of up to 200 characters per tts request. If the query is larger, then it should be splited into several
     QString unparsedText = text;
-    while (!unparsedText.isEmpty()) {
-        int splitIndex = getSplitIndex(unparsedText, 200); // Split the part by special symbol
+    QUrl url;
 
-        // Generate URL API for add it to the playlist
-        QUrl apiUrl("http://translate.googleapis.com/translate_tts");
-#if defined(Q_OS_LINUX)
-        apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + languageCode +"&q=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)));
-#elif defined(Q_OS_WIN)
-        apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + languageCode +"&q=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)), QUrl::DecodedMode);
-#endif
-        mediaList.append(apiUrl);
+    // Detect language if required
+    if (languageCode == "auto") {
+        QNetworkAccessManager network;
+        QEventLoop waitForResponse;
 
-        // Remove the said part from the next saying
-        unparsedText = unparsedText.mid(splitIndex);
+        switch (engine) {
+        case Google: {
+            url = "https://translate.googleapis.com/translate_a/single";
+            url.setQuery("client=gtx&sl=auto&tl=en&dt=t&q=" + QUrl::toPercentEncoding(text.left(getSplitIndex(text, 5000))));
+
+            // Wait for the response and send request
+            QNetworkReply *reply = network.get(QNetworkRequest(url));
+            connect(reply, &QNetworkReply::finished, &waitForResponse, &QEventLoop::quit);
+            waitForResponse.exec();
+
+            if (reply->error() != QNetworkReply::NoError) {
+                qDebug() << reply->errorString();
+                return mediaList;
+            }
+
+            // Parse language
+            languageCode = reply->readAll();
+            languageCode.chop(4);
+            languageCode = languageCode.mid(languageCode.lastIndexOf("\"") + 1);
+            break;
+        }
+        case Yandex: {
+            // Need to get session ID from the web version in order to access the API
+            if (m_yandexSid.isEmpty()) {
+                // Send request and wait for the response
+                QNetworkReply *webReply = network.get(QNetworkRequest(QUrl("https://translate.yandex.com/")));
+                connect(webReply, &QNetworkReply::finished, &waitForResponse, &QEventLoop::quit);
+                waitForResponse.exec();
+
+                // Check for network error
+                if (webReply->error() != QNetworkReply::NoError) {
+                    qDebug() << webReply->errorString();
+                    return mediaList;
+                }
+
+                // Parse session ID from downloaded page
+                QByteArray replyData = webReply->readAll();
+                QString sid = replyData.mid(replyData.indexOf("SID: '") + 6, 26);
+
+                // Yandex show reversed parts of session ID, need to decode
+                QStringList sidParts = sid.split(".");
+                for (short i = 0; i < sidParts.size(); ++i)
+                    std::reverse(sidParts[i].begin(), sidParts[i].end());
+
+                m_yandexSid = sidParts.join(".");
+            }
+
+            // Generate URL
+            url = "https://translate.yandex.net/api/v1/tr.json/translate";
+            url.setQuery("id=" + m_yandexSid + "-0-0&srv=tr-text&text=" + QUrl::toPercentEncoding(text.left(getSplitIndex(text, 150))) + "&lang=en");
+
+            // Send request and wait for the response
+            QNetworkReply *apiReply = network.get(QNetworkRequest(url));
+            connect(apiReply, &QNetworkReply::finished, &waitForResponse, &QEventLoop::quit);
+            waitForResponse.exec();
+
+            // Check for error
+            if (apiReply->error() != QNetworkReply::NoError) {
+                if (apiReply->error() < 201) {
+                    qDebug() << apiReply->errorString();
+                    return mediaList;
+                }
+                if (apiReply->error() == QNetworkReply::ContentAccessDenied && !m_secondSidRequest) {
+                    // Try to generate a new session ID second time, if the previous is invalid
+                    m_yandexSid.clear();
+                    m_secondSidRequest = true; // Do not generate the session ID third time if the second one was generated incorrectly
+                    return media(text, engine, languageCode, speaker, emotion);
+                }
+                else {
+                    // Parse data to get request error type
+                    QJsonDocument jsonResponse = QJsonDocument::fromJson(apiReply->readAll());
+                    m_secondSidRequest = false;
+                    return mediaList;
+                }
+            }
+            else
+                m_secondSidRequest = false;
+
+            // Parse data
+            QJsonDocument jsonResponse = QJsonDocument::fromJson(apiReply->readAll());
+            QJsonObject jsonData = jsonResponse.object();
+            languageCode = jsonData.value("lang").toString().right(2);
+        }
+        }
     }
+
+    switch (engine) {
+    case Google:
+        // Google has a limit of up to 200 characters per tts request. If the query is larger, then it should be splited into several
+        while (!unparsedText.isEmpty()) {
+            int splitIndex = getSplitIndex(unparsedText, 200); // Split the part by special symbol
+
+            // Generate URL API for add it to the playlist
+            url = "http://translate.googleapis.com/translate_tts";
+    #if defined(Q_OS_LINUX)
+            url.setQuery("ie=UTF-8&client=gtx&tl=" + languageCode +"&q=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)));
+    #elif defined(Q_OS_WIN)
+            apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + languageCode +"&q=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)), QUrl::DecodedMode);
+    #endif
+            mediaList.append(url);
+
+            // Remove the said part from the next saying
+            unparsedText = unparsedText.mid(splitIndex);
+        }
+        break;
+    case Yandex:
+        // Yandex tts support only 3 languages
+        QString ttsLanguageCode;
+        if (languageCode == "ru")
+            ttsLanguageCode = "ru_RU";
+        else if (languageCode == "en")
+            ttsLanguageCode = "en_GB";
+        else if (languageCode == "tr")
+            ttsLanguageCode = "tr_TR";
+
+        QString speakerCode = speakerString(speaker);
+        QString emotionCode = emotionString(emotion);
+
+        // Yandex has a limit of up to ~1400 characters per tts request. If the query is larger, then it should be splited into several
+        while (!unparsedText.isEmpty()) {
+            int splitIndex = getSplitIndex(unparsedText, 1400); // Split the part by special symbol
+
+            // Generate URL API for add it to the playlist
+            url = "https://tts.voicetech.yandex.net/tts";
+    #if defined(Q_OS_LINUX)
+            url.setQuery("text=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)) +
+                            "&lang=" + ttsLanguageCode +
+                            "&speaker=" + speakerCode +
+                            "&emotion=" + emotionCode +
+                            "&format=mp3");
+    #elif defined(Q_OS_WIN)
+            apiUrl.setQuery("text=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)) +
+                            "&lang=" + ttsLanguageCode +
+                            "&speaker=" + speakerCode +
+                            "&emotion=" + emotionCode +
+                            "&format=mp3",R QUrl::DecodedMode);
+    #endif
+            mediaList.append(url);
+
+            // Remove the said part from the next saying
+            unparsedText = unparsedText.mid(splitIndex);
+        }
+        break;
+    }
+
     return mediaList;
+}
+
+QString QOnlineTranslator::speakerString(QOnlineTranslator::Speaker speaker)
+{
+    QString speakerString;
+    switch (speaker) {
+    case Zahar:
+        speakerString = "zahar";
+        break;
+    case Ermil:
+        speakerString = "ermil";
+        break;
+    case Jane:
+        speakerString = "jane";
+        break;
+    case Oksana:
+        speakerString = "oksana";
+        break;
+    case Alyss:
+        speakerString = "alyss";
+        break;
+    case Omazh:
+        speakerString = "omazh";
+        break;
+    }
+
+    return speakerString;
+}
+
+QString QOnlineTranslator::emotionString(QOnlineTranslator::Emotion emotion)
+{
+    QString emotionString;
+    switch (emotion) {
+    case Good:
+        emotionString = "good";
+        break;
+    case Evil:
+        emotionString = "evil";
+        break;
+    case Neutral:
+        emotionString = "neutral";
+        break;
+    }
+
+    return emotionString;
 }
 
 // Get split index of the text according to the limit
