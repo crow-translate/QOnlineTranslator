@@ -94,6 +94,8 @@ public:
     static QList<QMediaContent> media(const QString &text, Engine engine, QString languageCode = "auto", Speaker speaker = Zahar, Emotion emotion = Neutral);
 
 private:
+    static QNetworkReply *sendRequest(const QString &urlString, const QString &queryString, QNetworkAccessManager &network);
+    static QNetworkReply *generateYandexSid(QNetworkAccessManager &network);
     static QString speakerString(Speaker speaker);
     static QString emotionString(Emotion emotion);
     static int getSplitIndex(const QString &untranslatedText, int limit);

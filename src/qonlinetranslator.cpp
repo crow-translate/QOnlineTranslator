@@ -18,8 +18,6 @@
  *
  */
 
-#include <QNetworkRequest>
-#include <QNetworkReply>
 #include <QEventLoop>
 #include <QMediaPlayer>
 #include <QJsonDocument>
@@ -66,10 +64,7 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, const QStr
     m_error = false;
 
     QNetworkAccessManager network;
-    QEventLoop waitForResponse;
-    QUrl url;
     QString unsendedText;
-
     switch (engine) {
     case Google:
         // Google has a limit of up to 5000 characters per translation request. If the query is larger, then it should be splited into several
@@ -84,17 +79,10 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, const QStr
                 continue;
             }
 
-            // Generate API url
-            url = "https://translate.googleapis.com/translate_a/single";
-            url.setQuery("client=gtx&ie=UTF-8&oe=UTF-8&dt=bd&dt=ex&dt=ld&dt=md&dt=rw&dt=rm&dt=ss&dt=t&dt=at&dt=qc&sl=" + m_sourceLanguageCode + "&tl=" +
-                            m_translationLanguageCode + "&hl=" + m_translatorLanguageCode + "&q=" + QUrl::toPercentEncoding(unsendedText.left(splitIndex)));
-
-            // Send request and wait for the response
-            QNetworkReply *apiReply = network.get(QNetworkRequest(url));
-            connect(apiReply, &QNetworkReply::finished, &waitForResponse, &QEventLoop::quit);
-            waitForResponse.exec();
-
-            // Check for network error
+            // Send request and check for errors
+            QNetworkReply *apiReply = sendRequest("https://translate.googleapis.com/translate_a/single",
+                                                 "client=gtx&ie=UTF-8&oe=UTF-8&dt=bd&dt=ex&dt=ld&dt=md&dt=rw&dt=rm&dt=ss&dt=t&dt=at&dt=qc&sl=" + m_sourceLanguageCode + "&tl=" + m_translationLanguageCode + "&hl=" + m_translatorLanguageCode + "&q=" + QUrl::toPercentEncoding(unsendedText.left(splitIndex)),
+                                                 network);
             if (apiReply->error() != QNetworkReply::NoError) {
                 m_error = true;
                 m_translation = apiReply->errorString();
@@ -176,41 +164,18 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, const QStr
 
             // Need to get session ID from the web version in order to access the API
             if (m_yandexSid.isEmpty()) {
-                // Send request and wait for the response
-                QNetworkReply *webReply = network.get(QNetworkRequest(QUrl("https://translate.yandex.com/")));
-                connect(webReply, &QNetworkReply::finished, &waitForResponse, &QEventLoop::quit);
-                waitForResponse.exec();
-
-                // Check for network error
+                QNetworkReply *webReply = generateYandexSid(network);
                 if (webReply->error() != QNetworkReply::NoError) {
                     m_error = true;
                     m_translation = webReply->errorString();
                     return;
                 }
-
-                // Parse session ID from downloaded page
-                QByteArray replyData = webReply->readAll();
-                QString sid = replyData.mid(replyData.indexOf("SID: '") + 6, 26);
-
-                // Yandex show reversed parts of session ID, need to decode
-                QStringList sidParts = sid.split(".");
-                for (short i = 0; i < sidParts.size(); ++i)
-                    std::reverse(sidParts[i].begin(), sidParts[i].end());
-
-                m_yandexSid = sidParts.join(".");
             }
 
-            // Generate URL
-            url = "https://translate.yandex.net/api/v1/tr.json/translate";
-            url.setQuery("id=" + m_yandexSid + "-0-0&srv=tr-text&text=" + QUrl::toPercentEncoding(unsendedText.left(splitIndex)) + "&lang=" +
-                         (sourceLanguage == "auto" ? m_translationLanguageCode : sourceLanguage + "-" + m_translationLanguageCode));
-
-            // Send request and wait for the response
-            QNetworkReply *apiReply = network.get(QNetworkRequest(url));
-            connect(apiReply, &QNetworkReply::finished, &waitForResponse, &QEventLoop::quit);
-            waitForResponse.exec();
-
-            // Check for error
+            // Send request and check for errors
+            QNetworkReply *apiReply = sendRequest("https://translate.yandex.net/api/v1/tr.json/translate",
+                                                 "id=" + m_yandexSid + "-0-0&srv=tr-text&text=" + QUrl::toPercentEncoding(unsendedText.left(splitIndex)) + "&lang=" + (sourceLanguage == "auto" ? m_translationLanguageCode : sourceLanguage + "-" + m_translationLanguageCode),
+                                                 network);
             if (apiReply->error() != QNetworkReply::NoError) {
                 if (apiReply->error() < 201) {
                     // Network errors
@@ -237,7 +202,7 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, const QStr
             else
                 m_secondSidRequest = false;
 
-            // Parse data
+            // Parse translation data
             QJsonDocument jsonResponse = QJsonDocument::fromJson(apiReply->readAll());
             QJsonObject jsonData = jsonResponse.object();
             m_translation += jsonData.value("text").toArray().at(0).toString();
@@ -263,16 +228,10 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, const QStr
                     continue;
                 }
 
-                // Generate URL
-                url = "https://translate.yandex.net/translit/translit";
-                url.setQuery("text=" + QUrl::toPercentEncoding(unsendedText.left(splitIndex)) + "&lang=" + m_sourceLanguageCode);
-
                 // Send request and wait for the response
-                QNetworkReply *apiReply = network.get(QNetworkRequest(url));
-                connect(apiReply, &QNetworkReply::finished, &waitForResponse, &QEventLoop::quit);
-                waitForResponse.exec();
-
-                // Check for network error
+                QNetworkReply *apiReply = sendRequest("https://translate.yandex.net/translit/translit",
+                                                     "text=" + QUrl::toPercentEncoding(unsendedText.left(splitIndex)) + "&lang=" + m_sourceLanguageCode,
+                                                     network);
                 if (apiReply->error() != QNetworkReply::NoError) {
                     m_error = true;
                     m_translation = apiReply->errorString();
@@ -301,14 +260,10 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, const QStr
                     continue;
                 }
 
-                // Generate URL
-                url = "https://translate.yandex.net/translit/translit";
-                url.setQuery("text=" + QUrl::toPercentEncoding(unsendedText.left(splitIndex)) + "&lang=" + m_translationLanguageCode);
-
                 // Send request and wait for the response
-                QNetworkReply *apiReply = network.get(QNetworkRequest(url));
-                connect(apiReply, &QNetworkReply::finished, &waitForResponse, &QEventLoop::quit);
-                waitForResponse.exec();
+                QNetworkReply *apiReply = sendRequest("https://translate.yandex.net/translit/translit",
+                                                     "text=" + QUrl::toPercentEncoding(unsendedText.left(splitIndex)) + "&lang=" + m_translationLanguageCode,
+                                                     network);
 
                 // Check for network error
                 if (apiReply->error() != QNetworkReply::NoError) {
@@ -326,14 +281,10 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, const QStr
 
         // Request dictionary data if only one word is translated.
         if (!m_translation.contains(" ")) {
-            // Generate URL
-            url = "http://dictionary.yandex.net/dicservice.json/lookupMultiple";
-            url.setQuery("text=" + m_source + "&dict=" + m_sourceLanguageCode + "-" + m_translationLanguageCode);
-
             // Send request and wait for the response
-            QNetworkReply *apiReply = network.get(QNetworkRequest(url));
-            connect(apiReply, &QNetworkReply::finished, &waitForResponse, &QEventLoop::quit);
-            waitForResponse.exec();
+            QNetworkReply *apiReply = sendRequest("http://dictionary.yandex.net/dicservice.json/lookupMultiple",
+                                                 "text=" + m_source + "&dict=" + m_sourceLanguageCode + "-" + m_translationLanguageCode,
+                                                 network);
 
             // Check for network error
             if (apiReply->error() != QNetworkReply::NoError) {
@@ -541,22 +492,16 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
 {
     QList<QMediaContent> mediaList;
     QString unparsedText = text;
-    QUrl url;
 
     // Detect language if required
     if (languageCode == "auto") {
         QNetworkAccessManager network;
-        QEventLoop waitForResponse;
-
         switch (engine) {
         case Google: {
-            url = "https://translate.googleapis.com/translate_a/single";
-            url.setQuery("client=gtx&sl=auto&tl=en&dt=t&q=" + QUrl::toPercentEncoding(text.left(getSplitIndex(text, 5000))));
-
             // Wait for the response and send request
-            QNetworkReply *reply = network.get(QNetworkRequest(url));
-            connect(reply, &QNetworkReply::finished, &waitForResponse, &QEventLoop::quit);
-            waitForResponse.exec();
+            QNetworkReply *reply = sendRequest("https://translate.googleapis.com/translate_a/single",
+                                              "client=gtx&sl=auto&tl=en&dt=t&q=" + QUrl::toPercentEncoding(text.left(getSplitIndex(text, 5000))),
+                                              network);
 
             if (reply->error() != QNetworkReply::NoError) {
                 qDebug() << reply->errorString();
@@ -573,36 +518,19 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
             // Need to get session ID from the web version in order to access the API
             if (m_yandexSid.isEmpty()) {
                 // Send request and wait for the response
-                QNetworkReply *webReply = network.get(QNetworkRequest(QUrl("https://translate.yandex.com/")));
-                connect(webReply, &QNetworkReply::finished, &waitForResponse, &QEventLoop::quit);
-                waitForResponse.exec();
+                QNetworkReply *webReply = generateYandexSid(network);
 
                 // Check for network error
                 if (webReply->error() != QNetworkReply::NoError) {
                     qDebug() << webReply->errorString();
                     return mediaList;
                 }
-
-                // Parse session ID from downloaded page
-                QByteArray replyData = webReply->readAll();
-                QString sid = replyData.mid(replyData.indexOf("SID: '") + 6, 26);
-
-                // Yandex show reversed parts of session ID, need to decode
-                QStringList sidParts = sid.split(".");
-                for (short i = 0; i < sidParts.size(); ++i)
-                    std::reverse(sidParts[i].begin(), sidParts[i].end());
-
-                m_yandexSid = sidParts.join(".");
             }
 
-            // Generate URL
-            url = "https://translate.yandex.net/api/v1/tr.json/translate";
-            url.setQuery("id=" + m_yandexSid + "-0-0&srv=tr-text&text=" + QUrl::toPercentEncoding(text.left(getSplitIndex(text, 150))) + "&lang=en");
-
             // Send request and wait for the response
-            QNetworkReply *apiReply = network.get(QNetworkRequest(url));
-            connect(apiReply, &QNetworkReply::finished, &waitForResponse, &QEventLoop::quit);
-            waitForResponse.exec();
+            QNetworkReply *apiReply = sendRequest("https://translate.yandex.net/api/v1/tr.json/translate",
+                                                 "id=" + m_yandexSid + "-0-0&srv=tr-text&text=" + QUrl::toPercentEncoding(text.left(getSplitIndex(text, 150))) + "&lang=en",
+                                                 network);
 
             // Check for error
             if (apiReply->error() != QNetworkReply::NoError) {
@@ -641,13 +569,13 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
             int splitIndex = getSplitIndex(unparsedText, 200); // Split the part by special symbol
 
             // Generate URL API for add it to the playlist
-            url = "http://translate.googleapis.com/translate_tts";
+            QUrl apiUrl("http://translate.googleapis.com/translate_tts");
     #if defined(Q_OS_LINUX)
-            url.setQuery("ie=UTF-8&client=gtx&tl=" + languageCode +"&q=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)));
+            apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + languageCode +"&q=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)));
     #elif defined(Q_OS_WIN)
             apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + languageCode +"&q=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)), QUrl::DecodedMode);
     #endif
-            mediaList.append(url);
+            mediaList.append(apiUrl);
 
             // Remove the said part from the next saying
             unparsedText = unparsedText.mid(splitIndex);
@@ -671,9 +599,9 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
             int splitIndex = getSplitIndex(unparsedText, 1400); // Split the part by special symbol
 
             // Generate URL API for add it to the playlist
-            url = "https://tts.voicetech.yandex.net/tts";
+            QUrl apiUrl("https://tts.voicetech.yandex.net/tts");
     #if defined(Q_OS_LINUX)
-            url.setQuery("text=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)) +
+            apiUrl.setQuery("text=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)) +
                             "&lang=" + ttsLanguageCode +
                             "&speaker=" + speakerCode +
                             "&emotion=" + emotionCode +
@@ -685,7 +613,7 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
                             "&emotion=" + emotionCode +
                             "&format=mp3",R QUrl::DecodedMode);
     #endif
-            mediaList.append(url);
+            mediaList.append(apiUrl);
 
             // Remove the said part from the next saying
             unparsedText = unparsedText.mid(splitIndex);
@@ -694,6 +622,41 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
     }
 
     return mediaList;
+}
+
+QNetworkReply *QOnlineTranslator::sendRequest(const QString &urlString, const QString &queryString, QNetworkAccessManager &network)
+{
+    // Generate API url
+    QUrl url(urlString);
+    url.setQuery(queryString);
+
+    // Send request and wait for the response
+    QNetworkReply *reply = network.get(QNetworkRequest(url));
+    QEventLoop waitForResponse;
+    connect(reply, &QNetworkReply::finished, &waitForResponse, &QEventLoop::quit);
+    waitForResponse.exec();
+
+    return reply;
+}
+
+QNetworkReply *QOnlineTranslator::generateYandexSid(QNetworkAccessManager &network)
+{
+    // Send request and wait for the response
+    QNetworkReply *webReply = sendRequest("https://translate.yandex.com/", "", network);
+
+    if (webReply->error() == QNetworkReply::NoError) {
+        // Parse session ID from downloaded page
+        QByteArray replyData = webReply->readAll();
+        QString sid = replyData.mid(replyData.indexOf("SID: '") + 6, 26);
+
+        // Yandex show reversed parts of session ID, need to decode
+        QStringList sidParts = sid.split(".");
+        for (short i = 0; i < sidParts.size(); ++i)
+            std::reverse(sidParts[i].begin(), sidParts[i].end());
+
+        m_yandexSid = sidParts.join(".");
+    }
+    return webReply;
 }
 
 QString QOnlineTranslator::speakerString(QOnlineTranslator::Speaker speaker)
