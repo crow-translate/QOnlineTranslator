@@ -283,7 +283,7 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, const QStr
         if (!m_translation.contains(" ")) {
             // Send request and wait for the response
             QNetworkReply *apiReply = sendRequest("http://dictionary.yandex.net/dicservice.json/lookupMultiple",
-                                                 "text=" + m_source + "&dict=" + m_sourceLanguageCode + "-" + m_translationLanguageCode,
+                                                 "text=" + m_source + "&ui=" + m_translatorLanguageCode + "&dict=" + m_sourceLanguageCode + "-" + m_translationLanguageCode,
                                                  network);
 
             // Check for network error
