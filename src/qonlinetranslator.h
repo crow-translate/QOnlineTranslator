@@ -21,8 +21,6 @@
 #ifndef QONLINETRANSLATOR_H
 #define QONLINETRANSLATOR_H
 
-#include <QPair>
-#include <QUrl>
 #include <QNetworkReply>
 #include <QMediaPlaylist>
 
@@ -51,92 +49,202 @@ public:
         Good,
         Evil
     };
+    enum Language {
+        NoLanguage = -1,
+        Auto,
+        Afrikaans,
+        Albanian,
+        Amharic,
+        Arabic,
+        Armenian,
+        Azeerbaijani,
+        Basque,
+        Bashkir,
+        Belarusian,
+        Bengali,
+        Bosnian,
+        Bulgarian,
+        Catalan,
+        Cebuano,
+        SimplifiedChinese,
+        TraditionalChinese,
+        Corsican,
+        Croatian,
+        Czech,
+        Danish,
+        Dutch,
+        English,
+        Esperanto,
+        Estonian,
+        Finnish,
+        French,
+        Frisian,
+        Galician,
+        Georgian,
+        German,
+        Greek,
+        Gujarati,
+        HaitianCreole,
+        Hausa,
+        Hawaiian,
+        Hebrew,
+        HillMari,
+        Hindi,
+        Hmong,
+        Hungarian,
+        Icelandic,
+        Igbo,
+        Indonesian,
+        Irish,
+        Italian,
+        Japanese,
+        Javanese,
+        Kannada,
+        Kazakh,
+        Khmer,
+        Korean,
+        Kurdish,
+        Kyrgyz,
+        Lao,
+        Latin,
+        Latvian,
+        Lithuanian,
+        Luxembourgish,
+        Macedonian,
+        Malagasy,
+        Malay,
+        Malayalam,
+        Maltese,
+        Maori,
+        Marathi,
+        Mari,
+        Mongolian,
+        Myanmar,
+        Nepali,
+        Norwegian,
+        Chichewa,
+        Papiamento,
+        Pashto,
+        Persian,
+        Polish,
+        Portuguese,
+        Punjabi,
+        Romanian,
+        Russian,
+        Samoan,
+        ScotsGaelic,
+        Serbian,
+        Sesotho,
+        Shona,
+        Sindhi,
+        Sinhala,
+        Slovak,
+        Slovenian,
+        Somali,
+        Spanish,
+        Sundanese,
+        Swahili,
+        Swedish,
+        Tagalog,
+        Tajik,
+        Tamil,
+        Tatar,
+        Telugu,
+        Thai,
+        Turkish,
+        Udmurt,
+        Ukrainian,
+        Urdu,
+        Uzbek,
+        Vietnamese,
+        Welsh,
+        Xhosa,
+        Yiddish,
+        Yoruba,
+        Zulu
+    };
+    enum TranslationError {
+        NoError,
+        ParametersError,
+        NetworkError,
+        ServiceError,
+        ParsingError
+    };
 
     explicit QOnlineTranslator(QObject *parent = nullptr);
-    explicit QOnlineTranslator(const QString &text,
-                               Engine engine = Google,
-                               const QString &translationLanguageCode = "auto",
-                               const QString &sourceLanguageCode = "auto",
-                               const QString &translatorLanguageCode = "auto",
-                               QObject *parent = nullptr);
 
-    void translate(const QString &text,
-                   Engine engine = Google,
-                   const QString &translationLanguageCode = "auto",
-                   const QString &sourceLanguageCode = "auto",
-                   const QString &translatorLanguageCode = "auto");
+    void translate(const QString &text, Engine engine = Google, Language translationLang = Auto, Language sourceLang = Auto, Language uiLang = Auto);
+    QList<QMediaContent> media(const QString &text, Engine engine, Language language = Auto, Speaker speaker = Zahar, Emotion emotion = Neutral);
 
-    QList<QMediaContent> sourceMedia(Engine engine, Speaker speaker = Zahar, Emotion emotion = Good) const;
-    QList<QMediaContent> translationMedia(Engine engine, Speaker speaker = Zahar, Emotion emotion = Good) const;
+    QList<QMediaContent> sourceMedia(Engine engine, Speaker speaker = Zahar, Emotion emotion = Neutral);
+    QList<QMediaContent> translationMedia(Engine engine, Speaker speaker = Zahar, Emotion emotion = Neutral);
 
     QString source() const;
     QString sourceTranslit() const;
-    QString sourceLanguageCode() const;
-    QString sourceLanguage() const;
+    QString sourceLanguageString() const;
+    Language sourceLanguage() const;
 
     QString translation() const;
     QString translationTranslit() const;
-    QString translationLanguageCode() const;
-    QString translationLanguage() const;
+    QString translationLanguageString() const;
+    Language translationLanguage() const;
 
-    QString translatorLanguageCode() const;
     QList<QDictionary> dictionaryList() const;
     QList<QDefinition> definitionsList() const;
-    bool error() const;
 
-    QStringList languages() const;
-    QStringList codes() const;
-    QString codeToLanguage(const QString &code) const;
-    QString languageToCode(const QString &language) const;
+    TranslationError error() const;
+    QString errorString() const;
 
-    static QString systemLanguageCode();
-    static QString translateText(const QString &translation, QString translationLanguageCode = "auto", QString sourceLanguageCode = "auto");
-    static QList<QMediaContent> media(const QString &text, Engine engine, QString languageCode = "auto", Speaker speaker = Zahar, Emotion emotion = Neutral);
+    QString languageString(Language language) const;
+    static QString languageCode(Language language);
+    static Language language(const QLocale &locale);
+    static Language language(const QString &languageCode);
 
 private:
-    static QNetworkReply *sendRequest(const QString &urlString, const QString &queryString, QNetworkAccessManager &network);
-    static QNetworkReply *generateYandexSid(QNetworkAccessManager &network);
-    static QString speakerString(Speaker speaker);
-    static QString emotionString(Emotion emotion);
+    bool generateYandexSid(QNetworkAccessManager &network);
+
+    // Helper functions
+    template<typename... Query>
+    static QNetworkReply *sendRequest(QNetworkAccessManager &network, const QString &urlString, const Query&... queryStrings);
+
     static int getSplitIndex(const QString &untranslatedText, int limit);
+    static Language language(const QString &languageCode, Engine engine);
+    static QString languageCode(Language language, Engine engine);
+    static QString speakerCode(Speaker speaker);
+    static QString emotionCode(Emotion emotion);
+
+    Language m_sourceLang;
+    Language m_translationLang;
+    Language m_uiLang;
+    TranslationError m_error = NoError;
 
     QString m_source;
     QString m_sourceTranslit;
-    QString m_sourceLanguageCode;
-
     QString m_translation;
     QString m_translationTranslit;
-    QString m_translationLanguageCode;
+    QString m_errorString;
 
-    QString m_translatorLanguageCode;
     QList<QDictionary> m_dictionaryList;
     QList<QDefinition> m_definitionsList;
-    bool m_error = false;
 
     static QString m_yandexSid;
     static bool m_secondSidRequest;
+    static const QStringList m_languageCodes;
 
-    QStringList m_languageNames = { tr("Automatically detect"), tr("Afrikaans"), tr("Albanian"), tr("Amharic"), tr("Arabic"), tr("Armenian"),
-                                  tr("Azeerbaijani"), tr("Basque"), tr("Belarusian"), tr("Bengali"), tr("Bosnian"), tr("Bulgarian"), tr("Catalan"),
-                                  tr("Cebuano"), tr("Chinese (Simplified)"), tr("Chinese (Traditional)"), tr("Corsican"), tr("Croatian"), tr("Czech"),
-                                  tr("Danish"), tr("Dutch"), tr("English"), tr("Esperanto"), tr("Estonian"), tr("Finnish"), tr("French"), tr("Frisian"),
-                                  tr("Galician"), tr("Georgian"), tr("German"), tr("Greek"), tr("Gujarati"), tr("Haitian Creole"), tr("Hausa"),
-                                  tr("Hawaiian"), tr("Hebrew"), tr("Hindi"), tr("Hmong"), tr("Hungarian"), tr("Icelandic"), tr("Igbo"), tr("Indonesian"),
-                                  tr("Irish"), tr("Italian"), tr("Japanese"), tr("Javanese"), tr("Kannada"), tr("Kazakh"), tr("Khmer"), tr("Korean"),
-                                  tr("Kurdish"), tr("Kyrgyz"), tr("Lao"), tr("Latin"), tr("Latvian"), tr("Lithuanian"), tr("Luxembourgish"),
-                                  tr("Macedonian"), tr("Malagasy"), tr("Malay"), tr("Malayalam"), tr("Maltese"), tr("Maori"), tr("Marathi"), tr("Mongolian"),
-                                  tr("Myanmar"), tr("Nepali"), tr("Norwegian"), tr("Chichewa"), tr("Pashto"), tr("Persian"), tr("Polish"), tr("Portuguese"),
-                                  tr("Punjabi"), tr("Romanian"), tr("Russian"), tr("Samoan"), tr("Scots Gaelic"), tr("Serbian"), tr("Sesotho"), tr("Shona"),
-                                  tr("Sindhi"), tr("Sinhala"), tr("Slovak"), tr("Slovenian"), tr("Somali"), tr("Spanish"), tr("Sundanese"), tr("Swahili"),
-                                  tr("Swedish"), tr("Tagalog"), tr("Tajik"), tr("Tamil"), tr("Telugu"), tr("Thai"), tr("Turkish"), tr("Ukrainian"),
-                                  tr("Urdu"), tr("Uzbek"), tr("Vietnamese"), tr("Welsh"), tr("Xhosa"), tr("Yiddish"), tr("Yoruba"), tr("Zulu") };
-
-    QStringList m_languageCodes = { "auto", "af", "sq", "am", "ar", "hy", "az", "eu", "be", "bn", "bs", "bg", "ca", "ceb", "zh-CN", "zh-TW", "co", "hr", "cs",
-                                  "da", "nl", "en", "eo", "et", "fi", "fr", "fy", "gl", "ka", "de", "el", "gu", "ht", "ha", "haw", "iw", "hi", "hmn", "hu",
-                                  "is", "ig", "id", "ga", "it", "ja", "jw", "kn", "kk", "km", "ko", "ku", "ky", "lo", "la", "lv", "lt", "lb", "mk", "mg",
-                                  "ms", "ml", "mt", "mi", "mr", "mn", "my", "ne", "no", "ny", "ps", "fa", "pl", "pt", "pa", "ro", "ru", "sm", "gd", "sr",
-                                  "st", "sn", "sd", "si", "sk", "sl", "so", "es", "su", "sw", "sv", "tl", "tg", "ta", "te", "th", "tr", "uk", "ur", "uz",
-                                  "vi", "cy", "xh", "yi", "yo", "zu" };
+    const QStringList m_languageNames = { tr("Automatically detect"), tr("Afrikaans"), tr("Albanian"), tr("Amharic"), tr("Arabic"), tr("Armenian"),
+                                        tr("Azeerbaijani"), tr("Basque"), tr("Bashkir"), tr("Belarusian"), tr("Bengali"), tr("Bosnian"), tr("Bulgarian"), tr("Catalan"),
+                                        tr("Cebuano"), tr("Chinese (Simplified)"), tr("Chinese (Traditional)"), tr("Corsican"), tr("Croatian"), tr("Czech"),
+                                        tr("Danish"), tr("Dutch"), tr("English"), tr("Esperanto"), tr("Estonian"), tr("Finnish"), tr("French"), tr("Frisian"),
+                                        tr("Galician"), tr("Georgian"), tr("German"), tr("Greek"), tr("Gujarati"), tr("Haitian Creole"), tr("Hausa"),
+                                        tr("Hawaiian"), tr("Hebrew"), tr("Hill Mari"), tr("Hindi"), tr("Hmong"), tr("Hungarian"), tr("Icelandic"), tr("Igbo"), tr("Indonesian"),
+                                        tr("Irish"), tr("Italian"), tr("Japanese"), tr("Javanese"), tr("Kannada"), tr("Kazakh"), tr("Khmer"), tr("Korean"),
+                                        tr("Kurdish"), tr("Kyrgyz"), tr("Lao"), tr("Latin"), tr("Latvian"), tr("Lithuanian"), tr("Luxembourgish"),
+                                        tr("Macedonian"), tr("Malagasy"), tr("Malay"), tr("Malayalam"), tr("Maltese"), tr("Maori"), tr("Marathi"), tr("Mari"), tr("Mongolian"),
+                                        tr("Myanmar"), tr("Nepali"), tr("Norwegian"), tr("Chichewa"), tr("Papiamento"), tr("Pashto"), tr("Persian"), tr("Polish"), tr("Portuguese"),
+                                        tr("Punjabi"), tr("Romanian"), tr("Russian"), tr("Samoan"), tr("Scots Gaelic"), tr("Serbian"), tr("Sesotho"), tr("Shona"),
+                                        tr("Sindhi"), tr("Sinhala"), tr("Slovak"), tr("Slovenian"), tr("Somali"), tr("Spanish"), tr("Sundanese"), tr("Swahili"),
+                                        tr("Swedish"), tr("Tagalog"), tr("Tajik"), tr("Tamil"), tr("Tatar"), tr("Telugu"), tr("Thai"), tr("Turkish"), tr("Udmurt"), tr("Ukrainian"),
+                                        tr("Urdu"), tr("Uzbek"), tr("Vietnamese"), tr("Welsh"), tr("Xhosa"), tr("Yiddish"), tr("Yoruba"), tr("Zulu") };
 };
 
 #endif // QONLINETRANSLATOR_H

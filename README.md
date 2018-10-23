@@ -19,6 +19,11 @@ out << onlineTranslator.text; // Returns "Hello world!" translated into German
 
 For real example of usage you can look into my other project: [Crow Translate](https://github.com/Shatur95/CrowTranslate "A simple and lightweight translator that allows to translate and say the selected text using the Google Translate API").
 
+## Requirements
+
+**Linux**: GCC 6+
+
+**Windows**: MSVC2017
 
 ## Installation
 

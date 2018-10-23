@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - Add explicit keyword
 - Small changes in the interface to support other backends.
+- Rework interface and logic
 
 ## [0.9.1] - 2018-08-05
 ### Changed
