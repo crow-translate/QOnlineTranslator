@@ -36,6 +36,7 @@ public:
         Google,
         Yandex
     };
+    Q_ENUM(Engine)
     enum Speaker {
         Zahar,
         Ermil,
@@ -44,11 +45,13 @@ public:
         Alyss,
         Omazh
     };
+    Q_ENUM(Speaker)
     enum Emotion {
         Neutral,
         Good,
         Evil
     };
+    Q_ENUM(Emotion)
     enum Language {
         NoLanguage = -1,
         Auto,
@@ -163,6 +166,7 @@ public:
         Yoruba,
         Zulu
     };
+    Q_ENUM(Language)
     enum TranslationError {
         NoError,
         ParametersError,
