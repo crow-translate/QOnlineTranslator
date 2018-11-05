@@ -199,7 +199,7 @@ public:
     TranslationError error() const;
     QString errorString() const;
 
-    QString languageString(Language language) const;
+    static QString languageString(Language language);
     static QString languageCode(Language language);
     static Language language(const QLocale &locale);
     static Language language(const QString &languageCode);
@@ -234,21 +234,6 @@ private:
     static QString m_yandexSid;
     static bool m_secondSidRequest;
     static const QStringList m_languageCodes;
-
-    const QStringList m_languageNames = { tr("Automatically detect"), tr("Afrikaans"), tr("Albanian"), tr("Amharic"), tr("Arabic"), tr("Armenian"),
-                                        tr("Azeerbaijani"), tr("Basque"), tr("Bashkir"), tr("Belarusian"), tr("Bengali"), tr("Bosnian"), tr("Bulgarian"), tr("Catalan"),
-                                        tr("Cebuano"), tr("Chinese (Simplified)"), tr("Chinese (Traditional)"), tr("Corsican"), tr("Croatian"), tr("Czech"),
-                                        tr("Danish"), tr("Dutch"), tr("English"), tr("Esperanto"), tr("Estonian"), tr("Finnish"), tr("French"), tr("Frisian"),
-                                        tr("Galician"), tr("Georgian"), tr("German"), tr("Greek"), tr("Gujarati"), tr("Haitian Creole"), tr("Hausa"),
-                                        tr("Hawaiian"), tr("Hebrew"), tr("Hill Mari"), tr("Hindi"), tr("Hmong"), tr("Hungarian"), tr("Icelandic"), tr("Igbo"), tr("Indonesian"),
-                                        tr("Irish"), tr("Italian"), tr("Japanese"), tr("Javanese"), tr("Kannada"), tr("Kazakh"), tr("Khmer"), tr("Korean"),
-                                        tr("Kurdish"), tr("Kyrgyz"), tr("Lao"), tr("Latin"), tr("Latvian"), tr("Lithuanian"), tr("Luxembourgish"),
-                                        tr("Macedonian"), tr("Malagasy"), tr("Malay"), tr("Malayalam"), tr("Maltese"), tr("Maori"), tr("Marathi"), tr("Mari"), tr("Mongolian"),
-                                        tr("Myanmar"), tr("Nepali"), tr("Norwegian"), tr("Chichewa"), tr("Papiamento"), tr("Pashto"), tr("Persian"), tr("Polish"), tr("Portuguese"),
-                                        tr("Punjabi"), tr("Romanian"), tr("Russian"), tr("Samoan"), tr("Scots Gaelic"), tr("Serbian"), tr("Sesotho"), tr("Shona"),
-                                        tr("Sindhi"), tr("Sinhala"), tr("Slovak"), tr("Slovenian"), tr("Somali"), tr("Spanish"), tr("Sundanese"), tr("Swahili"),
-                                        tr("Swedish"), tr("Tagalog"), tr("Tajik"), tr("Tamil"), tr("Tatar"), tr("Telugu"), tr("Thai"), tr("Turkish"), tr("Udmurt"), tr("Ukrainian"),
-                                        tr("Urdu"), tr("Uzbek"), tr("Vietnamese"), tr("Welsh"), tr("Xhosa"), tr("Yiddish"), tr("Yoruba"), tr("Zulu") };
 };
 
 #endif // QONLINETRANSLATOR_H

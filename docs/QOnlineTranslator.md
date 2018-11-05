@@ -318,7 +318,7 @@ ___
 Returns the *language* name.
 ___
 
-### <a id='language-code'/> static [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::languageString(*Language language*)
+### <a id='language-code'/> static [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::languageCode(*Language language*)
 Returns code of the *language*.
 ___
 
