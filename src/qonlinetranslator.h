@@ -217,6 +217,7 @@ private:
 
     // Other
     void resetData();
+    static bool isSupportYandexTranslit(Language language);
     static int getSplitIndex(const QString &untranslatedText, int limit);
     static Language language(const QString &languageCode, Engine engine);
     static QString languageCode(Language language, Engine engine);

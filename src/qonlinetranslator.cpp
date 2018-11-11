@@ -202,8 +202,7 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
         }
 
         // Get source transliteration
-        // Do not request transliteration if the text is in English
-        if (m_sourceLang != English) {
+        if (isSupportYandexTranslit(m_sourceLang)) {
             // Yandex has a limit of characters per transliteration request. If the query is larger, then it should be splited into several.
             unsendedText = m_source;
             while (!unsendedText.isEmpty()) {
@@ -231,8 +230,7 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
         }
 
         // Get translation transliteration
-        // Do not request transliteration if the text is in English
-        if (m_translationLang != English) {
+        if (isSupportYandexTranslit(m_translationLang)) {
             // Yandex has a limit of characters per transliteration request. If the query is larger, then it should be splited into several.
             unsendedText = m_translation;
             while (!unsendedText.isEmpty()) {
@@ -1028,6 +1026,36 @@ void QOnlineTranslator::resetData()
     m_definitionsList.clear();
 }
 
+bool QOnlineTranslator::isSupportYandexTranslit(QOnlineTranslator::Language language)
+{
+    if (language == Amharic
+            || language == Armenian
+            || language == Bengali
+            || language == SimplifiedChinese
+            || language == Georgian
+            || language == Greek
+            || language == Gujarati
+            || language == Hebrew
+            || language == Hindi
+            || language == Japanese
+            || language == Kannada
+            || language == Korean
+            || language == Malayalam
+            || language == Marathi
+            || language == Nepali
+            || language == Punjabi
+            || language == Russian
+            || language == Sinhala
+            || language == Tamil
+            || language == Telugu
+            || language == Thai
+            || language == Yiddish) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 template<typename... Query>
 QByteArray QOnlineTranslator::get(const QString &urlString, const Query&... queryStrings)
 {
@@ -1224,6 +1252,9 @@ QOnlineTranslator::Language QOnlineTranslator::language(const QString &languageC
             return SimplifiedChinese;
         if (languageCode == "jv")
             return Javanese;
+
+        if (languageCode == "ku")
+            return NoLanguage;
     }
 
     // General case
@@ -1255,6 +1286,9 @@ QString QOnlineTranslator::languageCode(QOnlineTranslator::Language language, En
             return "zn";
         if (language == Javanese)
             return  "jv";
+
+        if (language == Kurdish)
+            return "";
     }
 
     // General case
