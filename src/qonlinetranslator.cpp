@@ -72,9 +72,9 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
     m_error = NoError;
 
     // Generate API codes
-    QString translationCode = languageCode(m_translationLang, engine);
-    QString sourceCode = languageCode(m_sourceLang, engine);
-    QString uiCode = languageCode(m_uiLang, engine);
+    QString sourceCode = languageCode(m_sourceLang, engine); // May be autodetected
+    const QString translationCode = languageCode(m_translationLang, engine);
+    const QString uiCode = languageCode(m_uiLang, engine);
     if (translationCode == "" || sourceCode == "" || uiCode == "") {
         m_errorString = tr("Error: One of languages is not supported for this backend.");
         m_error = ParametersError;
@@ -88,7 +88,7 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
         // Google has a limit of characters per translation request. If the query is larger, then it should be splited into several
         unsendedText = m_source;
         while (!unsendedText.isEmpty()) {
-            int splitIndex = getSplitIndex(unsendedText, GOOGLE_TRANSLATE_LIMIT); // Split the part by special symbol
+            const int splitIndex = getSplitIndex(unsendedText, GOOGLE_TRANSLATE_LIMIT); // Split the part by special symbol
 
             // Do not translate the part if it looks like garbage
             if (splitIndex == -1) {
@@ -114,7 +114,7 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
                 return;
             }
 
-            QByteArray replyData = apiReply->readAll();
+            const QByteArray replyData = apiReply->readAll();
 
             // Check availability of service
             if (replyData.startsWith("<")) {
@@ -124,8 +124,8 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
             }
 
             // Convert to JsonArray
-            QJsonDocument jsonResponse = QJsonDocument::fromJson(replyData);
-            QJsonArray jsonData = jsonResponse.array();
+            const QJsonDocument jsonResponse = QJsonDocument::fromJson(replyData);
+            const QJsonArray jsonData = jsonResponse.array();
 
             // Parse first sentense. If the answer contains more than one sentence, then at the end of the first one there will be a space
             m_translation.append(jsonData.at(0).toArray().at(0).toArray().at(0).toString());
@@ -186,7 +186,7 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
         // Yandex has a limit of characters per translation request. If the query is larger, then it should be splited into several.
         unsendedText = m_source;
         while (!unsendedText.isEmpty()) {
-            int splitIndex = getSplitIndex(unsendedText, YANDEX_TRANSLATE_LIMIT); // Split the part by special symbol
+            const int splitIndex = getSplitIndex(unsendedText, YANDEX_TRANSLATE_LIMIT); // Split the part by special symbol
 
             // Do not translate the part if it looks like garbage
             if (splitIndex == -1) {
@@ -234,8 +234,8 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
             }
 
             // Parse translation data
-            QJsonDocument jsonResponse = QJsonDocument::fromJson(apiReply->readAll());
-            QJsonObject jsonData = jsonResponse.object();
+            const QJsonDocument jsonResponse = QJsonDocument::fromJson(apiReply->readAll());
+            const QJsonObject jsonData = jsonResponse.object();
             m_translation += jsonData.value("text").toArray().at(0).toString();
             if (m_sourceLang == Auto) {
                 // Parse language
@@ -259,7 +259,7 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
             // Yandex has a limit of characters per transliteration request. If the query is larger, then it should be splited into several.
             unsendedText = m_source;
             while (!unsendedText.isEmpty()) {
-                int splitIndex = getSplitIndex(unsendedText, YANDEX_TRANSLIT_LIMIT); // Split the part by special symbol
+                const int splitIndex = getSplitIndex(unsendedText, YANDEX_TRANSLIT_LIMIT); // Split the part by special symbol
 
                 // Do not translate the part if it looks like garbage
                 if (splitIndex == -1) {
@@ -294,7 +294,7 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
             // Yandex has a limit of characters per transliteration request. If the query is larger, then it should be splited into several.
             unsendedText = m_translation;
             while (!unsendedText.isEmpty()) {
-                int splitIndex = getSplitIndex(unsendedText, YANDEX_TRANSLIT_LIMIT); // Split the part by special symbol
+                const int splitIndex = getSplitIndex(unsendedText, YANDEX_TRANSLIT_LIMIT); // Split the part by special symbol
 
                 // Do not translate the part if it looks like garbage
                 if (splitIndex == -1) {
@@ -343,8 +343,8 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
                 return;
             }
 
-            QJsonDocument jsonResponse = QJsonDocument::fromJson(apiReply->readAll());
-            QJsonValue dictionary = jsonResponse.object().value(sourceCode + "-" + translationCode);
+            const QJsonDocument jsonResponse = QJsonDocument::fromJson(apiReply->readAll());
+            const QJsonValue dictionary = jsonResponse.object().value(sourceCode + "-" + translationCode);
             foreach (QJsonValue dictionary, dictionary.toObject().value("regular").toArray()) {
                 m_dictionaryList << QDictionary(dictionary.toObject().value("pos").toObject().value("text").toString());
                 foreach (QJsonValue wordData, dictionary.toObject().value("tr").toArray()) {
@@ -432,8 +432,8 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
             }
 
             // Parse language
-            QJsonDocument jsonResponse = QJsonDocument::fromJson(apiReply->readAll());
-            QJsonObject jsonData = jsonResponse.object();
+            const QJsonDocument jsonResponse = QJsonDocument::fromJson(apiReply->readAll());
+            const QJsonObject jsonData = jsonResponse.object();
             languageCode = jsonData.value("lang").toString();
             languageCode = languageCode.left(languageCode.indexOf("-"));
             
@@ -451,7 +451,7 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
     case Google:
         // Google has a limit of characters per tts request. If the query is larger, then it should be splited into several
         while (!unparsedText.isEmpty()) {
-            int splitIndex = getSplitIndex(unparsedText, GOOGLE_TTS_LIMIT); // Split the part by special symbol
+            const int splitIndex = getSplitIndex(unparsedText, GOOGLE_TTS_LIMIT); // Split the part by special symbol
 
             // Generate URL API for add it to the playlist
             QUrl apiUrl("http://translate.googleapis.com/translate_tts");
@@ -480,12 +480,12 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
             return mediaList;
         }
 
-        QString speakerCode = this->speakerCode(speaker);
-        QString emotionCode = this->emotionCode(emotion);
+        const QString speakerCode = this->speakerCode(speaker);
+        const QString emotionCode = this->emotionCode(emotion);
 
         // Yandex has a limit of characters per tts request. If the query is larger, then it should be splited into several
         while (!unparsedText.isEmpty()) {
-            int splitIndex = getSplitIndex(unparsedText, YANDEX_TTS_LIMIT); // Split the part by special symbol
+            const int splitIndex = getSplitIndex(unparsedText, YANDEX_TTS_LIMIT); // Split the part by special symbol
 
             // Generate URL API for add it to the playlist
             QUrl apiUrl("https://tts.voicetech.yandex.net/tts");
@@ -1158,14 +1158,14 @@ bool QOnlineTranslator::generateYandexSid(QNetworkAccessManager &network)
 
     if (webReply->error() == QNetworkReply::NoError) {
         // Parse session ID from downloaded page
-        QByteArray replyData = webReply->readAll();
+        const QByteArray replyData = webReply->readAll();
         if (replyData.startsWith("<html>\r\n<head><title>302 Found</title>"))
             return false;
 
-        QString sid = replyData.mid(replyData.indexOf("SID: '") + 6, 26);
+        const QString sid = replyData.mid(replyData.indexOf("SID: '") + 6, 26);
 
         // Yandex show reversed parts of session ID, need to decode
-        QStringList sidParts = sid.split(".");
+        const QStringList sidParts = sid.split(".");
         for (short i = 0; i < sidParts.size(); ++i)
             std::reverse(sidParts[i].begin(), sidParts[i].end());
 
