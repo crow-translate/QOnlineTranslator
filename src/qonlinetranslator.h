@@ -205,17 +205,25 @@ public:
     static Language language(const QString &languageCode);
 
 private:
-    bool generateYandexSid(QNetworkAccessManager &network);
-
-    // Helper functions
+    // Get sync reply
     template<typename... Query>
-    static QNetworkReply *sendRequest(QNetworkAccessManager &network, const QString &urlString, const Query&... queryStrings);
+    QByteArray get(const QString &urlString, const Query&... queryStrings);
 
+    // Get API reply
+    QByteArray getGoogleTranslation(const QString &text, const QString &translationCode, const QString &sourceCode = "auto", const QString &uiCode = "en");
+    QByteArray getYandexTranslation(const QString &text, const QString &translationCode, const QString &sourceCode = "auto");
+    QByteArray getYandexTranslit(const QString &text, const QString &langCode);
+    QByteArray getYandexDictionary(const QString &text, const QString &translationCode, const QString &sourceCode, const QString &uiCode);
+
+    // Other
+    void resetData();
     static int getSplitIndex(const QString &untranslatedText, int limit);
     static Language language(const QString &languageCode, Engine engine);
     static QString languageCode(Language language, Engine engine);
     static QString speakerCode(Speaker speaker);
     static QString emotionCode(Emotion emotion);
+
+    QNetworkAccessManager m_network;
 
     Language m_sourceLang;
     Language m_translationLang;
