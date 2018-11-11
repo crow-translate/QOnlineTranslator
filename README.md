@@ -7,7 +7,7 @@
 Example:
 
 ```cpp
-QCoreApplication a(argc, argv); // Always need to create app instance for QEventLoop
+QCoreApplication a(argc, argv); // It is necessary to create a Qt application object.
 QTextStream out(stdout);
 ...
 QOnlineTranslator onlineTranslator("hello");
