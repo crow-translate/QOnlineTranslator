@@ -178,7 +178,7 @@ public:
     explicit QOnlineTranslator(QObject *parent = nullptr);
 
     void translate(const QString &text, Engine engine = Google, Language translationLang = Auto, Language sourceLang = Auto, Language uiLang = Auto);
-    QList<QMediaContent> media(const QString &text, Engine engine, Language language = Auto, Speaker speaker = Zahar, Emotion emotion = Neutral);
+    QList<QMediaContent> media(const QString &text, Engine engine, Language lang = Auto, Speaker speaker = Zahar, Emotion emotion = Neutral);
 
     QList<QMediaContent> sourceMedia(Engine engine, Speaker speaker = Zahar, Emotion emotion = Neutral);
     QList<QMediaContent> translationMedia(Engine engine, Speaker speaker = Zahar, Emotion emotion = Neutral);
@@ -199,10 +199,10 @@ public:
     TranslationError error() const;
     QString errorString() const;
 
-    static QString languageString(Language language);
-    static QString languageCode(Language language);
+    static QString languageString(Language lang);
+    static QString languageCode(Language lang);
     static Language language(const QLocale &locale);
-    static Language language(const QString &languageCode);
+    static Language language(const QString &langCode);
 
 private:
     // Get sync reply
@@ -219,8 +219,9 @@ private:
     void resetData();
     static bool isSupportYandexTranslit(Language language);
     static int getSplitIndex(const QString &untranslatedText, int limit);
-    static Language language(const QString &languageCode, Engine engine);
-    static QString languageCode(Language language, Engine engine);
+    static Language language(const QString &langCode, Engine engine);
+    QString translationLanguageCode(Language language, Engine engine);
+    QString ttsLanguageCode(Language language, Engine engine);
     static QString speakerCode(Speaker speaker);
     static QString emotionCode(Emotion emotion);
 

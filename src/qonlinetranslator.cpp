@@ -70,14 +70,17 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
     m_error = NoError;
 
     // Generate API codes
-    QString sourceCode = languageCode(m_sourceLang, engine); // May be autodetected
-    const QString translationCode = languageCode(m_translationLang, engine);
-    const QString uiCode = languageCode(m_uiLang, engine);
-    if (translationCode == "" || sourceCode == "" || uiCode == "") {
-        m_errorString = tr("Error: One of languages is not supported for this backend.");
-        m_error = ParametersError;
+    QString sourceCode = translationLanguageCode(m_sourceLang, engine); // May be autodetected
+    if (sourceCode.isEmpty())
         return;
-    }
+
+    const QString translationCode = translationLanguageCode(m_translationLang, engine);
+    if (translationCode.isEmpty())
+        return;
+
+    const QString uiCode = translationLanguageCode(m_uiLang, engine);
+    if (uiCode.isEmpty())
+        return;
 
     QString unsendedText;
     switch (engine) {
@@ -284,16 +287,18 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
     }
 }
 
-QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine, Language language, Speaker speaker, Emotion emotion)
+QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine, Language lang, Speaker speaker, Emotion emotion)
 {
     m_error = NoError;
     QList<QMediaContent> mediaList;
+    QString langCode;
     QString unparsedText = text;
-    QString languageCode;
 
     // Detect language if required
-    if (language != Auto) {
-        languageCode = this->languageCode(language, engine);
+    if (lang != Auto) {
+        langCode = ttsLanguageCode(lang, engine);
+        if (langCode.isEmpty())
+            return mediaList;
     } else {
         switch (engine) {
         case Google: {
@@ -303,8 +308,8 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
                 return mediaList;
 
             // Parse language
-            languageCode = reply.chopped(4);
-            languageCode = languageCode.mid(languageCode.lastIndexOf("\"") + 1);
+            langCode = reply.chopped(4);
+            langCode = langCode.mid(langCode.lastIndexOf("\"") + 1);
             break;
         }
         case Yandex: {
@@ -316,14 +321,14 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
             // Parse language
             const QJsonDocument jsonResponse = QJsonDocument::fromJson(reply);
             const QJsonObject jsonData = jsonResponse.object();
-            languageCode = jsonData.value("lang").toString();
-            languageCode = languageCode.left(languageCode.indexOf("-"));
+            langCode = jsonData.value("lang").toString();
+            langCode = langCode.left(langCode.indexOf("-"));
             
-            if (languageCode.isEmpty()) {
-                m_errorString = tr("Error: Unable to parse language from response.");
-                m_error = ParsingError;
+            // Convert to tts code
+            const Language detectedLang = language(langCode, Yandex);
+            langCode = ttsLanguageCode(detectedLang, Yandex);
+            if (langCode.isEmpty())
                 return mediaList;
-            }
         }
         }
     }
@@ -338,7 +343,7 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
             // Generate URL API for add it to the playlist
             QUrl apiUrl("http://translate.googleapis.com/translate_tts");
 #if defined(Q_OS_LINUX)
-            apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + languageCode +"&q=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)));
+            apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + langCode +"&q=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)));
 #elif defined(Q_OS_WIN)
             apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + languageCode +"&q=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)), QUrl::DecodedMode);
 #endif
@@ -349,19 +354,6 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
         }
         break;
     case Yandex:
-        // Yandex tts support only 3 languages
-        if (languageCode == "ru")
-            languageCode = "ru_RU";
-        else if (languageCode == "tr")
-            languageCode = "tr_TR";
-        else if (languageCode == "en")
-            languageCode = "en_GB";
-        else {
-            m_errorString = tr("Error: Unsupported language for tts.");
-            m_error = ParametersError;
-            return mediaList;
-        }
-
         const QString speakerCode = this->speakerCode(speaker);
         const QString emotionCode = this->emotionCode(emotion);
 
@@ -373,7 +365,7 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
             QUrl apiUrl("https://tts.voicetech.yandex.net/tts");
 #if defined(Q_OS_LINUX)
             apiUrl.setQuery("text=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)) +
-                            "&lang=" + languageCode +
+                            "&lang=" + langCode +
                             "&speaker=" + speakerCode +
                             "&emotion=" + emotionCode +
                             "&format=mp3");
@@ -465,9 +457,9 @@ QOnlineTranslator::TranslationError QOnlineTranslator::error() const
     return m_error;
 }
 
-QString QOnlineTranslator::languageString(QOnlineTranslator::Language language)
+QString QOnlineTranslator::languageString(QOnlineTranslator::Language lang)
 {
-    switch (language) {
+    switch (lang) {
     case NoLanguage:
         return "";
     case Auto:
@@ -697,12 +689,12 @@ QString QOnlineTranslator::languageString(QOnlineTranslator::Language language)
     return tr("Unknown");
 }
 
-QString QOnlineTranslator::languageCode(QOnlineTranslator::Language language)
+QString QOnlineTranslator::languageCode(QOnlineTranslator::Language lang)
 {
-    if (language == NoLanguage)
+    if (lang == NoLanguage)
         return "";
     else
-        return m_languageCodes.at(language);
+        return m_languageCodes.at(lang);
 }
 
 QOnlineTranslator::Language QOnlineTranslator::language(const QLocale &locale)
@@ -1012,9 +1004,9 @@ QOnlineTranslator::Language QOnlineTranslator::language(const QLocale &locale)
     return language;
 }
 
-QOnlineTranslator::Language QOnlineTranslator::language(const QString &languageCode)
+QOnlineTranslator::Language QOnlineTranslator::language(const QString &langCode)
 {
-    return static_cast<Language>(m_languageCodes.indexOf(languageCode));
+    return static_cast<Language>(m_languageCodes.indexOf(langCode));
 }
 
 void QOnlineTranslator::resetData()
@@ -1084,14 +1076,14 @@ QByteArray QOnlineTranslator::get(const QString &urlString, const Query&... quer
 QByteArray QOnlineTranslator::getGoogleTranslation(const QString &text, const QString &translationCode, const QString &sourceCode, const QString &uiCode)
 {
     const QByteArray reply = get("https://translate.googleapis.com/translate_a/single",
-               "client=gtx&ie=UTF-8&oe=UTF-8&dt=bd&dt=ex&dt=ld&dt=md&dt=rw&dt=rm&dt=ss&dt=t&dt=at&dt=qc&sl=",
-               sourceCode,
-               "&tl=",
-               translationCode,
-               "&hl=",
-               uiCode,
-               "&q=",
-               QUrl::toPercentEncoding(text));
+                                 "client=gtx&ie=UTF-8&oe=UTF-8&dt=bd&dt=ex&dt=ld&dt=md&dt=rw&dt=rm&dt=ss&dt=t&dt=at&dt=qc&sl=",
+                                 sourceCode,
+                                 "&tl=",
+                                 translationCode,
+                                 "&hl=",
+                                 uiCode,
+                                 "&q=",
+                                 QUrl::toPercentEncoding(text));
 
     // Check availability of service
     if (reply.startsWith("<")) {
@@ -1193,14 +1185,14 @@ QByteArray QOnlineTranslator::getYandexTranslit(const QString &text, const QStri
 QByteArray QOnlineTranslator::getYandexDictionary(const QString &text, const QString &translationCode, const QString &sourceCode, const QString &uiCode)
 {
     return get("http://dictionary.yandex.net/dicservice.json/lookupMultiple",
-                                             "text=",
-                                             QUrl::toPercentEncoding(text),
-                                             "&ui=",
-                                             uiCode,
-                                             "&dict=",
-                                             sourceCode,
-                                             "-",
-                                             translationCode);
+               "text=",
+               QUrl::toPercentEncoding(text),
+               "&ui=",
+               uiCode,
+               "&dict=",
+               sourceCode,
+               "-",
+               translationCode);
 }
 
 // Get split index of the text according to the limit
@@ -1230,17 +1222,17 @@ int QOnlineTranslator::getSplitIndex(const QString &untranslatedText, int limit)
     return limit;
 }
 
-QOnlineTranslator::Language QOnlineTranslator::language(const QString &languageCode, Engine engine)
+QOnlineTranslator::Language QOnlineTranslator::language(const QString &langCode, Engine engine)
 {
     // Google execptions
     if (engine == Google) {
         // Unsupported languages
-        if (languageCode == "ba"
-                || languageCode == "mrj"
-                || languageCode == "mhr"
-                || languageCode == "ny"
-                || languageCode == "tt"
-                || languageCode == "udm") {
+        if (langCode == "ba"
+                || langCode == "mrj"
+                || langCode == "mhr"
+                || langCode == "ny"
+                || langCode == "tt"
+                || langCode == "udm") {
             return NoLanguage;
         }
     }
@@ -1248,51 +1240,82 @@ QOnlineTranslator::Language QOnlineTranslator::language(const QString &languageC
     // Yandex execptions
     if (engine == Yandex) {
         // Yandex use another codes for this languages
-        if (languageCode == "zn")
+        if (langCode == "zn")
             return SimplifiedChinese;
-        if (languageCode == "jv")
+        if (langCode == "jv")
             return Javanese;
 
-        if (languageCode == "ku")
+        if (langCode == "ku")
             return NoLanguage;
     }
 
     // General case
-    return static_cast<Language>(m_languageCodes.indexOf(languageCode));
+    return static_cast<Language>(m_languageCodes.indexOf(langCode));
 }
 
-QString QOnlineTranslator::languageCode(QOnlineTranslator::Language language, Engine engine)
+QString QOnlineTranslator::translationLanguageCode(QOnlineTranslator::Language language, Engine engine)
 {
     QString languageCode;
 
-    if (language == NoLanguage)
+    if (language == NoLanguage) {
+        m_errorString = tr("Error: No language specified");
+        m_error = ParametersError;
         return "";
+    }
 
-    // Google execptions
-    if (engine == Google) {
+    // Engines execptions
+    switch (engine) {
+    case Google:
         if (language == Bashkir
                 || language == HillMari
                 || language == Mari
                 || language == Papiamento
                 || language == Tatar
                 || language == Udmurt) {
+            m_errorString = tr("Error: One of languages is not supported for this backend.");
+            m_error = ParametersError;
             return "";
         }
-    }
-
-    // Yandex execptions
-    if (engine == Yandex) {
+        break;
+    case Yandex:
         if (language == SimplifiedChinese)
             return "zn";
         if (language == Javanese)
             return  "jv";
-
-        if (language == Kurdish)
+        if (language == Kurdish) {
+            m_errorString = tr("Error: One of languages is not supported for this backend.");
+            m_error = ParametersError;
             return "";
+        }
+        break;
     }
 
     // General case
     return m_languageCodes.at(language);
+}
+
+QString QOnlineTranslator::ttsLanguageCode(QOnlineTranslator::Language language, QOnlineTranslator::Engine engine)
+{
+    if (engine == Yandex) {
+        switch (language) {
+        case NoLanguage:
+            m_errorString = tr("Error: No language specified");
+            m_error = ParametersError;
+            return "";
+        case Russian:
+            return "ru_RU";
+        case Tatar:
+            return "tr_TR";
+        case English:
+            return "en_GB";
+        default:
+            m_errorString = tr("Error: Unsupported language for tts.");
+            m_error = ParametersError;
+            return "";
+        }
+    } else {
+        return translationLanguageCode(language, engine); // Google use the same codes for tts
+    }
 }
 
 QString QOnlineTranslator::speakerCode(QOnlineTranslator::Speaker speaker)
