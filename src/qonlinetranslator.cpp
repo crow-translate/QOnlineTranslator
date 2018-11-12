@@ -71,16 +71,15 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
 
     // Generate API codes
     QString sourceCode = translationLanguageCode(m_sourceLang, engine); // May be autodetected
-    if (sourceCode.isEmpty())
-        return;
-
     const QString translationCode = translationLanguageCode(m_translationLang, engine);
-    if (translationCode.isEmpty())
-        return;
-
     const QString uiCode = translationLanguageCode(m_uiLang, engine);
-    if (uiCode.isEmpty())
+
+   // Check for errors
+    if (uiCode.isEmpty() || translationCode.isEmpty() || sourceCode.isEmpty()) {
+        m_errorString = tr("Error: One of languages is not supported for this backend.");
+        m_error = ParametersError;
         return;
+    }
 
     QString unsendedText;
     switch (engine) {
@@ -261,8 +260,8 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
         }
 
         // Request dictionary data if only one word is translated.
-        if (!m_translation.contains(" ")) {
-            const QByteArray reply = getYandexDictionary(m_source, translationCode, uiCode, sourceCode);
+        if (!m_source.contains(" ")) {
+            const QByteArray reply = getYandexDictionary(m_source, translationCode, sourceCode, uiCode);
             if (reply.isEmpty()) {
                 resetData();
                 return;
@@ -297,8 +296,11 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
     // Detect language if required
     if (lang != Auto) {
         langCode = ttsLanguageCode(lang, engine);
-        if (langCode.isEmpty())
+        if (langCode.isEmpty()) {
+            m_errorString = tr("Error: Unsupported language for tts.");
+            m_error = ParametersError;
             return mediaList;
+        }
     } else {
         switch (engine) {
         case Google: {
@@ -327,8 +329,11 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
             // Convert to tts code
             const Language detectedLang = language(langCode, Yandex);
             langCode = ttsLanguageCode(detectedLang, Yandex);
-            if (langCode.isEmpty())
+            if (langCode.isEmpty()) {
+                m_errorString = tr("Error: Unable to parse language");
+                m_error = ParametersError;
                 return mediaList;
+            }
         }
         }
     }
@@ -1258,8 +1263,6 @@ QString QOnlineTranslator::translationLanguageCode(QOnlineTranslator::Language l
     QString languageCode;
 
     if (language == NoLanguage) {
-        m_errorString = tr("Error: No language specified");
-        m_error = ParametersError;
         return "";
     }
 
@@ -1272,8 +1275,6 @@ QString QOnlineTranslator::translationLanguageCode(QOnlineTranslator::Language l
                 || language == Papiamento
                 || language == Tatar
                 || language == Udmurt) {
-            m_errorString = tr("Error: One of languages is not supported for this backend.");
-            m_error = ParametersError;
             return "";
         }
         break;
@@ -1282,11 +1283,8 @@ QString QOnlineTranslator::translationLanguageCode(QOnlineTranslator::Language l
             return "zn";
         if (language == Javanese)
             return  "jv";
-        if (language == Kurdish) {
-            m_errorString = tr("Error: One of languages is not supported for this backend.");
-            m_error = ParametersError;
+        if (language == Kurdish)
             return "";
-        }
         break;
     }
 
@@ -1299,8 +1297,6 @@ QString QOnlineTranslator::ttsLanguageCode(QOnlineTranslator::Language language,
     if (engine == Yandex) {
         switch (language) {
         case NoLanguage:
-            m_errorString = tr("Error: No language specified");
-            m_error = ParametersError;
             return "";
         case Russian:
             return "ru_RU";
@@ -1309,8 +1305,6 @@ QString QOnlineTranslator::ttsLanguageCode(QOnlineTranslator::Language language,
         case English:
             return "en_GB";
         default:
-            m_errorString = tr("Error: Unsupported language for tts.");
-            m_error = ParametersError;
             return "";
         }
     } else {

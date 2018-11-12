@@ -220,8 +220,8 @@ private:
     static bool isSupportYandexTranslit(Language language);
     static int getSplitIndex(const QString &untranslatedText, int limit);
     static Language language(const QString &langCode, Engine engine);
-    QString translationLanguageCode(Language language, Engine engine);
-    QString ttsLanguageCode(Language language, Engine engine);
+    static QString translationLanguageCode(Language language, Engine engine);
+    static QString ttsLanguageCode(Language language, Engine engine);
     static QString speakerCode(Speaker speaker);
     static QString emotionCode(Emotion emotion);
 
