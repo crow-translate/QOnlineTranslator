@@ -215,15 +215,20 @@ private:
     QByteArray getYandexTranslit(const QString &text, const QString &langCode);
     QByteArray getYandexDictionary(const QString &text, const QString &translationCode, const QString &sourceCode, const QString &uiCode);
 
-    // Other
-    void resetData();
-    static bool isSupportYandexTranslit(Language language);
-    static int getSplitIndex(const QString &untranslatedText, int limit);
-    static Language language(const QString &langCode, Engine engine);
-    static QString translationLanguageCode(Language language, Engine engine);
-    static QString ttsLanguageCode(Language language, Engine engine);
+    // Check for service support
+    static bool isSupportYandexTranslit(Language lang);
+    static bool isSupportYandexDictionary(Language sourceLang, Language translationLang);
+
+    // Codes for API
+    static QString translationLanguageCode(Language lang, Engine engine);
+    static QString ttsLanguageCode(Language lang, Engine engine);
     static QString speakerCode(Speaker speaker);
     static QString emotionCode(Emotion emotion);
+
+    // Other
+    void resetData();
+    static int getSplitIndex(const QString &untranslatedText, int limit);
+    static Language language(const QString &langCode, Engine engine);
 
     QNetworkAccessManager m_network;
 
