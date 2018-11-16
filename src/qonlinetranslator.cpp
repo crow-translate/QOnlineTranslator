@@ -1399,6 +1399,7 @@ void QOnlineTranslator::resetData()
     m_translation.clear();
     m_translationTranslit.clear();
     m_sourceTranslit.clear();
+    m_sourceTranscription.clear();
     m_dictionaryList.clear();
     m_definitionsList.clear();
 }
