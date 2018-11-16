@@ -1459,7 +1459,7 @@ QByteArray QOnlineTranslator::getYandexTranslation(const QString &text, const QS
         if (webSiteData.isEmpty())
             return "";
 
-        if (webSiteData.contains("<title>Oops!</title>")) {
+        if (webSiteData.contains("<title>Oops!</title>") || webSiteData.contains("<title>302 Found</title>")) {
             m_errorString = tr("Error: Backend systems have detected unusual traffic from your computer network. Please try your request again later.");
             m_error = ServiceError;
             return "";
