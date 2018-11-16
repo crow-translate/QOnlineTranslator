@@ -352,7 +352,7 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
 #if defined(Q_OS_LINUX)
             apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + langCode +"&q=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)));
 #elif defined(Q_OS_WIN)
-            apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + languageCode +"&q=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)), QUrl::DecodedMode);
+            apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + langCode +"&q=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)), QUrl::DecodedMode);
 #endif
             mediaList.append(apiUrl);
 
@@ -378,7 +378,7 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
                             "&format=mp3");
 #elif defined(Q_OS_WIN)
             apiUrl.setQuery("text=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)) +
-                            "&lang=" + languageCode +
+                            "&lang=" + langCode +
                             "&speaker=" + speakerCode +
                             "&emotion=" + emotionCode +
                             "&format=mp3", QUrl::DecodedMode);

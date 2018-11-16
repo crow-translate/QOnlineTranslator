@@ -231,7 +231,7 @@ private:
     static int getSplitIndex(const QString &untranslatedText, int limit);
     static Language language(const QString &langCode, Engine engine);
 
-    QNetworkAccessManager m_network;
+    QNetworkAccessManager m_network{this};
 
     Language m_sourceLang;
     Language m_translationLang;
