@@ -267,9 +267,11 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
                 return;
             }
 
+            // Parse reply
             const QJsonDocument jsonResponse = QJsonDocument::fromJson(reply);
-            const QJsonValue dictionary = jsonResponse.object().value(sourceCode + "-" + translationCode);
-            foreach (QJsonValue dictionary, dictionary.toObject().value("regular").toArray()) {
+            const QJsonValue jsonData = jsonResponse.object().value(sourceCode + "-" + translationCode).toObject().value("regular");
+            m_sourceTranscription = jsonData.toArray().at(0).toObject().value("ts").toString();
+            foreach (QJsonValue dictionary, jsonData.toArray()) {
                 m_dictionaryList << QDictionary(dictionary.toObject().value("pos").toObject().value("text").toString());
                 foreach (QJsonValue wordData, dictionary.toObject().value("tr").toArray()) {
                     QString word = wordData.toObject().value("text").toString();
@@ -410,6 +412,11 @@ QString QOnlineTranslator::source() const
 QString QOnlineTranslator::sourceTranslit() const
 {
     return m_sourceTranslit;
+}
+
+QString QOnlineTranslator::sourceTranscription() const
+{
+    return m_sourceTranscription;
 }
 
 QString QOnlineTranslator::sourceLanguageString() const

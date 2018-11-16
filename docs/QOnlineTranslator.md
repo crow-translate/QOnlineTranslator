@@ -31,6 +31,7 @@ The **QOnlineTranslator** class provides translation data.
 | QList\<QMediaContent\>       | [**translationMedia**(Engine engine, Speaker speaker = Zahar, Emotion emotion = Neutral)](#translation-media)                                                 |
 | QString                      | [**source**()](#source)                                                                                                                                       |
 | QString                      | [**sourceTranslit**()](#source-translit)                                                                                                                      |
+| QString                      | [**sourceTranscription**()](source-transcription)                                                                                                             |
 | QString                      | [**sourceLanguageString**()](#source-language-string)                                                                                                         |
 | Language                     | [**sourceLanguage**()](#source-language)                                                                                                                      |
 | QString                      | [**translation**()](#translation)                                                                                                                             |
@@ -288,6 +289,10 @@ ___
 
 ### <a id='translation-translit'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::translationTranslit()
 Returns transliteration of translated text.
+___
+
+### <a id='source-transcription'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::sourceTranscription()
+Returns transcription of source text. Supports only for Yandex.
 ___
 
 ### <a id='translation-language-string'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::translationLanguage()

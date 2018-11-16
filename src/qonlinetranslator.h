@@ -185,6 +185,7 @@ public:
 
     QString source() const;
     QString sourceTranslit() const;
+    QString sourceTranscription() const;
     QString sourceLanguageString() const;
     Language sourceLanguage() const;
 
@@ -239,6 +240,7 @@ private:
 
     QString m_source;
     QString m_sourceTranslit;
+    QString m_sourceTranscription;
     QString m_translation;
     QString m_translationTranslit;
     QString m_errorString;
