@@ -137,21 +137,21 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
 
             if (text.size() < GOOGLE_TRANSLATE_LIMIT) {
                 // Translation options
-                foreach (QJsonValue translationOption, jsonData.at(1).toArray()) {
+                foreach (const QJsonValue &translationOption, jsonData.at(1).toArray()) {
                     m_dictionaryList << QDictionary(translationOption.toArray().at(0).toString());
-                    foreach (QJsonValue wordData, translationOption.toArray().at(2).toArray()) {
+                    foreach (const QJsonValue &wordData, translationOption.toArray().at(2).toArray()) {
                         QString word = wordData.toArray().at(0).toString();
                         QString gender = wordData.toArray().at(4).toString();
                         QStringList translations;
-                        foreach (auto translationForWord, wordData.toArray().at(1).toArray()) {
-                            translations.append(translationForWord.toString());
+                        foreach (const QJsonValue &wordTranslation, wordData.toArray().at(1).toArray()) {
+                            translations.append(wordTranslation.toString());
                         }
                         m_dictionaryList.last().appendWord(word, gender, translations);
                     }
                 }
 
                 // Definitions
-                foreach (QJsonValue definition, jsonData.at(12).toArray()) {
+                foreach (const QJsonValue &definition, jsonData.at(12).toArray()) {
                     m_definitionsList << QDefinition();
                     m_definitionsList.last().setTypeOfSpeech(definition.toArray().at(0).toString());
                     m_definitionsList.last().setDescription(definition.toArray().at(1).toArray().at(0).toArray().at(0).toString());
@@ -281,13 +281,13 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
             const QJsonDocument jsonResponse = QJsonDocument::fromJson(reply);
             const QJsonValue jsonData = jsonResponse.object().value(sourceCode + "-" + translationCode).toObject().value("regular");
             m_sourceTranscription = jsonData.toArray().at(0).toObject().value("ts").toString();
-            foreach (QJsonValue dictionary, jsonData.toArray()) {
+            foreach (const QJsonValue &dictionary, jsonData.toArray()) {
                 m_dictionaryList << QDictionary(dictionary.toObject().value("pos").toObject().value("text").toString());
-                foreach (QJsonValue wordData, dictionary.toObject().value("tr").toArray()) {
+                foreach (const QJsonValue &wordData, dictionary.toObject().value("tr").toArray()) {
                     QString word = wordData.toObject().value("text").toString();
                     QString gender = wordData.toObject().value("gen").toObject().value("text").toString();
                     QStringList translations;
-                    foreach (QJsonValue translationForWord, wordData.toObject().value("mean").toArray()) {
+                    foreach (const QJsonValue &translationForWord, wordData.toObject().value("mean").toArray()) {
                         translations.append(translationForWord.toObject().value("text").toString());
                     }
                     m_dictionaryList.last().appendWord(word, gender, translations);
