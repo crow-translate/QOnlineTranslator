@@ -18,13 +18,13 @@
  *
  */
 
+#include "qonlinetranslator.h"
+
 #include <QEventLoop>
 #include <QMediaPlayer>
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QJsonObject>
-
-#include "qonlinetranslator.h"
 
 // Engines have a limit of characters per translation request.
 // If the query is larger, then it should be splited into several with getSplitIndex() helper function

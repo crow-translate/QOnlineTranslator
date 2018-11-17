@@ -21,11 +21,11 @@
 #ifndef QONLINETRANSLATOR_H
 #define QONLINETRANSLATOR_H
 
-#include <QNetworkReply>
-#include <QMediaPlaylist>
-
 #include "qdictionary.h"
 #include "qdefinition.h"
+
+#include <QNetworkReply>
+#include <QMediaPlaylist>
 
 class QOnlineTranslator : public QObject
 {
