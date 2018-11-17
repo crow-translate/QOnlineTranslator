@@ -74,7 +74,7 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
     const QString translationCode = translationLanguageCode(m_translationLang, engine);
     const QString uiCode = translationLanguageCode(m_uiLang, engine);
 
-   // Check for errors
+    // Check for errors
     if (uiCode.isEmpty() || translationCode.isEmpty() || sourceCode.isEmpty()) {
         m_errorString = tr("Error: One of languages is not supported for this backend.");
         m_error = ParametersError;
@@ -224,7 +224,12 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
                     return;
                 }
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
                 m_sourceTranslit += reply.mid(1).chopped(1);
+#else
+                m_sourceTranslit += reply.mid(1);
+                m_sourceTranslit.chop(1);
+#endif
 
                 // Remove the parsed part from the next parsing
                 unsendedText = unsendedText.mid(splitIndex);
@@ -252,7 +257,12 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
                     return;
                 }
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
                 m_translationTranslit += reply.mid(1).chopped(1);
+#else
+                m_translationTranslit += reply.mid(1);
+                m_translationTranslit.chop(1);
+#endif
 
                 // Remove the parsed part from the next parsing
                 unsendedText = unsendedText.mid(splitIndex);
@@ -312,7 +322,12 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
                 return mediaList;
 
             // Parse language
+#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
             langCode = reply.chopped(4);
+#else
+            langCode = reply;
+            langCode.chop(4);
+#endif
             langCode = langCode.mid(langCode.lastIndexOf("\"") + 1);
             break;
         }
