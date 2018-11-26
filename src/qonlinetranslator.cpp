@@ -108,7 +108,7 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
 
             // Parse first sentense. If the answer contains more than one sentence, then at the end of the first one there will be a space
             m_translation.append(jsonData.at(0).toArray().at(0).toArray().at(0).toString());
-            for (int i = 1; m_translation.endsWith(" ") || m_translation.endsWith("\n") || m_translation.endsWith("\u00a0"); ++i)
+            for (int i = 1; m_translation.endsWith(" ") || m_translation.endsWith("\n") || m_translation.endsWith(0x00a0); ++i)
                 m_translation.append(jsonData.at(0).toArray().at(i).toArray().at(0).toString());
 
             // Parse transliterations and source language
@@ -1584,8 +1584,8 @@ int QOnlineTranslator::getSplitIndex(const QString &untranslatedText, int limit)
     if (splitIndex != -1)
         return splitIndex + 1;
 
-    // Non-breaking gap
-    splitIndex = untranslatedText.lastIndexOf("\u00a0", limit - 1);
+    // Non-breaking space
+    splitIndex = untranslatedText.lastIndexOf(0x00a0, limit - 1);
     if (splitIndex != -1)
         return splitIndex + 1;
 
