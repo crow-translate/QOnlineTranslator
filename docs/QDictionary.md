@@ -4,22 +4,22 @@ The **QDictionary** class provides storage for translation options data for a si
 
 ## Content
 
-* [Public Functions](#public-functions)
-* [Detailed Description](#detailed-description)
-* [Member Function Documentation](#member-function-documentation)
+-   [Public Functions](#public-functions)
+-   [Detailed Description](#detailed-description)
+-   [Member Function Documentation](#member-function-documentation)
 
 ## Public Functions
 
-| Return type | Data member                                                                                                                          |
-|------------:|:-------------------------------------------------------------------------------------------------------------------------------------|
-|             | [**QDictionary**(const QString &typeOfSpeech = "")](#c1)                                                                             |
-| QString     | [**typeOfSpeech**()](#type-of-speech)                                                                                                |
-| QString     | [**word**(int index)](#word)                                                                                                         |
-| QString     | [**gender**(int index)](#gender)                                                                                                     |
-| QStringList | [**translations**(int index)](#translations)                                                                                         |
-| void        | [**setTypeOfSpeech**(const QString &typeOfSpeech)](#set-type-of-speech)                                                              |
-| void        | [**appendWord**(const QString &word, const QString &gender = "", const QStringList &translations = QStringList())](#append-word)     |
-| int         | [**count**()](#count)                                                                                                                |
+| Return type | Data member                                                                                                                      |
+| ----------: | :------------------------------------------------------------------------------------------------------------------------------- |
+|             | [**QDictionary**(const QString &typeOfSpeech = "")](#c1)                                                                         |
+|     QString | [**typeOfSpeech**()](#type-of-speech)                                                                                            |
+|     QString | [**word**(int index)](#word)                                                                                                     |
+|     QString | [**gender**(int index)](#gender)                                                                                                 |
+| QStringList | [**translations**(int index)](#translations)                                                                                     |
+|        void | [**setTypeOfSpeech**(const QString &typeOfSpeech)](#set-type-of-speech)                                                          |
+|        void | [**appendWord**(const QString &word, const QString &gender = "", const QStringList &translations = QStringList())](#append-word) |
+|         int | [**count**()](#count)                                                                                                            |
 
 ## Detailed Description
 
@@ -63,38 +63,55 @@ noun:
  Mitspracherecht: say
 */
 ```
----
+
+* * *
 
 ## Member Function Documentation
 
-### <a id='c1'/> QDictionary::QDictionary(*const QString &typeOfSpeech = ""*)
-Constructs an empty object with the type of speech text *typeOfSpeech*.
-___
+### <a id='c1'/> QDictionary::QDictionary(_const QString &typeOfSpeech = ""_)
 
-### <a id='type-of-speech'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QDictionary::typeOfSpeech()
+Constructs an empty object with the type of speech text _typeOfSpeech_.
+
+* * *
+
+### <a id='type-of-speech'/> \[QString](http&#x3A;//doc.qt.io/qt-5/qstring.html "Qt Documentation") QDictionary::typeOfSpeech()
+
 Returns type of speech of the text.
-___
 
-### <a id='word'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QDictionary::word(*int index*)
-Returns the word of the *index*.
-___
+* * *
 
-### <a id='gender'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QDictionary::gender(*int index*)
-Returns the gender of the word with *index*. Used for some languages, such as German. Can be empty.
-___
+### <a id='word'/> \[QString](http&#x3A;//doc.qt.io/qt-5/qstring.html "Qt Documentation") QDictionary::word(_int index_)
 
-### <a id='translations'/> [QStringList](http://doc.qt.io/qt-5/qstringlist.html "Qt Documentation") QDictionary::translations(*int index*)
-Returns the translations for the word with the *index*.
-___
+Returns the word of the _index_.
 
-### <a id='set-type-of-speech'/> void QDictionary::setTypeOfSpeech(*const QString &typeOfSpeech*)
-Sets type of speech of the text to *typeOfSpeech*.
-___
+* * *
 
-### <a id='append-word'/> void QDictionary::appendWord(*const QString &word, const QString &gender = "", const QStringList &translations = QStringList()*)
-Appends the translation option *word* with *gender* and *translations* onto the end of translation options.
-___
+### <a id='gender'/> \[QString](http&#x3A;//doc.qt.io/qt-5/qstring.html "Qt Documentation") QDictionary::gender(_int index_)
+
+Returns the gender of the word with _index_. Used for some languages, such as German. Can be empty.
+
+* * *
+
+### <a id='translations'/> \[QStringList](http&#x3A;//doc.qt.io/qt-5/qstringlist.html "Qt Documentation") QDictionary::translations(_int index_)
+
+Returns the translations for the word with the _index_.
+
+* * *
+
+### <a id='set-type-of-speech'/> void QDictionary::setTypeOfSpeech(_const QString &typeOfSpeech_)
+
+Sets type of speech of the text to _typeOfSpeech_.
+
+* * *
+
+### <a id='append-word'/> void QDictionary::appendWord(_const QString &word, const QString &gender = "", const QStringList &translations = QStringList()_)
+
+Appends the translation option _word_ with _gender_ and _translations_ onto the end of translation options.
+
+* * *
 
 ### <a id='count'/> void QDictionary::count()
+
 Returns the number of words.
-___
+
+* * *

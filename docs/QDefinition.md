@@ -4,21 +4,21 @@ The **QDefinition** class provides storage for definitions data.
 
 ## Content
 
-* [Public Functions](#public-functions)
-* [Detailed Description](#detailed-description)
-* [Member Function Documentation](#member-function-documentation)
+-   [Public Functions](#public-functions)
+-   [Detailed Description](#detailed-description)
+-   [Member Function Documentation](#member-function-documentation)
 
 ## Public Functions
 
 | Return type | Data member                                                                                                            |
-|------------:|:-----------------------------------------------------------------------------------------------------------------------|
+| ----------: | :--------------------------------------------------------------------------------------------------------------------- |
 |             | [**QDefinition**(const QString &typeOfSpeech = "", const QString &description = "", const QString &example = "")](#c1) |
-| QString     | [**typeOfSpeech**()](#type-of-speech)                                                                                  |
-| QString     | [**description**()](#description)                                                                                      |
-| QString     | [**example**()](#example)                                                                                              |
-| void        | [**setTypeOfSpeech**(const QString &typeOfSpeech)](#set-type-of-speech)                                                |
-| void        | [**setDescription**(const QString &description)](#set-description)                                                     |
-| void        | [**setExample**(const QString &example)](#set-example)                                                                 |
+|     QString | [**typeOfSpeech**()](#type-of-speech)                                                                                  |
+|     QString | [**description**()](#description)                                                                                      |
+|     QString | [**example**()](#example)                                                                                              |
+|        void | [**setTypeOfSpeech**(const QString &typeOfSpeech)](#set-type-of-speech)                                                |
+|        void | [**setDescription**(const QString &description)](#set-description)                                                     |
+|        void | [**setExample**(const QString &example)](#set-example)                                                                 |
 
 ## Detailed Description
 
@@ -55,34 +55,49 @@ exclamation
    say, did you notice any blood?
 */
 ```
----
+
+* * *
 
 ## Member Function Documentation
 
-### <a id='c1'/> QDefinition::QDefinition(*const QString &typeOfSpeech = "", const QString &description = "", const QString &example = ""*)
-Constructs definition object with *typeOfSpeech*, *description* and *example*.
-___
+### <a id='c1'/> QDefinition::QDefinition(_const QString &typeOfSpeech = "", const QString &description = "", const QString &example = ""_)
 
-### <a id='type-of-speech'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QDefinition::typeOfSpeech()
+Constructs definition object with _typeOfSpeech_, _description_ and _example_.
+
+* * *
+
+### <a id='type-of-speech'/> \[QString](http&#x3A;//doc.qt.io/qt-5/qstring.html "Qt Documentation") QDefinition::typeOfSpeech()
+
 Returns type of speech of the definition.
-___
 
-### <a id='description'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QDefinition::description()
+* * *
+
+### <a id='description'/> \[QString](http&#x3A;//doc.qt.io/qt-5/qstring.html "Qt Documentation") QDefinition::description()
+
 Returns description of the definition.
-___
 
-### <a id='example'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QDefinition::example()
+* * *
+
+### <a id='example'/> \[QString](http&#x3A;//doc.qt.io/qt-5/qstring.html "Qt Documentation") QDefinition::example()
+
 Returns example of the definition.
-___
 
-### <a id='set-type-of-speech'/> void QDefinition::setTypeOfSpeech(*const QString &typeOfSpeech*)
-Sets type of speech of the definition to *typeOfSpeech*.
-___
+* * *
 
-### <a id='set-description'/> void QDefinition::setDescription(*const QString &description*)
-Sets description of the definition to *description*.
-___
+### <a id='set-type-of-speech'/> void QDefinition::setTypeOfSpeech(_const QString &typeOfSpeech_)
 
-### <a id='set-example'/> void QDefinition::setExample(*const QString &example*)
-Sets example of the definition to *example*.
-___
+Sets type of speech of the definition to _typeOfSpeech_.
+
+* * *
+
+### <a id='set-description'/> void QDefinition::setDescription(_const QString &description_)
+
+Sets description of the definition to _description_.
+
+* * *
+
+### <a id='set-example'/> void QDefinition::setExample(_const QString &example_)
+
+Sets example of the definition to _example_.
+
+* * *
