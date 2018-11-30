@@ -233,9 +233,9 @@ private:
 
     QNetworkAccessManager m_network{this};
 
-    Language m_sourceLang;
-    Language m_translationLang;
-    Language m_uiLang;
+    Language m_sourceLang = NoLanguage;
+    Language m_translationLang = NoLanguage;
+    Language m_uiLang = NoLanguage;
     TranslationError m_error = NoError;
 
     QString m_source;
