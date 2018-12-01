@@ -1,7 +1,7 @@
 # QOnlineTranslator
 
 [![GitHub (pre-)release](https://img.shields.io/github/release/Shatur95/QOnlineTranslator/all.svg)](https://github.com/Shatur95/QOnlineTranslator/releases)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/67f76adb276943cb93b969068f053f31)](https://www.codacy.com/app/Shatur95/QOnlineTranslator?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Shatur95/QOnlineTranslator&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/b5abd65ae9504966b1965d598c37dfdb)](https://www.codacy.com/app/Shatur95/QOnlineTranslator?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Shatur95/QOnlineTranslator&amp;utm_campaign=Badge_Grade)
 
 **QOnlineTranslator** is a library for **Qt5** that provides free usage of Google and Yandex translate API. [Detailed documentation](docs/QOnlineTranslator.md "Class documentation").
 
