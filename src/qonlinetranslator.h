@@ -230,6 +230,7 @@ private:
     QByteArray getBingTextLanguage(const QString &text);
     QByteArray getBingTranslation(const QString &text, const QString &translationCode, const QString &sourceCode = "auto");
     QByteArray getBingTranslit(const QString &text, const QString &langCode);
+    QByteArray getBingDictionary(const QString &text, const QString &translationCode, const QString &sourceCode);
 
     // Check for service support
     static bool isSupportYandexTranslit(Language lang);

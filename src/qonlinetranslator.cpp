@@ -141,9 +141,9 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
 
             if (text.size() < GOOGLE_TRANSLATE_LIMIT) {
                 // Translation options
-                foreach (const QJsonValue &translationOption, jsonData.at(1).toArray()) {
-                    m_dictionaryList << QDictionary(translationOption.toArray().at(0).toString());
-                    foreach (const QJsonValue &wordData, translationOption.toArray().at(2).toArray()) {
+                foreach (const QJsonValue &typeOfSpeech, jsonData.at(1).toArray()) {
+                    m_dictionaryList << QDictionary(typeOfSpeech.toArray().at(0).toString());
+                    foreach (const QJsonValue &wordData, typeOfSpeech.toArray().at(2).toArray()) {
                         QString word = wordData.toArray().at(0).toString();
                         QString gender = wordData.toArray().at(4).toString();
                         QStringList translations;
@@ -283,17 +283,22 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
 
             // Parse reply
             const QJsonDocument jsonResponse = QJsonDocument::fromJson(reply);
-            const QJsonValue jsonData = jsonResponse.object().value(sourceCode + "-" + translationCode).toObject().value("regular");
-            m_sourceTranscription = jsonData.toArray().at(0).toObject().value("ts").toString();
-            foreach (const QJsonValue &dictionary, jsonData.toArray()) {
-                m_dictionaryList << QDictionary(dictionary.toObject().value("pos").toObject().value("text").toString());
-                foreach (const QJsonValue &wordData, dictionary.toObject().value("tr").toArray()) {
-                    QString word = wordData.toObject().value("text").toString();
-                    QString gender = wordData.toObject().value("gen").toObject().value("text").toString();
+            const QJsonArray jsonData = jsonResponse.object().value(sourceCode + "-" + translationCode).toObject().value("regular").toArray();
+
+            m_sourceTranscription = jsonData.at(0).toObject().value("ts").toString();
+
+            foreach (const QJsonValue &typeOfSpeech, jsonData) {
+                m_dictionaryList << QDictionary(typeOfSpeech.toObject().value("pos").toObject().value("text").toString());
+
+                foreach (const QJsonValue &wordData, typeOfSpeech.toObject().value("tr").toArray()) {
+                    const QString word = wordData.toObject().value("text").toString();
+                    const QString gender = wordData.toObject().value("gen").toObject().value("text").toString();
+
                     QStringList translations;
-                    foreach (const QJsonValue &translationForWord, wordData.toObject().value("mean").toArray()) {
-                        translations.append(translationForWord.toObject().value("text").toString());
+                    foreach (const QJsonValue &wordTranslation, wordData.toObject().value("mean").toArray()) {
+                        translations.append(wordTranslation.toObject().value("text").toString());
                     }
+
                     m_dictionaryList.last().appendWord(word, gender, translations);
                 }
             }
@@ -400,6 +405,41 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
 
                 // Remove the parsed part from the next parsing
                 unsendedText = unsendedText.mid(splitIndex);
+            }
+        }
+
+        // Request dictionary data if only one word is translated.
+        if (!m_source.contains(" ") && isSupportBingDictionary(m_sourceLang, m_translationLang)) {
+            const QByteArray reply = getBingDictionary(m_source, translationCode, sourceCode);
+            if (reply.isEmpty()) {
+                resetData();
+                return;
+            }
+
+            // Parse reply
+            const QJsonDocument jsonResponse = QJsonDocument::fromJson(reply);
+            const QJsonValue jsonData = jsonResponse.object().value("translations");
+            foreach (const QJsonValue &typeOfSpeech, jsonData.toArray()) {
+                const QJsonObject speechData = typeOfSpeech.toObject();
+                const QString speechName = speechData.value("posTag").toString().toLower();
+
+                // Search for this type of speech
+                int i;
+                for (i = 0; i < m_dictionaryList.size(); ++i) {
+                    if (m_dictionaryList.at(i).typeOfSpeech() == speechName)
+                        break;
+                }
+
+                // Add a new if current type of speech not found
+                if (i == m_dictionaryList.size())
+                    m_dictionaryList << QDictionary(speechName);
+
+                const QString word = speechData.value("displayTarget").toString().toLower();
+                QStringList translations;
+                foreach (const QJsonValue &wordTranslation, speechData.value("backTranslations").toArray())
+                    translations.append(wordTranslation.toObject().value("displayText").toString());
+
+                m_dictionaryList[i].appendWord(word, "", translations);
             }
         }
 
@@ -1578,11 +1618,11 @@ bool QOnlineTranslator::isSupportBingTranslit(QOnlineTranslator::Language lang)
 
 bool QOnlineTranslator::isSupportBingDictionary(QOnlineTranslator::Language sourceLang, QOnlineTranslator::Language translationLang)
 {
-    // Bing support dictionary only to or from English (we don't need a dictionary for source)
-    if (translationLang != English)
+    // Bing support dictionary only to or from English (we don't need a dictionary for translation)
+    if (sourceLang != English)
         return false;
 
-    switch (sourceLang) {
+    switch (translationLang) {
     case Afrikaans:
     case Arabic:
     case Bengali:
@@ -1871,6 +1911,38 @@ QByteArray QOnlineTranslator::getBingTranslit(const QString &text, const QString
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
     request.setHeader(QNetworkRequest::ContentLengthHeader, postData.size());
     request.setUrl(QUrl("http://www.bing.com/ttransliterate"));
+
+    // Send request and wait for the response
+    QNetworkReply *reply = m_network.post(request, postData);
+    QEventLoop waitForResponse;
+    connect(reply, &QNetworkReply::finished, &waitForResponse, &QEventLoop::quit);
+    waitForResponse.exec();
+
+    // Check for errors
+    if (reply->error() != QNetworkReply::NoError) {
+        m_errorString = reply->errorString();
+        m_error = NetworkError;
+        delete reply;
+        resetData();
+        return "";
+    }
+
+    const QByteArray data = reply->readAll();
+    delete reply;
+    return data;
+}
+
+QByteArray QOnlineTranslator::getBingDictionary(const QString &text, const QString &translationCode, const QString &sourceCode)
+{
+    // Generate POST data
+    QByteArray postData;
+    postData.append("&text=" + text + "&from=" + sourceCode + "&to=" + translationCode);
+
+    // Generate POST request
+    QNetworkRequest request;
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+    request.setHeader(QNetworkRequest::ContentLengthHeader, postData.size());
+    request.setUrl(QUrl("http://www.bing.com/ttranslationlookup"));
 
     // Send request and wait for the response
     QNetworkReply *reply = m_network.post(request, postData);
