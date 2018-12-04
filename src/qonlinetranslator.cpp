@@ -35,14 +35,17 @@ constexpr int YANDEX_TRANSLATE_LIMIT = 150;
 constexpr int YANDEX_TRANSLIT_LIMIT = 180;
 constexpr int YANDEX_TTS_LIMIT = 1400;
 
-QString QOnlineTranslator::m_yandexSid;
-bool QOnlineTranslator::m_secondSidRequest = false;
-const QStringList QOnlineTranslator::m_languageCodes = { "auto", "af", "sq", "am", "ar", "hy", "az", "eu", "ba", "be", "bn", "bs", "bg", "ca", "ceb", "zh-CN", "zh-TW", "co", "hr", "cs",
-                                                         "da", "nl", "en", "eo", "et", "fi", "fr", "fy", "gl", "ka", "de", "el", "gu", "ht", "ha", "haw", "he", "mrj", "hi", "hmn", "hu",
-                                                         "is", "ig", "id", "ga", "it", "ja", "jw", "kn", "kk", "km", "ko", "ku", "ky", "lo", "la", "lv", "lt", "lb", "mk", "mg",
-                                                         "ms", "ml", "mt", "mi", "mr", "mhr", "mn", "my", "ne", "no", "ny", "pap", "ps", "fa", "pl", "pt", "pa", "ro", "ru", "sm", "gd", "sr",
-                                                         "st", "sn", "sd", "si", "sk", "sl", "so", "es", "su", "sw", "sv", "tl", "tg", "ta", "tt", "te", "th", "tr", "udm", "uk", "ur", "uz",
-                                                         "vi", "cy", "xh", "yi", "yo", "zu" };
+constexpr int BING_TRANSLATE_LIMIT = 5001;
+
+QString QOnlineTranslator::m_yandexKey;
+bool QOnlineTranslator::m_secondYandexKeyRequest = false;
+
+const QStringList QOnlineTranslator::m_languageCodes = { "auto", "af", "sq", "am", "ar", "hy", "az", "eu", "ba", "be", "bn", "bs", "bg", "ca", "yue", "ceb", "zh-CN", "zh-TW", "co", "hr", "cs",
+                                                         "da", "nl", "en", "eo", "et", "fj", "fil", "fi", "fr", "fy", "gl", "ka", "de", "el", "gu", "ht", "ha", "haw", "he", "mrj", "hi", "hmn", "hu",
+                                                         "is", "ig", "id", "ga", "it", "ja", "jw", "kn", "kk", "km", "ko", "tlh", "tlh-Qaak", "ku", "ky", "lo", "la", "lv", "apc", "lt", "lb", "mk", "mg",
+                                                         "ms", "ml", "mt", "mi", "mr", "mhr", "mn", "my", "ne", "no", "ny", "pap", "ps", "fa", "pl", "pt", "pa", "otq", "ro", "ru", "sm", "gd", "sr-Cyrl", "sr-Latin",
+                                                         "st", "sn", "sd", "si", "sk", "sl", "so", "es", "su", "sw", "sv", "tl", "ty", "tg", "ta", "tt", "te", "th", "to", "tr", "udm", "uk", "ur", "uz",
+                                                         "vi", "cy", "xh", "yi", "yo", "yua", "zu" };
 
 QOnlineTranslator::QOnlineTranslator(QObject *parent) :
     QObject(parent)
@@ -295,6 +298,46 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
             }
         }
         return;
+
+    case Bing:
+        // Get translation
+        // Bing has a limit of characters per translation request. If the query is larger, then it should be splited into several.
+        unsendedText = m_source;
+        while (!unsendedText.isEmpty()) {
+            const int splitIndex = getSplitIndex(unsendedText, BING_TRANSLATE_LIMIT); // Split the part by special symbol
+
+            // Do not translate the part if it looks like garbage
+            if (splitIndex == -1) {
+                m_translation.append(unsendedText.leftRef(BING_TRANSLATE_LIMIT));
+                unsendedText = unsendedText.mid(BING_TRANSLATE_LIMIT);
+                continue;
+            }
+
+            // Detect language
+            if (m_sourceLang == Auto) {
+                sourceCode = getBingTextLanguage(unsendedText.left(splitIndex));
+                if (sourceCode.isEmpty())
+                    return;
+
+                m_sourceLang = language(sourceCode, Bing);
+            }
+
+            // Get API reply
+            const QByteArray reply = getBingTranslation(unsendedText.left(splitIndex), translationCode, sourceCode);
+            if (reply.isEmpty()) {
+                resetData();
+                return;
+            }
+
+            // Parse translation data
+            m_translation += QJsonDocument::fromJson(reply).object().value("translationResponse").toString();
+
+            // Remove the parsed part from the next parsing
+            unsendedText = unsendedText.mid(splitIndex);
+        }
+
+        return;
+
     }
 }
 
@@ -351,7 +394,12 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
                 m_error = ParametersError;
                 return mediaList;
             }
+            break;
         }
+        case Bing:
+            m_errorString = tr("Error: Not implemented yet");
+            m_error = ParametersError;
+            return mediaList;
         }
     }
 
@@ -376,6 +424,7 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
         }
         break;
     case Yandex:
+    {
         const QString speakerCode = QOnlineTranslator::speakerCode(speaker);
         const QString emotionCode = QOnlineTranslator::emotionCode(emotion);
 
@@ -404,6 +453,11 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
             unparsedText = unparsedText.mid(splitIndex);
         }
         break;
+    }
+    case Bing:
+        m_errorString = tr("Error: Not implemented yet");
+        m_error = ParametersError;
+        return mediaList;
     }
 
     return mediaList;
@@ -517,6 +571,8 @@ QString QOnlineTranslator::languageString(QOnlineTranslator::Language lang)
         return tr("Bulgarian");
     case Catalan:
         return tr("Catalan");
+    case Cantonese:
+        return tr("Cantonese");
     case Cebuano:
         return tr("Cebuano");
     case SimplifiedChinese:
@@ -539,6 +595,10 @@ QString QOnlineTranslator::languageString(QOnlineTranslator::Language lang)
         return tr("Esperanto");
     case Estonian:
         return tr("Estonian");
+    case Fijian:
+        return tr("Fijian");
+    case Filipino:
+        return tr("Filipino");
     case Finnish:
         return tr("Finnish");
     case French:
@@ -591,6 +651,10 @@ QString QOnlineTranslator::languageString(QOnlineTranslator::Language lang)
         return tr("Kazakh");
     case Khmer:
         return tr("Khmer");
+    case Klingon:
+        return tr("Klingon");
+    case KlingonPlqaD:
+        return tr("Klingon (PlqaD)");
     case Korean:
         return tr("Korean");
     case Kurdish:
@@ -603,6 +667,8 @@ QString QOnlineTranslator::languageString(QOnlineTranslator::Language lang)
         return tr("Latin");
     case Latvian:
         return tr("Latvian");
+    case LevantineArabic:
+        return tr("Levantine Arabic");
     case Lithuanian:
         return tr("Lithuanian");
     case Luxembourgish:
@@ -645,6 +711,8 @@ QString QOnlineTranslator::languageString(QOnlineTranslator::Language lang)
         return tr("Portuguese");
     case Punjabi:
         return tr("Punjabi");
+    case QueretaroOtomi:
+        return tr("Queretaro Otomi");
     case Romanian:
         return tr("Romanian");
     case Russian:
@@ -653,8 +721,10 @@ QString QOnlineTranslator::languageString(QOnlineTranslator::Language lang)
         return tr("Samoan");
     case ScotsGaelic:
         return tr("Scots Gaelic");
-    case Serbian:
-        return tr("Serbian");
+    case SerbianCyrillic:
+        return tr("Serbian (Cyrillic)");
+    case SerbianLatin:
+        return tr("Serbian (Latin)");
     case Sesotho:
         return tr("Sesotho");
     case Shona:
@@ -679,6 +749,8 @@ QString QOnlineTranslator::languageString(QOnlineTranslator::Language lang)
         return tr("Swedish");
     case Tagalog:
         return tr("Tagalog");
+    case Tahitian:
+        return tr("Tahitian");
     case Tajik:
         return tr("Tajik");
     case Tamil:
@@ -689,6 +761,8 @@ QString QOnlineTranslator::languageString(QOnlineTranslator::Language lang)
         return tr("Telugu");
     case Thai:
         return tr("Thai");
+    case Tongan:
+        return tr("Tongan");
     case Turkish:
         return tr("Turkish");
     case Udmurt:
@@ -709,6 +783,8 @@ QString QOnlineTranslator::languageString(QOnlineTranslator::Language lang)
         return tr("Yiddish");
     case Yoruba:
         return tr("Yoruba");
+    case YucatecMaya:
+        return tr("Yucatec Maya");
     case Zulu:
         return tr("Zulu");
     }
@@ -946,7 +1022,7 @@ QOnlineTranslator::Language QOnlineTranslator::language(const QLocale &locale)
         language = ScotsGaelic;
         break;
     case QLocale::Serbian:
-        language = Serbian;
+        language = SerbianCyrillic;
         break;
     case QLocale::Shona:
         language = Shona;
@@ -1469,7 +1545,7 @@ QByteArray QOnlineTranslator::getGoogleTranslation(const QString &text, const QS
 QByteArray QOnlineTranslator::getYandexTranslation(const QString &text, const QString &translationCode, const QString &sourceCode)
 {
     // Generate session ID to access API (Required for Yandex)
-    if (m_yandexSid.isEmpty()) {
+    if (m_yandexKey.isEmpty()) {
         // Download web-version
         const QByteArray webSiteData = get("https://translate.yandex.com/", "");
         if (webSiteData.isEmpty())
@@ -1489,8 +1565,8 @@ QByteArray QOnlineTranslator::getYandexTranslation(const QString &text, const QS
         for (short i = 0; i < sidParts.size(); ++i)
             std::reverse(sidParts[i].begin(), sidParts[i].end());
 
-        m_yandexSid = sidParts.join(".");
-        if (m_yandexSid.isEmpty()) {
+        m_yandexKey = sidParts.join(".");
+        if (m_yandexKey.isEmpty()) {
             m_errorString = tr("Error: Unable to parse Yandex SID.");
             m_error = ParsingError;
             return "";
@@ -1500,7 +1576,7 @@ QByteArray QOnlineTranslator::getYandexTranslation(const QString &text, const QS
     // Generate API url
     QUrl url("https://translate.yandex.net/api/v1/tr.json/translate");
     url.setQuery("id="
-                 + m_yandexSid
+                 + m_yandexKey
                  + "-0-0&srv=tr-text&text="
                  + QUrl::toPercentEncoding(text)
                  + "&lang="
@@ -1522,10 +1598,10 @@ QByteArray QOnlineTranslator::getYandexTranslation(const QString &text, const QS
             return "";
         }
 
-        if (reply->error() == QNetworkReply::ContentAccessDenied && !m_secondSidRequest) {
+        if (reply->error() == QNetworkReply::ContentAccessDenied && !m_secondYandexKeyRequest) {
             // Try to generate a new session ID second time, if the previous is invalid
-            m_yandexSid.clear();
-            m_secondSidRequest = true; // Do not generate the session ID third time if the second one was generated incorrectly
+            m_yandexKey.clear();
+            m_secondYandexKeyRequest = true; // Do not generate the session ID third time if the second one was generated incorrectly
             delete reply;
             return getYandexTranslation(text, translationCode, sourceCode);
         }
@@ -1538,7 +1614,7 @@ QByteArray QOnlineTranslator::getYandexTranslation(const QString &text, const QS
         return "";
     }
 
-    m_secondSidRequest = false;
+    m_secondYandexKeyRequest = false;
     const QByteArray data = reply->readAll();
     delete reply;
     return data;
@@ -1564,6 +1640,70 @@ QByteArray QOnlineTranslator::getYandexDictionary(const QString &text, const QSt
                sourceCode,
                "-",
                translationCode);
+}
+
+QByteArray QOnlineTranslator::getBingTextLanguage(const QString &text)
+{
+    // Generate POST data
+    QByteArray postData;
+    postData.append("&text=" + text);
+
+    // Generate POST request
+    QNetworkRequest request;
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+    request.setHeader(QNetworkRequest::ContentLengthHeader, postData.size());
+    request.setUrl(QUrl("http://www.bing.com/tdetect"));
+
+    // Send request and wait for the response
+    QNetworkReply *reply = m_network.post(request, postData);
+    QEventLoop waitForResponse;
+    connect(reply, &QNetworkReply::finished, &waitForResponse, &QEventLoop::quit);
+    waitForResponse.exec();
+
+    // Check for errors
+    if (reply->error() != QNetworkReply::NoError) {
+        m_errorString = reply->errorString();
+        m_error = NetworkError;
+        resetData();
+        delete reply;
+        return "";
+    }
+
+    const QByteArray data = reply->readAll();
+    delete reply;
+    return data;
+}
+
+QByteArray QOnlineTranslator::getBingTranslation(const QString &text, const QString &translationCode, const QString &sourceCode)
+{
+    // Generate POST data
+    QByteArray postData;
+    postData.append("&text=" + text + "&from=" + sourceCode + "&to=" + translationCode);
+
+    // Generate POST request
+    QNetworkRequest request;
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+    request.setHeader(QNetworkRequest::ContentLengthHeader, postData.size());
+    request.setUrl(QUrl("http://www.bing.com/ttranslate"));
+
+    // Send request and wait for the response
+    QNetworkReply *reply = m_network.post(request, postData);
+    QEventLoop waitForResponse;
+    connect(reply, &QNetworkReply::finished, &waitForResponse, &QEventLoop::quit);
+    waitForResponse.exec();
+
+    // Check for errors
+    if (reply->error() != QNetworkReply::NoError) {
+        m_errorString = reply->errorString();
+        m_error = NetworkError;
+        delete reply;
+        resetData();
+        return "";
+    }
+
+    const QByteArray data = reply->readAll();
+    delete reply;
+    return data;
 }
 
 // Get split index of the text according to the limit
@@ -1596,13 +1736,28 @@ int QOnlineTranslator::getSplitIndex(const QString &untranslatedText, int limit)
 // Parse language from response language code
 QOnlineTranslator::Language QOnlineTranslator::language(const QString &langCode, Engine engine)
 {
-    // Yandex execptions
-    if (engine == Yandex) {
-        // Yandex use another codes for this languages
+    // Engine exceptions
+    switch (engine) {
+    case Google:
+        if (langCode == "sr")
+            return SerbianCyrillic;
+        break;
+    case Yandex:
+        if (langCode == "sr")
+            return SerbianCyrillic;
         if (langCode == "zn")
             return SimplifiedChinese;
         if (langCode == "jv")
             return Javanese;
+        break;
+    case Bing:
+        if (langCode == "zh-Hans")
+            return SimplifiedChinese;
+        if (langCode == "zh-Hant")
+            return TraditionalChinese;
+        if (langCode == "mww")
+            return Hmong;
+        break;
     }
 
     // General case
@@ -1618,12 +1773,25 @@ QString QOnlineTranslator::translationLanguageCode(QOnlineTranslator::Language l
     // Engines execptions
     switch (engine) {
     case Google:
+        if (lang == SerbianCyrillic)
+            return "sr";
         if (lang == Bashkir
                 || lang == HillMari
                 || lang == Mari
                 || lang == Papiamento
                 || lang == Tatar
-                || lang == Udmurt) {
+                || lang == Udmurt
+                || lang == LevantineArabic
+                || lang == Cantonese
+                || lang == Fijian
+                || lang == Filipino
+                || lang == Klingon
+                || lang == KlingonPlqaD
+                || lang == QueretaroOtomi
+                || lang == SerbianLatin
+                || lang == Tahitian
+                || lang == Tongan
+                || lang == YucatecMaya) {
             return "";
         }
         break;
@@ -1632,7 +1800,86 @@ QString QOnlineTranslator::translationLanguageCode(QOnlineTranslator::Language l
             return "zn";
         if (lang == Javanese)
             return  "jv";
-        if (lang == Kurdish)
+        if (lang == SerbianCyrillic)
+            return "sr";
+        if (lang == Kurdish
+                || lang == LevantineArabic
+                || lang == Cantonese
+                || lang == Fijian
+                || lang == Filipino
+                || lang == Klingon
+                || lang == KlingonPlqaD
+                || lang == QueretaroOtomi
+                || lang == SerbianLatin
+                || lang == Tahitian
+                || lang == Tongan
+                || lang == YucatecMaya) {
+            return "";
+        }
+        break;
+    case Bing:
+        if (lang == SimplifiedChinese)
+            return "zh-Hans";
+        if (lang == TraditionalChinese)
+            return "zh-Hant";
+        if (lang == Hmong)
+            return "mww";
+        if (lang == Albanian
+                || lang == Amharic
+                || lang == Armenian
+                || lang == Azeerbaijani
+                || lang == Basque
+                || lang == Bashkir
+                || lang == Belarusian
+                || lang == Cebuano
+                || lang == Corsican
+                || lang == Esperanto
+                || lang == Frisian
+                || lang == Galician
+                || lang == Georgian
+                || lang == Gujarati
+                || lang == Hausa
+                || lang == Hawaiian
+                || lang == HillMari
+                || lang == Igbo
+                || lang == Irish
+                || lang == Javanese
+                || lang == Kannada
+                || lang == Kazakh
+                || lang == Khmer
+                || lang == Kurdish
+                || lang == Kyrgyz
+                || lang == Lao
+                || lang == Latin
+                || lang == Luxembourgish
+                || lang == Macedonian
+                || lang == Malayalam
+                || lang == Maori
+                || lang == Marathi
+                || lang == Mari
+                || lang == Mongolian
+                || lang == Myanmar
+                || lang == Nepali
+                || lang == Chichewa
+                || lang == Papiamento
+                || lang == Pashto
+                || lang == Punjabi
+                || lang == ScotsGaelic
+                || lang == Sesotho
+                || lang == Shona
+                || lang == Sindhi
+                || lang == Sinhala
+                || lang == Somali
+                || lang == Sundanese
+                || lang == Tagalog
+                || lang == Tajik
+                || lang == Tatar
+                || lang == Udmurt
+                || lang == Uzbek
+                || lang == Xhosa
+                || lang == Yiddish
+                || lang == Yoruba
+                || lang == Zulu)
             return "";
         break;
     }

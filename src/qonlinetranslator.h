@@ -34,7 +34,8 @@ class QOnlineTranslator : public QObject
 public:
     enum Engine {
         Google,
-        Yandex
+        Yandex,
+        Bing
     };
     Q_ENUM(Engine)
     enum Speaker {
@@ -68,6 +69,7 @@ public:
         Bosnian,
         Bulgarian,
         Catalan,
+        Cantonese,
         Cebuano,
         SimplifiedChinese,
         TraditionalChinese,
@@ -79,6 +81,8 @@ public:
         English,
         Esperanto,
         Estonian,
+        Fijian,
+        Filipino,
         Finnish,
         French,
         Frisian,
@@ -105,12 +109,15 @@ public:
         Kannada,
         Kazakh,
         Khmer,
+        Klingon,
+        KlingonPlqaD,
         Korean,
         Kurdish,
         Kyrgyz,
         Lao,
         Latin,
         Latvian,
+        LevantineArabic,
         Lithuanian,
         Luxembourgish,
         Macedonian,
@@ -132,11 +139,13 @@ public:
         Polish,
         Portuguese,
         Punjabi,
+        QueretaroOtomi,
         Romanian,
         Russian,
         Samoan,
         ScotsGaelic,
-        Serbian,
+        SerbianCyrillic,
+        SerbianLatin,
         Sesotho,
         Shona,
         Sindhi,
@@ -149,11 +158,13 @@ public:
         Swahili,
         Swedish,
         Tagalog,
+        Tahitian,
         Tajik,
         Tamil,
         Tatar,
         Telugu,
         Thai,
+        Tongan,
         Turkish,
         Udmurt,
         Ukrainian,
@@ -164,6 +175,7 @@ public:
         Xhosa,
         Yiddish,
         Yoruba,
+        YucatecMaya,
         Zulu
     };
     Q_ENUM(Language)
@@ -215,6 +227,8 @@ private:
     QByteArray getYandexTranslation(const QString &text, const QString &translationCode, const QString &sourceCode = "auto");
     QByteArray getYandexTranslit(const QString &text, const QString &langCode);
     QByteArray getYandexDictionary(const QString &text, const QString &translationCode, const QString &sourceCode, const QString &uiCode);
+    QByteArray getBingTextLanguage(const QString &text);
+    QByteArray getBingTranslation(const QString &text, const QString &translationCode, const QString &sourceCode = "auto");
 
     // Check for service support
     static bool isSupportYandexTranslit(Language lang);
@@ -248,8 +262,8 @@ private:
     QList<QDictionary> m_dictionaryList;
     QList<QDefinition> m_definitionsList;
 
-    static QString m_yandexSid;
-    static bool m_secondSidRequest;
+    static QString m_yandexKey;
+    static bool m_secondYandexKeyRequest;
     static const QStringList m_languageCodes;
 };
 

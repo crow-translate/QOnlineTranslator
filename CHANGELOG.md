@@ -6,9 +6,13 @@ All notable changes to this project will be documented in this file. This projec
 
 [Full Changelog](https://github.com/Shatur95/QOnlineTranslator/compare/1.0.1...HEAD)
 
+**Added**
+
+-   Bing support.
+
 **Changed**
 
--   Initialize languages to `NoLanguage`.
+-   Initialize languages with `NoLanguage`.
 
 ## [1.0.1](https://github.com/Shatur95/QOnlineTranslator/tree/1.0.1) (2018-11-26)
 
