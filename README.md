@@ -5,17 +5,18 @@
 
 **QOnlineTranslator** is a library for **Qt5** that provides free usage of Google, Yandex and Bing translate API. [Detailed documentation](docs/QOnlineTranslator.md "Class documentation").
 
-Example:
+**Example:**
 
 ```cpp
-QCoreApplication a(argc, argv); // It is necessary to create a Qt application object.
-QTextStream out(stdout);
+QCoreApplication app(argc, argv);
 ...
-QOnlineTranslator onlineTranslator("hello");
-out << onlineTranslator.text; // Returns "hello" translated to the language of your system
+QOnlineTranslator translator;
+translator.translate("Hello world", QOnlineTranslator::Google);
 
-onlineTranslator.translate("Hello world!", "de");
-out << onlineTranslator.text; // Returns "Hello world!" translated into German
+if (translator.error() == QOnlineTranslator::NoError)
+    qInfo() << translator.translation();
+else
+    qCritical() << translator.errorString();
 ```
 
 For real example of usage you can look into my other project: [Crow Translate](https://github.com/Shatur95/CrowTranslate "A simple and lightweight translator that allows to translate and say the selected text using the Google Translate API").
