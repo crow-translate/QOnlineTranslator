@@ -91,7 +91,7 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
 
             // Do not translate the part if it looks like garbage
             if (splitIndex == -1) {
-                m_translation.append(unsendedText.left(GOOGLE_TRANSLATE_LIMIT));
+                m_translation.append(unsendedText.leftRef(GOOGLE_TRANSLATE_LIMIT));
                 unsendedText = unsendedText.mid(GOOGLE_TRANSLATE_LIMIT);
                 continue;
             }
@@ -170,7 +170,7 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
 
             // Do not translate the part if it looks like garbage
             if (splitIndex == -1) {
-                m_translation.append(unsendedText.left(YANDEX_TRANSLATE_LIMIT));
+                m_translation.append(unsendedText.leftRef(YANDEX_TRANSLATE_LIMIT));
                 unsendedText = unsendedText.mid(YANDEX_TRANSLATE_LIMIT);
                 continue;
             }
@@ -212,7 +212,7 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
 
                 // Do not translate the part if it looks like garbage
                 if (splitIndex == -1) {
-                    m_sourceTranslit.append(unsendedText.left(YANDEX_TRANSLIT_LIMIT));
+                    m_sourceTranslit.append(unsendedText.leftRef(YANDEX_TRANSLIT_LIMIT));
                     unsendedText = unsendedText.mid(YANDEX_TRANSLIT_LIMIT);
                     continue;
                 }
@@ -245,7 +245,7 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
 
                 // Do not translate the part if it looks like garbage
                 if (splitIndex == -1) {
-                    m_translationTranslit.append(unsendedText.left(YANDEX_TRANSLIT_LIMIT));
+                    m_translationTranslit.append(unsendedText.leftRef(YANDEX_TRANSLIT_LIMIT));
                     unsendedText = unsendedText.mid(YANDEX_TRANSLIT_LIMIT);
                     continue;
                 }
@@ -376,8 +376,8 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
         }
         break;
     case Yandex:
-        const QString speakerCode = this->speakerCode(speaker);
-        const QString emotionCode = this->emotionCode(emotion);
+        const QString speakerCode = QOnlineTranslator::speakerCode(speaker);
+        const QString emotionCode = QOnlineTranslator::emotionCode(emotion);
 
         // Yandex has a limit of characters per tts request. If the query is larger, then it should be splited into several
         while (!unparsedText.isEmpty()) {
@@ -720,8 +720,8 @@ QString QOnlineTranslator::languageCode(QOnlineTranslator::Language lang)
 {
     if (lang == NoLanguage)
         return "";
-    else
-        return m_languageCodes.at(lang);
+
+    return m_languageCodes.at(lang);
 }
 
 QOnlineTranslator::Language QOnlineTranslator::language(const QLocale &locale)
@@ -1432,16 +1432,16 @@ QByteArray QOnlineTranslator::get(const QString &urlString, const Query&... quer
     connect(reply, &QNetworkReply::finished, &waitForResponse, &QEventLoop::quit);
     waitForResponse.exec();
 
-    if (reply->error() == QNetworkReply::NoError) {
-        const QByteArray data = reply->readAll();
-        delete reply;
-        return data;
-    } else {
+    if (reply->error() != QNetworkReply::NoError) {
         m_errorString = reply->errorString();
         m_error = NetworkError;
         delete reply;
         return "";
     }
+
+    const QByteArray data = reply->readAll();
+    delete reply;
+    return data;
 }
 
 QByteArray QOnlineTranslator::getGoogleTranslation(const QString &text, const QString &translationCode, const QString &sourceCode, const QString &uiCode)
@@ -1461,9 +1461,9 @@ QByteArray QOnlineTranslator::getGoogleTranslation(const QString &text, const QS
         m_errorString = tr("Error: Backend systems have detected unusual traffic from your computer network. Please try your request again later.");
         m_error = ServiceError;
         return "";
-    } else {
-        return reply;
     }
+
+    return reply;
 }
 
 QByteArray QOnlineTranslator::getYandexTranslation(const QString &text, const QString &translationCode, const QString &sourceCode)
@@ -1521,24 +1521,24 @@ QByteArray QOnlineTranslator::getYandexTranslation(const QString &text, const QS
             delete reply;
             return "";
         }
+
         if (reply->error() == QNetworkReply::ContentAccessDenied && !m_secondSidRequest) {
             // Try to generate a new session ID second time, if the previous is invalid
             m_yandexSid.clear();
             m_secondSidRequest = true; // Do not generate the session ID third time if the second one was generated incorrectly
             delete reply;
             return getYandexTranslation(text, translationCode, sourceCode);
-        } else {
-            // Parse data to get request error type
-            const QJsonDocument jsonResponse = QJsonDocument::fromJson(reply->readAll());
-            m_errorString = jsonResponse.object().value("message").toString();
-            m_error = ServiceError;
-            delete reply;
-            return "";
         }
-    } else {
-        m_secondSidRequest = false;
+
+        // Parse data to get request error type
+        const QJsonDocument jsonResponse = QJsonDocument::fromJson(reply->readAll());
+        m_errorString = jsonResponse.object().value("message").toString();
+        m_error = ServiceError;
+        delete reply;
+        return "";
     }
 
+    m_secondSidRequest = false;
     const QByteArray data = reply->readAll();
     delete reply;
     return data;
@@ -1611,8 +1611,6 @@ QOnlineTranslator::Language QOnlineTranslator::language(const QString &langCode,
 
 QString QOnlineTranslator::translationLanguageCode(QOnlineTranslator::Language lang, Engine engine)
 {
-    QString languageCode;
-
     if (lang == NoLanguage) {
         return "";
     }
