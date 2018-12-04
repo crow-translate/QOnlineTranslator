@@ -229,10 +229,13 @@ private:
     QByteArray getYandexDictionary(const QString &text, const QString &translationCode, const QString &sourceCode, const QString &uiCode);
     QByteArray getBingTextLanguage(const QString &text);
     QByteArray getBingTranslation(const QString &text, const QString &translationCode, const QString &sourceCode = "auto");
+    QByteArray getBingTranslit(const QString &text, const QString &langCode);
 
     // Check for service support
     static bool isSupportYandexTranslit(Language lang);
     static bool isSupportYandexDictionary(Language sourceLang, Language translationLang);
+    static bool isSupportBingTranslit(Language lang);
+    static bool isSupportBingDictionary(Language sourceLang, Language translationLang);
 
     // Codes for API
     static QString translationLanguageCode(Language lang, Engine engine);

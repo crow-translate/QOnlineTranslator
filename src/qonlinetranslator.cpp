@@ -36,6 +36,7 @@ constexpr int YANDEX_TRANSLIT_LIMIT = 180;
 constexpr int YANDEX_TTS_LIMIT = 1400;
 
 constexpr int BING_TRANSLATE_LIMIT = 5001;
+constexpr int BING_TRANSLIT_LIMIT = 5000;
 
 QString QOnlineTranslator::m_yandexKey;
 bool QOnlineTranslator::m_secondYandexKeyRequest = false;
@@ -334,6 +335,72 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
 
             // Remove the parsed part from the next parsing
             unsendedText = unsendedText.mid(splitIndex);
+        }
+
+        // Get source transliteration
+        if (isSupportBingTranslit(m_sourceLang)) {
+            // Bing has a limit of characters per transliteration request. If the query is larger, then it should be splited into several.
+            unsendedText = m_source;
+            while (!unsendedText.isEmpty()) {
+                const int splitIndex = getSplitIndex(unsendedText, BING_TRANSLIT_LIMIT); // Split the part by special symbol
+
+                // Do not translate the part if it looks like garbage
+                if (splitIndex == -1) {
+                    m_sourceTranslit.append(unsendedText.leftRef(BING_TRANSLIT_LIMIT));
+                    unsendedText = unsendedText.mid(BING_TRANSLIT_LIMIT);
+                    continue;
+                }
+
+                // Get API reply
+                const QByteArray reply = getBingTranslit(unsendedText.left(splitIndex), sourceCode);
+                if (reply.isEmpty()) {
+                    resetData();
+                    return;
+                }
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
+                m_sourceTranslit += reply.mid(1).chopped(1);
+#else
+                m_sourceTranslit += reply.mid(1);
+                m_sourceTranslit.chop(1);
+#endif
+
+                // Remove the parsed part from the next parsing
+                unsendedText = unsendedText.mid(splitIndex);
+            }
+        }
+
+        // Get translation transliteration
+        if (isSupportBingTranslit(m_translationLang)) {
+            // Yandex has a limit of characters per transliteration request. If the query is larger, then it should be splited into several.
+            unsendedText = m_translation;
+            while (!unsendedText.isEmpty()) {
+                const int splitIndex = getSplitIndex(unsendedText, BING_TRANSLIT_LIMIT); // Split the part by special symbol
+
+                // Do not translate the part if it looks like garbage
+                if (splitIndex == -1) {
+                    m_translationTranslit.append(unsendedText.leftRef(BING_TRANSLIT_LIMIT));
+                    unsendedText = unsendedText.mid(BING_TRANSLIT_LIMIT);
+                    continue;
+                }
+
+                // Get API reply
+                const QByteArray reply = getBingTranslit(unsendedText.left(splitIndex), translationCode);
+                if (reply.isEmpty()) {
+                    resetData();
+                    return;
+                }
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
+                m_translationTranslit += reply.mid(1).chopped(1);
+#else
+                m_translationTranslit += reply.mid(1);
+                m_translationTranslit.chop(1);
+#endif
+
+                // Remove the parsed part from the next parsing
+                unsendedText = unsendedText.mid(splitIndex);
+            }
         }
 
         return;
@@ -1115,7 +1182,6 @@ QOnlineTranslator::Language QOnlineTranslator::language(const QString &langCode)
 bool QOnlineTranslator::isSupportYandexTranslit(QOnlineTranslator::Language lang)
 {
     switch (lang) {
-    case NoLanguage:
     case Amharic:
     case Armenian:
     case Bengali:
@@ -1485,6 +1551,94 @@ bool QOnlineTranslator::isSupportYandexDictionary(QOnlineTranslator::Language so
     }
 }
 
+bool QOnlineTranslator::isSupportBingTranslit(QOnlineTranslator::Language lang)
+{
+    switch (lang) {
+    case Arabic:
+    case Bengali:
+    case SimplifiedChinese:
+    case TraditionalChinese:
+    case Gujarati:
+    case Hebrew:
+    case Hindi:
+    case Japanese:
+    case Kannada:
+    case Malayalam:
+    case Marathi:
+    case Punjabi:
+    case SerbianCyrillic:
+    case Tamil:
+    case Telugu:
+    case Thai:
+        return true;
+    default:
+        return false;
+    }
+}
+
+bool QOnlineTranslator::isSupportBingDictionary(QOnlineTranslator::Language sourceLang, QOnlineTranslator::Language translationLang)
+{
+    // Bing support dictionary only to or from English (we don't need a dictionary for source)
+    if (translationLang != English)
+        return false;
+
+    switch (sourceLang) {
+    case Afrikaans:
+    case Arabic:
+    case Bengali:
+    case Bosnian:
+    case Bulgarian:
+    case Catalan:
+    case SimplifiedChinese:
+    case Croatian:
+    case Czech:
+    case Danish:
+    case Dutch:
+    case Estonian:
+    case Finnish:
+    case French:
+    case German:
+    case Greek:
+    case HaitianCreole:
+    case Hebrew:
+    case Hindi:
+    case Hmong:
+    case Hungarian:
+    case Icelandic:
+    case Indonesian:
+    case Italian:
+    case Japanese:
+    case Swahili:
+    case Klingon:
+    case Korean:
+    case Latvian:
+    case Lithuanian:
+    case Malay:
+    case Maltese:
+    case Norwegian:
+    case Persian:
+    case Polish:
+    case Portuguese:
+    case Romanian:
+    case Russian:
+    case SerbianLatin:
+    case Slovak:
+    case Slovenian:
+    case Spanish:
+    case Swedish:
+    case Tamil:
+    case Thai:
+    case Turkish:
+    case Ukrainian:
+    case Urdu:
+    case Vietnamese:
+    case Welsh:
+        return true;
+    default:
+        return false;
+    }
+}
+
 void QOnlineTranslator::resetData()
 {
     m_translation.clear();
@@ -1685,6 +1839,38 @@ QByteArray QOnlineTranslator::getBingTranslation(const QString &text, const QStr
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
     request.setHeader(QNetworkRequest::ContentLengthHeader, postData.size());
     request.setUrl(QUrl("http://www.bing.com/ttranslate"));
+
+    // Send request and wait for the response
+    QNetworkReply *reply = m_network.post(request, postData);
+    QEventLoop waitForResponse;
+    connect(reply, &QNetworkReply::finished, &waitForResponse, &QEventLoop::quit);
+    waitForResponse.exec();
+
+    // Check for errors
+    if (reply->error() != QNetworkReply::NoError) {
+        m_errorString = reply->errorString();
+        m_error = NetworkError;
+        delete reply;
+        resetData();
+        return "";
+    }
+
+    const QByteArray data = reply->readAll();
+    delete reply;
+    return data;
+}
+
+QByteArray QOnlineTranslator::getBingTranslit(const QString &text, const QString &langCode)
+{
+    // Generate POST data
+    QByteArray postData;
+    postData.append("&text=" + text + "&language=" + langCode + "&toScript=latn");
+
+    // Generate POST request
+    QNetworkRequest request;
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+    request.setHeader(QNetworkRequest::ContentLengthHeader, postData.size());
+    request.setUrl(QUrl("http://www.bing.com/ttransliterate"));
 
     // Send request and wait for the response
     QNetworkReply *reply = m_network.post(request, postData);
