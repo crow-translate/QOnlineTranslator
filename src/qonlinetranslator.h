@@ -21,8 +21,8 @@
 #ifndef QONLINETRANSLATOR_H
 #define QONLINETRANSLATOR_H
 
-#include "qdictionary.h"
-#include "qdefinition.h"
+#include "qoption.h"
+#include "qexample.h"
 
 #include <QNetworkReply>
 #include <QMediaPlaylist>
@@ -218,8 +218,8 @@ public:
     QString translationLanguageString() const;
     Language translationLanguage() const;
 
-    QList<QDictionary> dictionaryList() const;
-    QList<QDefinition> definitionsList() const;
+    QList<QOption> translationOptions() const;
+    QList<QExample> examples() const;
 
     TranslationError error() const;
     QString errorString() const;
@@ -233,11 +233,11 @@ public:
     bool isSourceTranscriptionEnabled() const;
     void setSourceTranscriptionEnabled(bool enable);
 
-    bool isDictionaryEnabled() const;
-    void setDictionaryEnabled(bool enable);
+    bool isTranslationOptionsEnabled() const;
+    void setTranslationOptionsEnabled(bool enable);
 
-    bool isDefinitionsEnabled() const;
-    void setDefinitionsEnabled(bool enable);
+    bool isExamplesEnabled() const;
+    void setExamplesEnabled(bool enable);
 
     static QString languageString(Language lang);
     static QString languageCode(Language lang);
@@ -289,14 +289,14 @@ private:
     QString m_translationTranslit;
     QString m_errorString;
 
-    QList<QDictionary> m_dictionaryList;
-    QList<QDefinition> m_definitionsList;
+    QList<QOption> m_translationOptions;
+    QList<QExample> m_examples;
 
     bool m_sourceTranslitEnabled = true;
     bool m_translationTranslitEnabled = true;
     bool m_sourceTranscriptionEnabled = true;
-    bool m_dictionaryEnabled = true;
-    bool m_definitionsEnabled = true;
+    bool m_translationOptionsEnabled = true;
+    bool m_examplesEnabled = true;
     char m_padding[3];
 
     static QString m_yandexKey;

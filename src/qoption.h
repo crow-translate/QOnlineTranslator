@@ -18,41 +18,30 @@
  *
  */
 
-#include "qdefinition.h"
+#ifndef QOPTION_H
+#define QOPTION_H
 
-QDefinition::QDefinition(const QString &typeOfSpeech, const QString &description, const QString &example)
-{
-    m_typeOfSpeech = typeOfSpeech;
-    m_description = description;
-    m_example = example;
-}
+#include <QStringList>
 
-QString QDefinition::typeOfSpeech() const
+class QOption
 {
-    return m_typeOfSpeech;
-}
+public:
+    explicit QOption(const QString &typeOfSpeech = "");
 
-QString QDefinition::description() const
-{
-    return m_description;
-}
+    QString typeOfSpeech() const;
+    QString word(int index) const;
+    QString gender(int index) const;
+    QString translations(int index) const;
 
-QString QDefinition::example() const
-{
-    return m_example;
-}
+    void setTypeOfSpeech(const QString &typeOfSpeech);
+    void addWord(const QString &word, const QString &gender = "", const QStringList &translations = QStringList());
+    int count() const;
 
-void QDefinition::setTypeOfSpeech(const QString &typeOfSpeech)
-{
-    m_typeOfSpeech = typeOfSpeech;
-}
+private:
+    QString m_typeOfSpeech;
+    QStringList m_words;
+    QStringList m_genders;
+    QStringList m_translations;
+};
 
-void QDefinition::setDescription(const QString &description)
-{
-    m_description = description;
-}
-
-void QDefinition::setExample(const QString &example)
-{
-    m_example = example;
-}
+#endif // QOPTION_H

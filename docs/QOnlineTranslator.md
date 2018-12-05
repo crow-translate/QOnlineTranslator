@@ -302,19 +302,19 @@ Splits the translation of translator into parts (Google and Yandex have limits o
 
 * * *
 
-### <a id='source'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::source()
+### <a id='source'/> [QString](https://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::source()
 
 Returns source text.
 
 * * *
 
-### <a id='source-transliteration'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::sourceTranslit()
+### <a id='source-transliteration'/> [QString](https://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::sourceTranslit()
 
 Returns transliteration of source text. Google sends source transliteration only if source text is one word, otherwise function returns empty string.
 
 * * *
 
-### <a id='source-language-string'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::sourceLanguage()
+### <a id='source-language-string'/> [QString](https://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::sourceLanguage()
 
 Returns name of source language.
 
@@ -326,25 +326,25 @@ Returns source language.
 
 * * *
 
-### <a id='translation'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::translation()
+### <a id='translation'/> [QString](https://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::translation()
 
 Returns translated text.
 
 * * *
 
-### <a id='translation-translit'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::translationTranslit()
+### <a id='translation-translit'/> [QString](https://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::translationTranslit()
 
 Returns transliteration of translated text.
 
 * * *
 
-### <a id='source-transcription'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::sourceTranscription()
+### <a id='source-transcription'/> [QString](https://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::sourceTranscription()
 
 Returns transcription of source text. Supports only for Yandex.
 
 * * *
 
-### <a id='translation-language-string'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::translationLanguage()
+### <a id='translation-language-string'/> [QString](https://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::translationLanguage()
 
 Returns name of translation language.
 
@@ -356,13 +356,13 @@ Returns translation language.
 
 * * *
 
-### <a id='dictionary-list'/> [QList](http://doc.qt.io/qt-5/qlist.html "Qt Documentation")\<[QDictionary](QDictionary.md "Class documentation")>  QOnlineTranslator::dictionaryList()
+### <a id='dictionary-list'/> [QList](https://doc.qt.io/qt-5/qlist.html "Qt Documentation")\<[QDictionary](QDictionary.md "Class documentation")>  QOnlineTranslator::dictionaryList()
 
 Returns a list of [QDictionary](QDictionary.md "Class documentation"). Read the class documentation for details.
 
 * * *
 
-### <a id='definitions-list'/> [QList](http://doc.qt.io/qt-5/qlist.html "Qt Documentation")\<[QDefinition](QDefinition.md "Class documentation")>  QOnlineTranslator::definitionsList()
+### <a id='definitions-list'/> [QList](https://doc.qt.io/qt-5/qlist.html "Qt Documentation")\<[QDefinition](QDefinition.md "Class documentation")>  QOnlineTranslator::definitionsList()
 
 Returns a list of [QDefinition](QDefinition.md "Class documentation"). Read the class documentation for details.
 
@@ -374,7 +374,7 @@ Returns the error that was found during the processing of last translation or tt
 
 * * *
 
-### <a id='error-string'/> [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::errorString()
+### <a id='error-string'/> [QString](https://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::errorString()
 
 Returns a human-readable description of the last translation or tts error that occurred.
 
@@ -440,13 +440,13 @@ Allows to enable or disable definitions.
 
 * * *
 
-### <a id='language-string'/> static [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::languageString(_Language language_)
+### <a id='language-string'/> static [QString](https://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::languageString(_Language language_)
 
 Returns the _language_ name.
 
 * * *
 
-### <a id='language-code'/> static [QString](http://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::languageCode(_Language language_)
+### <a id='language-code'/> static [QString](https://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::languageCode(_Language language_)
 
 Returns code of the _language_.
 

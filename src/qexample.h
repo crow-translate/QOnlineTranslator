@@ -21,25 +21,25 @@
 #ifndef QDEFINITION_H
 #define QDEFINITION_H
 
-#include <QString>
+#include <QStringList>
 
-class QDefinition
+class QExample
 {
 public:
-    QDefinition(const QString &typeOfSpeech = "", const QString &description = "", const QString &example = "");
+    explicit QExample(const QString &typeOfSpeech = "");
 
     QString typeOfSpeech() const;
-    QString description() const;
-    QString example() const;
+    QString description(int index) const;
+    QString example(int index) const;
 
     void setTypeOfSpeech(const QString &typeOfSpeech);
-    void setDescription(const QString &description);
-    void setExample(const QString &example);
+    void addExample(const QString &description, const QString &example);
+    int count() const;
 
 private:
     QString m_typeOfSpeech;
-    QString m_description;
-    QString m_example;
+    QStringList m_descriptions;
+    QStringList m_examples;
 };
 
 #endif // QDEFINITION_H

@@ -18,52 +18,40 @@
  *
  */
 
-#include "qdictionary.h"
+#include "qexample.h"
 
-QDictionary::QDictionary(const QString &typeOfSpeech)
+QExample::QExample(const QString &typeOfSpeech)
 {
     m_typeOfSpeech = typeOfSpeech;
 }
 
-QString QDictionary::typeOfSpeech() const
+QString QExample::typeOfSpeech() const
 {
     return m_typeOfSpeech;
 }
 
-QString QDictionary::word(int index) const
+QString QExample::description(int index) const
 {
-    return m_words.at(index);
+    return m_descriptions.at(index);
 }
 
-QString QDictionary::gender(int index) const
+QString QExample::example(int index) const
 {
-    return m_genders.at(index);
+    return m_examples.at(index);
 }
 
-QString QDictionary::translations(int index) const
-{
-    return m_translations.at(index);
-}
-
-void QDictionary::setTypeOfSpeech(const QString &typeOfSpeech)
+void QExample::setTypeOfSpeech(const QString &typeOfSpeech)
 {
     m_typeOfSpeech = typeOfSpeech;
 }
 
-void QDictionary::appendWord(const QString &word, const QString &gender, const QStringList &translations)
+void QExample::addExample(const QString &description, const QString &example)
 {
-    m_words.append(word);
-    m_genders.append(gender);
-    if (!translations.isEmpty()) {
-        m_translations.append(translations.at(0));
-        for (int i = 1; i < translations.size(); ++i)
-            m_translations.last().append(", " + translations.at(i));
-    }
-    else
-        m_translations.append("");
+    m_descriptions.append(description);
+    m_examples.append(example);
 }
 
-int QDictionary::count() const
+int QExample::count() const
 {
-    return m_words.size();
+    return m_descriptions.size();
 }

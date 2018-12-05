@@ -151,28 +151,28 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
                 m_sourceTranslit.append(" ");
             }
 
-            if (m_dictionaryEnabled && text.size() < GOOGLE_TRANSLATE_LIMIT) {
+            if (m_translationOptionsEnabled && text.size() < GOOGLE_TRANSLATE_LIMIT) {
                 // Translation options
-                foreach (const QJsonValue &typeOfSpeech, jsonData.at(1).toArray()) {
-                    m_dictionaryList << QDictionary(typeOfSpeech.toArray().at(0).toString());
-                    foreach (const QJsonValue &wordData, typeOfSpeech.toArray().at(2).toArray()) {
+                foreach (const QJsonValue &typeOfSpeechData, jsonData.at(1).toArray()) {
+                    m_translationOptions << QOption(typeOfSpeechData.toArray().at(0).toString());
+                    foreach (const QJsonValue &wordData, typeOfSpeechData.toArray().at(2).toArray()) {
                         QString word = wordData.toArray().at(0).toString();
                         QString gender = wordData.toArray().at(4).toString();
                         QStringList translations;
                         foreach (const QJsonValue &wordTranslation, wordData.toArray().at(1).toArray()) {
                             translations.append(wordTranslation.toString());
                         }
-                        m_dictionaryList.last().appendWord(word, gender, translations);
+                        m_translationOptions.last().addWord(word, gender, translations);
                     }
                 }
 
-                // Definitions
-                if (m_dictionaryEnabled) {
-                    foreach (const QJsonValue &definition, jsonData.at(12).toArray()) {
-                        m_definitionsList << QDefinition();
-                        m_definitionsList.last().setTypeOfSpeech(definition.toArray().at(0).toString());
-                        m_definitionsList.last().setDescription(definition.toArray().at(1).toArray().at(0).toArray().at(0).toString());
-                        m_definitionsList.last().setExample(definition.toArray().at(1).toArray().at(0).toArray().at(2).toString());
+                // Examples
+                if (m_translationOptionsEnabled) {
+                    foreach (const QJsonValue &exampleData, jsonData.at(12).toArray()) {
+                        const QJsonArray example = exampleData.toArray().at(1).toArray().at(0).toArray();
+
+                        m_examples << QExample(exampleData.toArray().at(0).toString());
+                        m_examples.last().addExample(example.at(0).toString(), example.at(2).toString());
                     }
                 }
             }
@@ -285,7 +285,7 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
         }
 
         // Request dictionary data if only one word is translated.
-        if (m_dictionaryEnabled && isSupportYandexDictionary(m_sourceLang, m_translationLang) && !m_source.contains(" ")) {
+        if (m_translationOptionsEnabled && isSupportYandexDictionary(m_sourceLang, m_translationLang) && !m_source.contains(" ")) {
             const QByteArray reply = getYandexDictionary(m_source, translationCode, sourceCode, uiCode);
             if (reply.isEmpty()) {
                 resetData();
@@ -294,24 +294,39 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
 
             // Parse reply
             const QJsonDocument jsonResponse = QJsonDocument::fromJson(reply);
-            const QJsonArray jsonData = jsonResponse.object().value(sourceCode + "-" + translationCode).toObject().value("regular").toArray();
+            const QJsonValue jsonData = jsonResponse.object().value(sourceCode + "-" + translationCode).toObject().value("regular");
 
             if (m_sourceTranscriptionEnabled)
-                m_sourceTranscription = jsonData.at(0).toObject().value("ts").toString();
+                m_sourceTranscription = jsonData.toArray().at(0).toObject().value("ts").toString();
 
-            foreach (const QJsonValue &typeOfSpeech, jsonData) {
-                m_dictionaryList << QDictionary(typeOfSpeech.toObject().value("pos").toObject().value("text").toString());
+            foreach (const QJsonValue &typeOfSpeechData, jsonData.toArray()) {
+                const QString typeOfSpeech = typeOfSpeechData.toObject().value("pos").toObject().value("text").toString();
+                m_translationOptions << QOption(typeOfSpeech);
 
-                foreach (const QJsonValue &wordData, typeOfSpeech.toObject().value("tr").toArray()) {
+                foreach (const QJsonValue &wordData, typeOfSpeechData.toObject().value("tr").toArray()) {
+                    // Parse translation options
                     const QString word = wordData.toObject().value("text").toString();
                     const QString gender = wordData.toObject().value("gen").toObject().value("text").toString();
-
                     QStringList translations;
                     foreach (const QJsonValue &wordTranslation, wordData.toObject().value("mean").toArray()) {
                         translations.append(wordTranslation.toObject().value("text").toString());
                     }
 
-                    m_dictionaryList.last().appendWord(word, gender, translations);
+                    m_translationOptions.last().addWord(word, gender, translations);
+
+                    // Parse examples
+                    if (wordData.toObject().contains("ex")) {
+                        // Check if no examples with this type of speech
+                        if (m_examples.isEmpty() || m_examples.constLast().typeOfSpeech() != typeOfSpeech)
+                            m_examples << QExample(typeOfSpeech);
+
+                        foreach (const QJsonValue exampleData, wordData.toObject().value("ex").toArray()) {
+                            const QString example = exampleData.toObject().value("text").toString();
+                            const QString description = exampleData.toObject().value("tr").toArray().at(0).toObject().value("text").toString();
+
+                            m_examples.last().addExample(description, example);
+                        }
+                    }
                 }
             }
         }
@@ -418,7 +433,7 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
         }
 
         // Request dictionary data if only one word is translated.
-        if (m_dictionaryEnabled && isSupportBingDictionary(m_sourceLang, m_translationLang) && !m_source.contains(" ")) {
+        if (m_translationOptionsEnabled && isSupportBingDictionary(m_sourceLang, m_translationLang) && !m_source.contains(" ")) {
             const QByteArray reply = getBingDictionary(m_source, translationCode, sourceCode);
             if (reply.isEmpty()) {
                 resetData();
@@ -428,27 +443,26 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
             // Parse reply
             const QJsonDocument jsonResponse = QJsonDocument::fromJson(reply);
             const QJsonValue jsonData = jsonResponse.object().value("translations");
-            foreach (const QJsonValue &typeOfSpeech, jsonData.toArray()) {
-                const QJsonObject speechData = typeOfSpeech.toObject();
-                const QString speechName = speechData.value("posTag").toString().toLower();
+            foreach (const QJsonValue &typeOfSpeechData, jsonData.toArray()) {
+                const QString typeOfSpeech = typeOfSpeechData.toObject().value("posTag").toString().toLower();
 
                 // Search for this type of speech
                 int i;
-                for (i = 0; i < m_dictionaryList.size(); ++i) {
-                    if (m_dictionaryList.at(i).typeOfSpeech() == speechName)
+                for (i = 0; i < m_translationOptions.size(); ++i) {
+                    if (m_translationOptions.at(i).typeOfSpeech() == typeOfSpeech)
                         break;
                 }
 
                 // Add a new if current type of speech not found
-                if (i == m_dictionaryList.size())
-                    m_dictionaryList << QDictionary(speechName);
+                if (i == m_translationOptions.size())
+                    m_translationOptions << QOption(typeOfSpeech);
 
-                const QString word = speechData.value("displayTarget").toString().toLower();
+                const QString word = typeOfSpeechData.toObject().value("displayTarget").toString().toLower();
                 QStringList translations;
-                foreach (const QJsonValue &wordTranslation, speechData.value("backTranslations").toArray())
+                foreach (const QJsonValue &wordTranslation, typeOfSpeechData.toObject().value("backTranslations").toArray())
                     translations.append(wordTranslation.toObject().value("displayText").toString());
 
-                m_dictionaryList[i].appendWord(word, "", translations);
+                m_translationOptions[i].addWord(word, "", translations);
             }
         }
 
@@ -685,14 +699,14 @@ QOnlineTranslator::Language QOnlineTranslator::translationLanguage() const
     return m_translationLang;
 }
 
-QList<QDictionary> QOnlineTranslator::dictionaryList() const
+QList<QOption> QOnlineTranslator::translationOptions() const
 {
-    return m_dictionaryList;
+    return m_translationOptions;
 }
 
-QList<QDefinition> QOnlineTranslator::definitionsList() const
+QList<QExample> QOnlineTranslator::examples() const
 {
-    return m_definitionsList;
+    return m_examples;
 }
 
 QString QOnlineTranslator::errorString() const
@@ -2424,28 +2438,28 @@ void QOnlineTranslator::resetData()
     m_translationTranslit.clear();
     m_sourceTranslit.clear();
     m_sourceTranscription.clear();
-    m_dictionaryList.clear();
-    m_definitionsList.clear();
+    m_translationOptions.clear();
+    m_examples.clear();
 }
 
-bool QOnlineTranslator::isDefinitionsEnabled() const
+bool QOnlineTranslator::isExamplesEnabled() const
 {
-    return m_definitionsEnabled;
+    return m_examplesEnabled;
 }
 
-void QOnlineTranslator::setDefinitionsEnabled(bool enable)
+void QOnlineTranslator::setExamplesEnabled(bool enable)
 {
-    m_definitionsEnabled = enable;
+    m_examplesEnabled = enable;
 }
 
-bool QOnlineTranslator::isDictionaryEnabled() const
+bool QOnlineTranslator::isTranslationOptionsEnabled() const
 {
-    return m_dictionaryEnabled;
+    return m_translationOptionsEnabled;
 }
 
-void QOnlineTranslator::setDictionaryEnabled(bool enable)
+void QOnlineTranslator::setTranslationOptionsEnabled(bool enable)
 {
-    m_dictionaryEnabled = enable;
+    m_translationOptionsEnabled = enable;
 }
 
 bool QOnlineTranslator::isSourceTranscriptionEnabled() const

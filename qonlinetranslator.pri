@@ -1,12 +1,12 @@
 QT += network multimedia
 
 HEADERS += $$PWD/src/qonlinetranslator.h \
-    $$PWD/src/qdefinition.h \
-    $$PWD/src/qdictionary.h
+    $$PWD/src/qexample.h \
+    $$PWD/src/qoption.h
 
 SOURCES += $$PWD/src/qonlinetranslator.cpp \
-    $$PWD/src/qdefinition.cpp \
-    $$PWD/src/qdictionary.cpp
+    $$PWD/src/qexample.cpp \
+    $$PWD/src/qoption.cpp
 
 INCLUDEPATH += $$PWD/src
 
