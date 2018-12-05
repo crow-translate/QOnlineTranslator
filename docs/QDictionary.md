@@ -25,22 +25,23 @@ The **QDictionary** class provides storage for translation options data for a si
 
 The **QDictionary** object can be obtained from the [QOnlineTranslator](docs/QOnlineTranslator.md "Class documentation") object, which contains a list of translation options for a single type of speech.
 
-Example:
+**Example:**
 
 ```cpp
-QOnlineTranslator translator("say", "de", "en", "en"); // Translate "say" into German form English with English names of speech types
+QOnlineTranslator translator("say", QOnlineTranslator::German, QOnlineTranslator::English, QOnlineTranslator::English); // Translate "say" into German form English with English names of speech types
 QTextStream out(stdout);
 
-if (translator.error()) // Check for network error
-    out << translator.translation(); // Print the text of the network error
-else {
+QTextStream out(stdout);
+if (translator.error() != QOnlineTranslator::NoError) {
+    out << translator.errorString() << endl; // Print the text of the network error
+} else {
     foreach (auto optionType, translator.dictionaryList()) {
         out << optionType.typeOfSpeech() << ":" << endl; // Output type of speech with a colon
         for (auto i = 0; i <  optionType.count(); i++) {
             if (!optionType.gender(i).isEmpty())
-                out << " " << optionType.gender(i); // Prints word gender
-            out << " " << optionType.word(i) << ": "; // Prints word
-            out << optionType.translations(i); // Prints translations
+                out << " " << optionType.gender(i); // Print word gender
+            out << " " << optionType.word(i) << ": "; // Print word
+            out << optionType.translations(i); // Print translations
             out << endl;
         }
         out << endl;

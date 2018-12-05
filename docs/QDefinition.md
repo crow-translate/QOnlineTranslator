@@ -24,15 +24,15 @@ The **QDefinition** class provides storage for definitions data.
 
 The **QDefinition** object can be obtained from the [QOnlineTranslator](docs/QOnlineTranslator.md "Class documentation") object, which contains a list of definitions.
 
-Example:
+**Example:**
 
 ```cpp
-QOnlineTranslator translator("say", "de", "en", "en"); // Translate "say" into German form English with English names of speech types
+QOnlineTranslator translator("say", QOnlineTranslator::German, QOnlineTranslator::English, QOnlineTranslator::English); // Translate "say" into German form English with English names of speech types
 QTextStream out(stdout);
 
-if (translator.error()) // Check for network error
-    out << translator.translation(); // Print the text of the network error
-else {
+if (translator.error() != QOnlineTranslator::NoError) {
+    out << translator.errorString(); // Print the text of the network error
+} else {
     foreach (QDefinition definition, translator.definitionsList()) {
         out << definition.typeOfSpeech() << endl;
         out << "   " << definition.description() << endl;
