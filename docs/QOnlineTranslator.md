@@ -15,7 +15,7 @@ The **QOnlineTranslator** class provides translation data.
 | Type | Name                                                                                                              |
 | ---: | :---------------------------------------------------------------------------------------------------------------- |
 | enum | [**Engine**](#engine) { Google, Yandex }                                                                          |
-| enum | [**Speaker**](#speaker) { Zahar, Ermil, Jane, Oksana, ..., Omazh }                                                |
+| enum | [**Voice**](#voice) { Zahar, Ermil, Jane, Oksana, ..., Female }                                                   |
 | enum | [**Emotion**](#emotion) { Good, Evil, Neutral }                                                                   |
 | enum | [**Language**](#language) { Auto, Afrikaans, Albanian, Amharic, ..., Zulu }                                       |
 | enum | [**TranslationError**](#translation-error) { NoError, ParametersError, NetworkError, ServiceError, ParsingError } |
@@ -26,9 +26,9 @@ The **QOnlineTranslator** class provides translation data.
 | ------------------------: | :------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 |                           | [**QOnlineTranslator**(QWidget \*parent = nullptr)](#constructor)                                                                                             |
 |                      void | [**translate**(const QString &text, Engine engine = Google, Language translationLang = Auto, Language sourceLang = Auto, Language uiLang = Auto)](#translate) |
-| QList\\&lt;QMediaContent> | [**media**(const QString &text, Engine engine, Language language = Auto, Speaker speaker = Zahar, Emotion emotion = Neutral)](#media)                         |
-| QList\\&lt;QMediaContent> | [**sourceMedia**(Engine engine, Speaker speaker = Zahar, Emotion emotion = Neutral)](#source-media)                                                           |
-| QList\\&lt;QMediaContent> | [**translationMedia**(Engine engine, Speaker speaker = Zahar, Emotion emotion = Neutral)](#translation-media)                                                 |
+| QList\\&lt;QMediaContent> | [**media**(const QString &text, Engine engine, Language language = Auto, Voice voice = Default, Emotion emotion = Neutral)](#media)                           |
+| QList\\&lt;QMediaContent> | [**sourceMedia**(Engine engine, Voice voice = Default, Emotion emotion = Neutral)](#source-media)                                                             |
+| QList\\&lt;QMediaContent> | [**translationMedia**(Engine engine, Voice voice = Default, Emotion emotion = Neutral)](#translation-media)                                                   |
 |                   QString | [**source**()](#source)                                                                                                                                       |
 |                   QString | [**sourceTranslit**()](#source-translit)                                                                                                                      |
 |                   QString | [**sourceTranscription**()](source-transcription)                                                                                                             |
@@ -64,18 +64,21 @@ This enum has the following values:
 | QOnlineTranslator::Yandex |   1   | [Yandex.Translate](https://translate.yandex.com) engine             |
 |   QOnlineTranslator::Bing |   2   | [Bing Microsoft Translator](https://www.bing.com/translator) engine |
 
-### <a id='speaker'/> enum QOnlineTranslator::Speaker
+### <a id='voice'/> enum QOnlineTranslator::Voice
 
 This enum has the following values:
 
-|                  Constant | Value | Description |
-| ------------------------: | :---: | :---------- |
-|  QOnlineTranslator::Zahar |   0   | Man voice   |
-|  QOnlineTranslator::Ermil |   1   | Man voice   |
-|   QOnlineTranslator::Jane |   2   | Woman voice |
-| QOnlineTranslator::Oksana |   3   | Woman voice |
-|  QOnlineTranslator::Alyss |   4   | Woman voice |
-|  QOnlineTranslator::Omazh |   5   | Woman voice |
+|                   Constant | Value | Engine               |
+| -------------------------: | :---: | :------------------- |
+| QOnlineTranslator::Default |   0   | Google, Yandex, Bing |
+|   QOnlineTranslator::Zahar |   1   | Yandex               |
+|   QOnlineTranslator::Ermil |   2   | Yandex               |
+|    QOnlineTranslator::Jane |   3   | Yandex               |
+|  QOnlineTranslator::Oksana |   4   | Yandex               |
+|   QOnlineTranslator::Alyss |   5   | Yandex               |
+|   QOnlineTranslator::Omazh |   6   | Yandex               |
+|    QOnlineTranslator::Male |   7   | Bing                 |
+|  QOnlineTranslator::Female |   8   | Bing                 |
 
 ### <a id='emotion'/> enum QOnlineTranslator::Emotion
 
@@ -243,9 +246,9 @@ Parse _text_ and translate with _engine_ into _translationLang_ from _sourceLang
 
 * * *
 
-### <a id='media'/> \[QList](https&#x3A;//doc.qt.io/qt-5/qlist.html "Qt Documentation")&lt;\[QMediaContent](https&#x3A;//doc.qt.io/qt-5/qmediacontent.html "Qt Documentation")> QOnlineTranslator::media(_const QString &text, Engine engine, Language language = Auto, Speaker speaker = Zahar, Emotion emotion = Neutral_)
+### <a id='media'/> \[QList](https&#x3A;//doc.qt.io/qt-5/qlist.html "Qt Documentation")&lt;\[QMediaContent](https&#x3A;//doc.qt.io/qt-5/qmediacontent.html "Qt Documentation")> QOnlineTranslator::media(_const QString &text, Engine engine, Language language = Auto, Voice voice = Default, Emotion emotion = Neutral_)
 
-Splits _text_ into parts (Google and Yandex have limits on the size of the request) and returns list with the generated API URLs to play this text on _language_. _speaker_ and _emotion_ arguments only affects the voice characteristics for Yandex engine.
+Splits _text_ into parts (Google and Yandex have limits on the size of the request) and returns list with the generated API URLs to play this text on _language_ with _voice_. _emotion_ argument only affects Yandex engine.
 
 Example:
 
@@ -262,9 +265,9 @@ player->play(); // Plays "Hello World!"
 
 * * *
 
-### <a id='source-media'/> \[QList](https&#x3A;//doc.qt.io/qt-5/qlist.html "Qt Documentation")&lt;\[QMediaContent](https&#x3A;//doc.qt.io/qt-5/qmediacontent.html "Qt Documentation")> QOnlineTranslator::sourceMedia(_Engine engine, Speaker speaker = Zahar, Emotion emotion = Neutral_)
+### <a id='source-media'/> \[QList](https&#x3A;//doc.qt.io/qt-5/qlist.html "Qt Documentation")&lt;\[QMediaContent](https&#x3A;//doc.qt.io/qt-5/qmediacontent.html "Qt Documentation")> QOnlineTranslator::sourceMedia(_Engine engine, Voice voice = Default, Emotion emotion = Neutral_)
 
-Splits the source text of translator into parts (Google and Yandex have limits on the size of the request) and returns list with the generated API URLs to play this text. _speaker_ and _emotion_ arguments only affects the voice characteristics for Yandex engine.
+Splits the source text of translator into parts (because backends have limit of size per one request) and returns list with the generated API URLs to play this text with _voice_. _emotion_ argument only affects Yandex engine.
 
 Example:
 
@@ -283,9 +286,9 @@ player->play(); // Plays "Hello World!"
 
 * * *
 
-### <a id='translation-media'/> \[QList](https&#x3A;//doc.qt.io/qt-5/qlist.html "Qt Documentation")&lt;\[QMediaContent](https&#x3A;//doc.qt.io/qt-5/qmediacontent.html "Qt Documentation")> QOnlineTranslator::translationMedia(_Engine engine, Speaker speaker = Zahar, Emotion emotion = Neutral_)
+### <a id='translation-media'/> \[QList](https&#x3A;//doc.qt.io/qt-5/qlist.html "Qt Documentation")&lt;\[QMediaContent](https&#x3A;//doc.qt.io/qt-5/qmediacontent.html "Qt Documentation")> QOnlineTranslator::translationMedia(_Engine engine, Voice voice = Default, Emotion emotion = Neutral_)
 
-Splits the translation of translator into parts (Google and Yandex have limits on the size of the request) and returns list with the generated API URLs to play this text. _speaker_ and _emotion_ arguments only affects the voice characteristics for Yandex engine.
+Splits the translation of translator into parts (Google and Yandex have limits on the size of the request) and returns list with the generated API URLs to play this text with _voice_. _emotion_ argument only affects Yandex engine.
 
 * * *
 

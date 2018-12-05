@@ -37,6 +37,7 @@ constexpr int YANDEX_TTS_LIMIT = 1400;
 
 constexpr int BING_TRANSLATE_LIMIT = 5001;
 constexpr int BING_TRANSLIT_LIMIT = 5000;
+constexpr int BING_TTS_LIMIT = 2001;
 
 QString QOnlineTranslator::m_yandexKey;
 bool QOnlineTranslator::m_secondYandexKeyRequest = false;
@@ -448,12 +449,11 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
     }
 }
 
-QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine, Language lang, Speaker speaker, Emotion emotion)
+QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine, Language lang, Voice voice, Emotion emotion)
 {
     m_error = NoError;
     QList<QMediaContent> mediaList;
     QString langCode;
-    QString unparsedText = text;
 
     // Detect language if required
     if (lang != Auto) {
@@ -504,15 +504,33 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
             break;
         }
         case Bing:
-            m_errorString = tr("Error: Not implemented yet");
-            m_error = ParametersError;
-            return mediaList;
+            // Get API reply
+            langCode = getBingTextLanguage(text.left(getSplitIndex(text, BING_TRANSLATE_LIMIT)));
+            if (langCode.isEmpty())
+                return mediaList;
+
+            // Convert to tts code
+            const Language detectedLang = language(langCode, Bing);
+            langCode = ttsLanguageCode(detectedLang, Bing);
+            if (langCode.isEmpty()) {
+                m_errorString = tr("Error: Unable to parse language");
+                m_error = ParametersError;
+                return mediaList;
+            }
         }
     }
 
     // Get speech
+    QString unparsedText = text;
     switch (engine) {
     case Google:
+        if (voice != Default) {
+            m_errorString = tr("Error: Incompatible voice and backend arguments");
+            m_error = ParametersError;
+            resetData();
+            return mediaList;
+        }
+
         // Google has a limit of characters per tts request. If the query is larger, then it should be splited into several
         while (!unparsedText.isEmpty()) {
             const int splitIndex = getSplitIndex(unparsedText, GOOGLE_TTS_LIMIT); // Split the part by special symbol
@@ -520,9 +538,11 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
             // Generate URL API for add it to the playlist
             QUrl apiUrl("http://translate.googleapis.com/translate_tts");
 #if defined(Q_OS_LINUX)
-            apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + langCode +"&q=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)));
+            apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + langCode
+                            + "&q=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)));
 #elif defined(Q_OS_WIN)
-            apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + langCode +"&q=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)), QUrl::DecodedMode);
+            apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + langCode
+                            + "&q=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)), QUrl::DecodedMode);
 #endif
             mediaList.append(apiUrl);
 
@@ -532,8 +552,14 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
         break;
     case Yandex:
     {
-        const QString speakerCode = QOnlineTranslator::speakerCode(speaker);
         const QString emotionCode = QOnlineTranslator::emotionCode(emotion);
+        const QString voiceCode = QOnlineTranslator::voiceCode(voice, Yandex);
+        if (voiceCode.isEmpty()) {
+            m_errorString = tr("Error: Incompatible voice and backend arguments");
+            m_error = ParametersError;
+            resetData();
+            return mediaList;
+        }
 
         // Yandex has a limit of characters per tts request. If the query is larger, then it should be splited into several
         while (!unparsedText.isEmpty()) {
@@ -542,17 +568,17 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
             // Generate URL API for add it to the playlist
             QUrl apiUrl("https://tts.voicetech.yandex.net/tts");
 #if defined(Q_OS_LINUX)
-            apiUrl.setQuery("text=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)) +
-                            "&lang=" + langCode +
-                            "&speaker=" + speakerCode +
-                            "&emotion=" + emotionCode +
-                            "&format=mp3");
+            apiUrl.setQuery("text=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex))
+                            + "&lang=" + langCode
+                            + "&speaker=" + voiceCode
+                            + "&emotion=" + emotionCode
+                            + "&format=mp3");
 #elif defined(Q_OS_WIN)
-            apiUrl.setQuery("text=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)) +
-                            "&lang=" + langCode +
-                            "&speaker=" + speakerCode +
-                            "&emotion=" + emotionCode +
-                            "&format=mp3", QUrl::DecodedMode);
+            apiUrl.setQuery("text=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex))
+                            + "&lang=" + langCode
+                            + "&speaker=" + voiceCode
+                            + "&emotion=" + emotionCode
+                            + "&format=mp3", QUrl::DecodedMode);
 #endif
             mediaList.append(apiUrl);
 
@@ -562,22 +588,48 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
         break;
     }
     case Bing:
-        m_errorString = tr("Error: Not implemented yet");
-        m_error = ParametersError;
-        return mediaList;
+        const QString voiceCode = QOnlineTranslator::voiceCode(voice, Bing);
+        if (voiceCode.isEmpty()) {
+            m_errorString = tr("Error: Incompatible voice and backend arguments");
+            m_error = ParametersError;
+            resetData();
+            return mediaList;
+        }
+
+        while (!unparsedText.isEmpty()) {
+            const int splitIndex = getSplitIndex(unparsedText, BING_TTS_LIMIT); // Split the part by special symbol
+
+            // Generate URL API for add it to the playlist
+            QUrl apiUrl("https://www.bing.com/tspeak");
+#if defined(Q_OS_LINUX)
+            apiUrl.setQuery("&language=" + langCode
+                            + "&text=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex))
+                            + "&options=" + voiceCode
+                            + "&format=audio/mp3");
+#elif defined(Q_OS_WIN)
+            apiUrl.setQuery("&language=" + langCode
+                            + "&text=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex))
+                            + "&options=" + voiceCode
+                            + "&format=audio/mp3", QUrl::DecodedMode);
+#endif
+            mediaList.append(apiUrl);
+
+            // Remove the said part from the next saying
+            unparsedText = unparsedText.mid(splitIndex);
+        }
     }
 
     return mediaList;
 }
 
-QList<QMediaContent> QOnlineTranslator::sourceMedia(Engine engine, Speaker speaker, Emotion emotion)
+QList<QMediaContent> QOnlineTranslator::sourceMedia(Engine engine, Voice voice, Emotion emotion)
 {
-    return media(m_source, engine, m_sourceLang, speaker, emotion);
+    return media(m_source, engine, m_sourceLang, voice, emotion);
 }
 
-QList<QMediaContent> QOnlineTranslator::translationMedia(Engine engine, Speaker speaker, Emotion emotion)
+QList<QMediaContent> QOnlineTranslator::translationMedia(Engine engine, Voice voice, Emotion emotion)
 {
-    return media(m_translation, engine, m_translationLang, speaker, emotion);
+    return media(m_translation, engine, m_translationLang, voice, emotion);
 }
 
 QString QOnlineTranslator::source() const
@@ -648,8 +700,6 @@ QOnlineTranslator::TranslationError QOnlineTranslator::error() const
 QString QOnlineTranslator::languageString(QOnlineTranslator::Language lang)
 {
     switch (lang) {
-    case NoLanguage:
-        return "";
     case Auto:
         return tr("Automatically detect");
     case Afrikaans:
@@ -894,9 +944,9 @@ QString QOnlineTranslator::languageString(QOnlineTranslator::Language lang)
         return tr("Yucatec Maya");
     case Zulu:
         return tr("Zulu");
+    default:
+        return "";
     }
-
-    return tr("Unknown");
 }
 
 QString QOnlineTranslator::languageCode(QOnlineTranslator::Language lang)
@@ -909,309 +959,206 @@ QString QOnlineTranslator::languageCode(QOnlineTranslator::Language lang)
 
 QOnlineTranslator::Language QOnlineTranslator::language(const QLocale &locale)
 {
-    Language language;
-
     switch (locale.language()) {
     case QLocale::Afrikaans:
-        language = Afrikaans;
-        break;
+        return Afrikaans;
     case QLocale::Albanian:
-        language = Albanian;
-        break;
+        return Albanian;
     case QLocale::Amharic:
-        language = Amharic;
-        break;
+        return Amharic;
     case QLocale::Arabic:
-        language = Arabic;
-        break;
+        return Arabic;
     case QLocale::Armenian:
-        language = Armenian;
-        break;
+        return Armenian;
     case QLocale::Azerbaijani:
-        language = Azeerbaijani;
-        break;
+        return Azeerbaijani;
     case QLocale::Basque:
-        language = Basque;
-        break;
+        return Basque;
     case QLocale::Belarusian:
-        language = Belarusian;
-        break;
+        return Belarusian;
     case QLocale::Bengali:
-        language = Bengali;
-        break;
+        return Bengali;
     case QLocale::Bosnian:
-        language = Bosnian;
-        break;
+        return Bosnian;
     case QLocale::Bulgarian:
-        language = Bulgarian;
-        break;
+        return Bulgarian;
     case QLocale::Catalan:
-        language = Catalan;
-        break;
+        return Catalan;
     case QLocale::Chinese:
-        language = SimplifiedChinese;
-        break;
+        return SimplifiedChinese;
     case QLocale::LiteraryChinese:
-        language = TraditionalChinese;
-        break;
+        return TraditionalChinese;
     case QLocale::Corsican:
-        language = Corsican;
-        break;
+        return Corsican;
     case QLocale::Croatian:
-        language = Croatian;
-        break;
+        return Croatian;
     case QLocale::Czech:
-        language = Czech;
-        break;
+        return Czech;
     case QLocale::Danish:
-        language = Danish;
-        break;
+        return Danish;
     case QLocale::Dutch:
-        language = Dutch;
-        break;
+        return Dutch;
     case QLocale::Esperanto:
-        language = Esperanto;
-        break;
+        return Esperanto;
     case QLocale::Estonian:
-        language = Estonian;
-        break;
+        return Estonian;
     case QLocale::Finnish:
-        language = Finnish;
-        break;
+        return Finnish;
     case QLocale::French:
-        language = French;
-        break;
+        return French;
     case QLocale::Frisian:
-        language = Frisian;
-        break;
+        return Frisian;
     case QLocale::Galician:
-        language = Galician;
-        break;
+        return Galician;
     case QLocale::Georgian:
-        language = Georgian;
-        break;
+        return Georgian;
     case QLocale::German:
-        language = German;
-        break;
+        return German;
     case QLocale::Greek:
-        language = Greek;
-        break;
+        return Greek;
     case QLocale::Gujarati:
-        language = Gujarati;
-        break;
+        return Gujarati;
     case QLocale::Haitian:
-        language = HaitianCreole;
-        break;
+        return HaitianCreole;
     case QLocale::Hausa:
-        language = Hausa;
-        break;
+        return Hausa;
     case QLocale::Hawaiian:
-        language = Hawaiian;
-        break;
+        return Hawaiian;
     case QLocale::Hebrew:
-        language = Hebrew;
-        break;
+        return Hebrew;
     case QLocale::Hindi:
-        language = Hindi;
-        break;
+        return Hindi;
     case QLocale::HmongNjua:
-        language = Hmong;
-        break;
+        return Hmong;
     case QLocale::Hungarian:
-        language = Hungarian;
-        break;
+        return Hungarian;
     case QLocale::Icelandic:
-        language = Icelandic;
-        break;
+        return Icelandic;
     case QLocale::Igbo:
-        language = Igbo;
-        break;
+        return Igbo;
     case QLocale::Indonesian:
-        language = Indonesian;
-        break;
+        return Indonesian;
     case QLocale::Irish:
-        language = Irish;
-        break;
+        return Irish;
     case QLocale::Italian:
-        language = Italian;
-        break;
+        return Italian;
     case QLocale::Japanese:
-        language = Japanese;
-        break;
+        return Japanese;
     case QLocale::Javanese:
-        language = Javanese;
-        break;
+        return Javanese;
     case QLocale::Kannada:
-        language = Kannada;
-        break;
+        return Kannada;
     case QLocale::Kazakh:
-        language = Kazakh;
-        break;
+        return Kazakh;
     case QLocale::Khmer:
-        language = Khmer;
-        break;
+        return Khmer;
     case QLocale::Korean:
-        language = Korean;
-        break;
+        return Korean;
     case QLocale::Kurdish:
-        language = Kurdish;
-        break;
+        return Kurdish;
     case QLocale::Lao:
-        language = Lao;
-        break;
+        return Lao;
     case QLocale::Latin:
-        language = Latin;
-        break;
+        return Latin;
     case QLocale::Latvian:
-        language = Latvian;
-        break;
+        return Latvian;
     case QLocale::Lithuanian:
-        language = Lithuanian;
-        break;
+        return Lithuanian;
     case QLocale::Luxembourgish:
-        language = Luxembourgish;
-        break;
+        return Luxembourgish;
     case QLocale::Macedonian:
-        language = Macedonian;
-        break;
+        return Macedonian;
     case QLocale::Malagasy:
-        language = Malagasy;
-        break;
+        return Malagasy;
     case QLocale::Malay:
-        language = Malay;
-        break;
+        return Malay;
     case QLocale::Malayalam:
-        language = Malayalam;
-        break;
+        return Malayalam;
     case QLocale::Maltese:
-        language = Maltese;
-        break;
+        return Maltese;
     case QLocale::Maori:
-        language = Maori;
-        break;
+        return Maori;
     case QLocale::Marathi:
-        language = Marathi;
-        break;
+        return Marathi;
     case QLocale::Mongolian:
-        language = Mongolian;
-        break;
+        return Mongolian;
     case QLocale::Nepali:
-        language = Nepali;
-        break;
+        return Nepali;
     case QLocale::Norwegian:
-        language = Norwegian;
-        break;
+        return Norwegian;
     case QLocale::Pashto:
-        language = Pashto;
-        break;
+        return Pashto;
     case QLocale::Persian:
-        language = Persian;
-        break;
+        return Persian;
     case QLocale::Polish:
-        language = Polish;
-        break;
+        return Polish;
     case QLocale::Portuguese:
-        language = Portuguese;
-        break;
+        return Portuguese;
     case QLocale::Punjabi:
-        language = Punjabi;
-        break;
+        return Punjabi;
     case QLocale::Romanian:
-        language = Romanian;
-        break;
+        return Romanian;
     case QLocale::Russian:
-        language = Russian;
-        break;
+        return Russian;
     case QLocale::Samoan:
-        language = Samoan;
-        break;
+        return Samoan;
     case QLocale::Gaelic:
-        language = ScotsGaelic;
-        break;
+        return ScotsGaelic;
     case QLocale::Serbian:
-        language = SerbianCyrillic;
-        break;
+        return SerbianCyrillic;
     case QLocale::Shona:
-        language = Shona;
-        break;
+        return Shona;
     case QLocale::Sindhi:
-        language = Sindhi;
-        break;
+        return Sindhi;
     case QLocale::Sinhala:
-        language = Sinhala;
-        break;
+        return Sinhala;
     case QLocale::Slovak:
-        language = Slovak;
-        break;
+        return Slovak;
     case QLocale::Slovenian:
-        language = Slovenian;
-        break;
+        return Slovenian;
     case QLocale::Somali:
-        language = Somali;
-        break;
+        return Somali;
     case QLocale::Spanish:
-        language = Spanish;
-        break;
+        return Spanish;
     case QLocale::Sundanese:
-        language = Sundanese;
-        break;
+        return Sundanese;
     case QLocale::Swahili:
-        language = Swahili;
-        break;
+        return Swahili;
     case QLocale::Swedish:
-        language = Swedish;
-        break;
+        return Swedish;
     case QLocale::Filipino:
-        language = Tagalog;
-        break;
+        return Tagalog;
     case QLocale::Tajik:
-        language = Tajik;
-        break;
+        return Tajik;
     case QLocale::Tamil:
-        language = Tamil;
-        break;
+        return Tamil;
     case QLocale::Telugu:
-        language = Telugu;
-        break;
+        return Telugu;
     case QLocale::Thai:
-        language = Thai;
-        break;
+        return Thai;
     case QLocale::Turkish:
-        language = Turkish;
-        break;
+        return Turkish;
     case QLocale::Ukrainian:
-        language = Ukrainian;
-        break;
+        return Ukrainian;
     case QLocale::Urdu:
-        language = Urdu;
-        break;
+        return Urdu;
     case QLocale::Uzbek:
-        language = Uzbek;
-        break;
+        return Uzbek;
     case QLocale::Vietnamese:
-        language = Vietnamese;
-        break;
+        return Vietnamese;
     case QLocale::Welsh:
-        language = Welsh;
-        break;
+        return Welsh;
     case QLocale::Xhosa:
-        language = Xhosa;
-        break;
+        return Xhosa;
     case QLocale::Yiddish:
-        language = Yiddish;
-        break;
+        return Yiddish;
     case QLocale::Yoruba:
-        language = Yoruba;
-        break;
+        return Yoruba;
     case QLocale::Zulu:
-        language = Zulu;
-        break;
+        return Zulu;
     default:
-        language = English;
-        break;
+        return English;
     }
-
-    return language;
 }
 
 QOnlineTranslator::Language QOnlineTranslator::language(const QString &langCode)
@@ -2148,49 +2095,145 @@ QString QOnlineTranslator::translationLanguageCode(QOnlineTranslator::Language l
 
 QString QOnlineTranslator::ttsLanguageCode(QOnlineTranslator::Language lang, QOnlineTranslator::Engine engine)
 {
-    if (engine == Yandex) {
+    QString langCode;
+    switch (engine) {
+    case Google:
+        langCode = translationLanguageCode(lang, engine); // Google use the same codes for tts
+        break;
+    case Yandex:
         switch (lang) {
-        case NoLanguage:
-            return "";
         case Russian:
-            return "ru_RU";
+            langCode = "ru_RU";
+            break;
         case Tatar:
-            return "tr_TR";
+            langCode = "tr_TR";
+            break;
         case English:
-            return "en_GB";
+            langCode = "en_GB";
+            break;
         default:
-            return "";
+            langCode = "";
+            break;
         }
-    } else {
-        return translationLanguageCode(lang, engine); // Google use the same codes for tts
+        break;
+    case Bing:
+        switch (lang) {
+        case Arabic:
+            langCode = "ar-EG";
+            break;
+        case Catalan:
+            langCode = "ca-ES";
+            break;
+        case Danish:
+            langCode = "da-DK";
+            break;
+        case German:
+            langCode = "de-DE";
+            break;
+        case English:
+            langCode = "en-GB";
+            break;
+        case Spanish:
+            langCode = "es-ES";
+            break;
+        case Finnish:
+            langCode = "fi-FI";
+            break;
+        case French:
+            langCode = "fr-FR";
+            break;
+        case Hindi:
+            langCode = "hi-IN";
+            break;
+        case Italian:
+            langCode = "it-IT";
+            break;
+        case Japanese:
+            langCode = "ja-JP";
+            break;
+        case Korean:
+            langCode = "ko-KR";
+            break;
+        case Norwegian:
+            langCode = "nb-NO";
+            break;
+        case Dutch:
+            langCode = "nl-NL";
+            break;
+        case Polish:
+            langCode = "pl-PL";
+            break;
+        case Portuguese:
+            langCode = "pt-PT";
+            break;
+        case Russian:
+            langCode = "ru-RU";
+            break;
+        case Swedish:
+            langCode = "sv-SE";
+            break;
+        case SimplifiedChinese:
+            langCode = "zh-CN";
+            break;
+        case TraditionalChinese:
+            langCode = "zh-HK";
+            break;
+        default:
+            langCode = "";
+            break;
+        }
     }
+
+    return langCode;
 }
 
-QString QOnlineTranslator::speakerCode(QOnlineTranslator::Speaker speaker)
+QString QOnlineTranslator::voiceCode(QOnlineTranslator::Voice voice, QOnlineTranslator::Engine engine)
 {
-    QString speakerString;
-    switch (speaker) {
-    case Zahar:
-        speakerString = "zahar";
+    QString voiceCode;
+    switch (engine) {
+    case Yandex:
+        switch (voice) {
+        case Default:
+        case Zahar:
+            voiceCode = "zahar";
+            break;
+        case Ermil:
+            voiceCode = "ermil";
+            break;
+        case Jane:
+            voiceCode = "jane";
+            break;
+        case Oksana:
+            voiceCode = "oksana";
+            break;
+        case Alyss:
+            voiceCode = "alyss";
+            break;
+        case Omazh:
+            voiceCode = "omazh";
+            break;
+        default:
+            break;
+        }
         break;
-    case Ermil:
-        speakerString = "ermil";
+    case Bing:
+        switch (voice) {
+        case Default:
+        case Male:
+            voiceCode = "male";
+            break;
+        case Female:
+            voiceCode = "female";
+            break;
+        default:
+            break;
+        }
         break;
-    case Jane:
-        speakerString = "jane";
-        break;
-    case Oksana:
-        speakerString = "oksana";
-        break;
-    case Alyss:
-        speakerString = "alyss";
-        break;
-    case Omazh:
-        speakerString = "omazh";
+    default:
         break;
     }
 
-    return speakerString;
+    return voiceCode;
 }
 
 QString QOnlineTranslator::emotionCode(QOnlineTranslator::Emotion emotion)

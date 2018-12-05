@@ -32,27 +32,6 @@ class QOnlineTranslator : public QObject
     Q_OBJECT
 
 public:
-    enum Engine {
-        Google,
-        Yandex,
-        Bing
-    };
-    Q_ENUM(Engine)
-    enum Speaker {
-        Zahar,
-        Ermil,
-        Jane,
-        Oksana,
-        Alyss,
-        Omazh
-    };
-    Q_ENUM(Speaker)
-    enum Emotion {
-        Neutral,
-        Good,
-        Evil
-    };
-    Q_ENUM(Emotion)
     enum Language {
         NoLanguage = -1,
         Auto,
@@ -179,6 +158,39 @@ public:
         Zulu
     };
     Q_ENUM(Language)
+
+    enum Engine {
+        Google,
+        Yandex,
+        Bing
+    };
+    Q_ENUM(Engine)
+
+    enum Voice {
+        // All
+        Default,
+
+        // Yandex
+        Zahar,
+        Ermil,
+        Jane,
+        Oksana,
+        Alyss,
+        Omazh,
+
+        // Bing
+        Female,
+        Male
+    };
+    Q_ENUM(Voice)
+
+    enum Emotion {
+        Neutral,
+        Good,
+        Evil
+    };
+    Q_ENUM(Emotion)
+
     enum TranslationError {
         NoError,
         ParametersError,
@@ -190,10 +202,10 @@ public:
     explicit QOnlineTranslator(QObject *parent = nullptr);
 
     void translate(const QString &text, Engine engine = Google, Language translationLang = Auto, Language sourceLang = Auto, Language uiLang = Auto);
-    QList<QMediaContent> media(const QString &text, Engine engine, Language lang = Auto, Speaker speaker = Zahar, Emotion emotion = Neutral);
+    QList<QMediaContent> media(const QString &text, Engine engine, Language lang = Auto, Voice voice = Default, Emotion emotion = Neutral);
 
-    QList<QMediaContent> sourceMedia(Engine engine, Speaker speaker = Zahar, Emotion emotion = Neutral);
-    QList<QMediaContent> translationMedia(Engine engine, Speaker speaker = Zahar, Emotion emotion = Neutral);
+    QList<QMediaContent> sourceMedia(Engine engine, Voice voice = Default, Emotion emotion = Neutral);
+    QList<QMediaContent> translationMedia(Engine engine, Voice voice = Default, Emotion emotion = Neutral);
 
     QString source() const;
     QString sourceTranslit() const;
@@ -241,7 +253,7 @@ private:
     // Codes for API
     static QString translationLanguageCode(Language lang, Engine engine);
     static QString ttsLanguageCode(Language lang, Engine engine);
-    static QString speakerCode(Speaker speaker);
+    static QString voiceCode(Voice voice, Engine engine);
     static QString emotionCode(Emotion emotion);
 
     // Other
