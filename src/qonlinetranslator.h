@@ -224,6 +224,21 @@ public:
     TranslationError error() const;
     QString errorString() const;
 
+    bool isSourceTranslitEnabled() const;
+    void setSourceTranslitEnabled(bool enable);
+
+    bool isTranslationTranslitEnabled() const;
+    void setTranslationTranslitEnabled(bool enable);
+
+    bool isSourceTranscriptionEnabled() const;
+    void setSourceTranscriptionEnabled(bool enable);
+
+    bool isDictionaryEnabled() const;
+    void setDictionaryEnabled(bool enable);
+
+    bool isDefinitionsEnabled() const;
+    void setDefinitionsEnabled(bool enable);
+
     static QString languageString(Language lang);
     static QString languageCode(Language lang);
     static Language language(const QLocale &locale);
@@ -277,9 +292,16 @@ private:
     QList<QDictionary> m_dictionaryList;
     QList<QDefinition> m_definitionsList;
 
+    bool m_sourceTranslitEnabled = true;
+    bool m_translationTranslitEnabled = true;
+    bool m_sourceTranscriptionEnabled = true;
+    bool m_dictionaryEnabled = true;
+    bool m_definitionsEnabled = true;
+    char m_padding[3];
+
     static QString m_yandexKey;
-    static bool m_secondYandexKeyRequest;
     static const QStringList m_languageCodes;
+    static bool m_secondYandexKeyRequest;
 };
 
 #endif // QONLINETRANSLATOR_H

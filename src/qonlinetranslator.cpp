@@ -124,8 +124,12 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
                 m_translation.append(jsonData.at(0).toArray().at(i).toArray().at(0).toString());
 
             // Parse transliterations and source language
-            m_translationTranslit.append(jsonData.at(0).toArray().last().toArray().at(2).toString());
-            m_sourceTranslit.append(jsonData.at(0).toArray().last().toArray().at(3).toString());
+            if (m_translationTranslitEnabled)
+                m_translationTranslit.append(jsonData.at(0).toArray().last().toArray().at(2).toString());
+
+            if (m_sourceTranslitEnabled)
+                m_sourceTranslit.append(jsonData.at(0).toArray().last().toArray().at(3).toString());
+
             if (m_sourceLang == Auto) {
                 // Parse language
                 m_sourceLang = language(jsonData.at(2).toString(), engine);
@@ -147,7 +151,7 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
                 m_sourceTranslit.append(" ");
             }
 
-            if (text.size() < GOOGLE_TRANSLATE_LIMIT) {
+            if (m_dictionaryEnabled && text.size() < GOOGLE_TRANSLATE_LIMIT) {
                 // Translation options
                 foreach (const QJsonValue &typeOfSpeech, jsonData.at(1).toArray()) {
                     m_dictionaryList << QDictionary(typeOfSpeech.toArray().at(0).toString());
@@ -163,11 +167,13 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
                 }
 
                 // Definitions
-                foreach (const QJsonValue &definition, jsonData.at(12).toArray()) {
-                    m_definitionsList << QDefinition();
-                    m_definitionsList.last().setTypeOfSpeech(definition.toArray().at(0).toString());
-                    m_definitionsList.last().setDescription(definition.toArray().at(1).toArray().at(0).toArray().at(0).toString());
-                    m_definitionsList.last().setExample(definition.toArray().at(1).toArray().at(0).toArray().at(2).toString());
+                if (m_dictionaryEnabled) {
+                    foreach (const QJsonValue &definition, jsonData.at(12).toArray()) {
+                        m_definitionsList << QDefinition();
+                        m_definitionsList.last().setTypeOfSpeech(definition.toArray().at(0).toString());
+                        m_definitionsList.last().setDescription(definition.toArray().at(1).toArray().at(0).toArray().at(0).toString());
+                        m_definitionsList.last().setExample(definition.toArray().at(1).toArray().at(0).toArray().at(2).toString());
+                    }
                 }
             }
         }
@@ -215,7 +221,7 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
         }
 
         // Get source transliteration
-        if (isSupportYandexTranslit(m_sourceLang)) {
+        if (m_sourceTranslitEnabled && isSupportYandexTranslit(m_sourceLang)) {
             unsendedText = m_source;
             while (!unsendedText.isEmpty()) {
                 const int splitIndex = getSplitIndex(unsendedText, YANDEX_TRANSLIT_LIMIT);
@@ -247,7 +253,7 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
         }
 
         // Get translation transliteration
-        if (isSupportYandexTranslit(m_translationLang)) {
+        if (m_sourceTranslitEnabled && isSupportYandexTranslit(m_translationLang)) {
             unsendedText = m_translation;
             while (!unsendedText.isEmpty()) {
                 const int splitIndex = getSplitIndex(unsendedText, YANDEX_TRANSLIT_LIMIT);
@@ -279,7 +285,7 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
         }
 
         // Request dictionary data if only one word is translated.
-        if (!m_source.contains(" ") && isSupportYandexDictionary(m_sourceLang, m_translationLang)) {
+        if (m_dictionaryEnabled && isSupportYandexDictionary(m_sourceLang, m_translationLang) && !m_source.contains(" ")) {
             const QByteArray reply = getYandexDictionary(m_source, translationCode, sourceCode, uiCode);
             if (reply.isEmpty()) {
                 resetData();
@@ -290,7 +296,8 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
             const QJsonDocument jsonResponse = QJsonDocument::fromJson(reply);
             const QJsonArray jsonData = jsonResponse.object().value(sourceCode + "-" + translationCode).toObject().value("regular").toArray();
 
-            m_sourceTranscription = jsonData.at(0).toObject().value("ts").toString();
+            if (m_sourceTranscriptionEnabled)
+                m_sourceTranscription = jsonData.at(0).toObject().value("ts").toString();
 
             foreach (const QJsonValue &typeOfSpeech, jsonData) {
                 m_dictionaryList << QDictionary(typeOfSpeech.toObject().value("pos").toObject().value("text").toString());
@@ -347,7 +354,7 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
         }
 
         // Get source transliteration
-        if (isSupportBingTranslit(m_sourceLang)) {
+        if (m_sourceTranslitEnabled && isSupportBingTranslit(m_sourceLang)) {
             unsendedText = m_source;
             while (!unsendedText.isEmpty()) {
                 const int splitIndex = getSplitIndex(unsendedText, BING_TRANSLIT_LIMIT);
@@ -379,7 +386,7 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
         }
 
         // Get translation transliteration
-        if (isSupportBingTranslit(m_translationLang)) {
+        if (m_translationTranslitEnabled && isSupportBingTranslit(m_translationLang)) {
             unsendedText = m_translation;
             while (!unsendedText.isEmpty()) {
                 const int splitIndex = getSplitIndex(unsendedText, BING_TRANSLIT_LIMIT);
@@ -411,7 +418,7 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
         }
 
         // Request dictionary data if only one word is translated.
-        if (!m_source.contains(" ") && isSupportBingDictionary(m_sourceLang, m_translationLang)) {
+        if (m_dictionaryEnabled && isSupportBingDictionary(m_sourceLang, m_translationLang) && !m_source.contains(" ")) {
             const QByteArray reply = getBingDictionary(m_source, translationCode, sourceCode);
             if (reply.isEmpty()) {
                 resetData();
@@ -2419,4 +2426,54 @@ void QOnlineTranslator::resetData()
     m_sourceTranscription.clear();
     m_dictionaryList.clear();
     m_definitionsList.clear();
+}
+
+bool QOnlineTranslator::isDefinitionsEnabled() const
+{
+    return m_definitionsEnabled;
+}
+
+void QOnlineTranslator::setDefinitionsEnabled(bool enable)
+{
+    m_definitionsEnabled = enable;
+}
+
+bool QOnlineTranslator::isDictionaryEnabled() const
+{
+    return m_dictionaryEnabled;
+}
+
+void QOnlineTranslator::setDictionaryEnabled(bool enable)
+{
+    m_dictionaryEnabled = enable;
+}
+
+bool QOnlineTranslator::isSourceTranscriptionEnabled() const
+{
+    return m_sourceTranscriptionEnabled;
+}
+
+void QOnlineTranslator::setSourceTranscriptionEnabled(bool enable)
+{
+    m_sourceTranscriptionEnabled = enable;
+}
+
+bool QOnlineTranslator::isTranslationTranslitEnabled() const
+{
+    return m_translationTranslitEnabled;
+}
+
+void QOnlineTranslator::setTranslationTranslitEnabled(bool enable)
+{
+    m_translationTranslitEnabled = enable;
+}
+
+bool QOnlineTranslator::isSourceTranslitEnabled() const
+{
+    return m_sourceTranslitEnabled;
+}
+
+void QOnlineTranslator::setSourceTranslitEnabled(bool enable)
+{
+    m_sourceTranslitEnabled = enable;
 }
