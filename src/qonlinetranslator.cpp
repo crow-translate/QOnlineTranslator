@@ -81,7 +81,7 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
 
     // Check for errors
     if (uiCode.isEmpty() || translationCode.isEmpty() || sourceCode.isEmpty()) {
-        m_errorString = tr("Error: One of languages is not supported for this backend.");
+        m_errorString = tr("Error: One of languages is not supported for this engine.");
         m_error = ParametersError;
         return;
     }
@@ -525,7 +525,7 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
     switch (engine) {
     case Google:
         if (voice != Default) {
-            m_errorString = tr("Error: Incompatible voice and backend arguments");
+            m_errorString = tr("Error: Incompatible voice and engine arguments");
             m_error = ParametersError;
             resetData();
             return mediaList;
@@ -555,7 +555,7 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
         const QString emotionCode = QOnlineTranslator::emotionCode(emotion);
         const QString voiceCode = QOnlineTranslator::voiceCode(voice, Yandex);
         if (voiceCode.isEmpty()) {
-            m_errorString = tr("Error: Incompatible voice and backend arguments");
+            m_errorString = tr("Error: Incompatible voice and engine arguments");
             m_error = ParametersError;
             resetData();
             return mediaList;
@@ -590,7 +590,7 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
     case Bing:
         const QString voiceCode = QOnlineTranslator::voiceCode(voice, Bing);
         if (voiceCode.isEmpty()) {
-            m_errorString = tr("Error: Incompatible voice and backend arguments");
+            m_errorString = tr("Error: Incompatible voice and engine arguments");
             m_error = ParametersError;
             resetData();
             return mediaList;
@@ -1675,7 +1675,7 @@ QByteArray QOnlineTranslator::getGoogleTranslation(const QString &text, const QS
 
     // Check availability of service
     if (reply.startsWith("<")) {
-        m_errorString = tr("Error: Backend systems have detected unusual traffic from your computer network. Please try your request again later.");
+        m_errorString = tr("Error: Engine systems have detected unusual traffic from your computer network. Please try your request again later.");
         m_error = ServiceError;
         return "";
     }
@@ -1693,7 +1693,7 @@ QByteArray QOnlineTranslator::getYandexTranslation(const QString &text, const QS
             return "";
 
         if (webSiteData.contains("<title>Oops!</title>") || webSiteData.contains("<title>302 Found</title>")) {
-            m_errorString = tr("Error: Backend systems have detected unusual traffic from your computer network. Please try your request again later.");
+            m_errorString = tr("Error: Engine systems have detected unusual traffic from your computer network. Please try your request again later.");
             m_error = ServiceError;
             return "";
         }

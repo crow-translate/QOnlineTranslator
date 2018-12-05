@@ -227,7 +227,7 @@ Indicates all possible error conditions found during the processing of the trans
 |                           Constant | Value | Description                                                  |
 | ---------------------------------: | :---: | :----------------------------------------------------------- |
 |         QOnlineTranslator::NoError |   0   | No error condition                                           |
-| QOnlineTranslator::ParametersError |   1   | Unsupported combination of backend and languages             |
+| QOnlineTranslator::ParametersError |   1   | Unsupported combination of parameters                        |
 |    QOnlineTranslator::NetworkError |   2   | Network error                                                |
 |    QOnlineTranslator::ServiceError |   3   | Service unavailable or maximum number of requests            |
 |    QOnlineTranslator::ParsingError |   4   | The request could not be parsed, please let me know about it |
@@ -267,7 +267,7 @@ player->play(); // Plays "Hello World!"
 
 ### <a id='source-media'/> \[QList](https&#x3A;//doc.qt.io/qt-5/qlist.html "Qt Documentation")&lt;\[QMediaContent](https&#x3A;//doc.qt.io/qt-5/qmediacontent.html "Qt Documentation")> QOnlineTranslator::sourceMedia(_Engine engine, Voice voice = Default, Emotion emotion = Neutral_)
 
-Splits the source text of translator into parts (because backends have limit of size per one request) and returns list with the generated API URLs to play this text with _voice_. _emotion_ argument only affects Yandex engine.
+Splits the source text of translator into parts (because engines have limit of size per one request) and returns list with the generated API URLs to play this text with _voice_. _emotion_ argument only affects Yandex engine.
 
 Example:
 

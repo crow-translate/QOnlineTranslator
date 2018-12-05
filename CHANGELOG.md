@@ -13,7 +13,7 @@ All notable changes to this project will be documented in this file. This projec
 **Changed**
 
 -   Initialize languages with `NoLanguage`.
--   Fix check for backend language support.
+-   Fix check for engine language support.
 
 ## [1.0.1](https://github.com/Shatur95/QOnlineTranslator/tree/1.0.1) (2018-11-26)
 
@@ -35,7 +35,7 @@ All notable changes to this project will be documented in this file. This projec
 **Changed**
 
 -   Add explicit keyword
--   Small changes in the interface to support other backends.
+-   Small changes in the interface to support other engines.
 -   Rework interface and logic
 
 ## [0.9.1](https://github.com/Shatur95/QOnlineTranslator/tree/0.9.1) (2018-08-05)
