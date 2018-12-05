@@ -230,11 +230,7 @@ public:
     static Language language(const QString &langCode);
 
 private:
-    // Get sync reply
-    template<typename... Query>
-    QByteArray get(const QString &urlString, const Query&... queryStrings);
-
-    // Get API reply
+    // Get API reply as JSON
     QByteArray getGoogleTranslation(const QString &text, const QString &translationCode, const QString &sourceCode = "auto", const QString &uiCode = "en");
     QByteArray getYandexTranslation(const QString &text, const QString &translationCode, const QString &sourceCode = "auto");
     QByteArray getYandexTranslit(const QString &text, const QString &langCode);
@@ -244,22 +240,25 @@ private:
     QByteArray getBingTranslit(const QString &text, const QString &langCode);
     QByteArray getBingDictionary(const QString &text, const QString &translationCode, const QString &sourceCode);
 
+    // Generate Codes for API
+    QString translationLanguageCode(Language lang, Engine engine);
+    QString ttsLanguageCode(Language lang, Engine engine);
+    QString voiceCode(Voice voice, Engine engine);
+    static QString emotionCode(Emotion emotion);
+
     // Check for service support
+    static bool isSupportGoogle(Language lang);
+    static bool isSupportYandexTranslation(Language lang);
     static bool isSupportYandexTranslit(Language lang);
     static bool isSupportYandexDictionary(Language sourceLang, Language translationLang);
+    static bool isSupportBingTranslation(Language lang);
     static bool isSupportBingTranslit(Language lang);
     static bool isSupportBingDictionary(Language sourceLang, Language translationLang);
 
-    // Codes for API
-    static QString translationLanguageCode(Language lang, Engine engine);
-    static QString ttsLanguageCode(Language lang, Engine engine);
-    static QString voiceCode(Voice voice, Engine engine);
-    static QString emotionCode(Emotion emotion);
-
     // Other
-    void resetData();
-    static int getSplitIndex(const QString &untranslatedText, int limit);
     static Language language(const QString &langCode, Engine engine);
+    static int getSplitIndex(const QString &untranslatedText, int limit);
+    void resetData();
 
     QNetworkAccessManager m_network{this};
 

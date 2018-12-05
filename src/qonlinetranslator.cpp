@@ -75,9 +75,17 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
     m_error = NoError;
 
     // Generate API codes
-    QString sourceCode = translationLanguageCode(m_sourceLang, engine); // May be autodetected
+    QString sourceCode = translationLanguageCode(m_sourceLang, engine); // Not const, because it can be autodetected by engine
+    if (sourceCode.isEmpty())
+        return;
+
     const QString translationCode = translationLanguageCode(m_translationLang, engine);
+    if (sourceCode.isEmpty())
+        return;
+
     const QString uiCode = translationLanguageCode(m_uiLang, engine);
+    if (uiCode.isEmpty())
+        return;
 
     // Check for errors
     if (uiCode.isEmpty() || translationCode.isEmpty() || sourceCode.isEmpty()) {
@@ -89,10 +97,9 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
     QString unsendedText;
     switch (engine) {
     case Google:
-        // Google has a limit of characters per translation request. If the query is larger, then it should be splited into several
         unsendedText = m_source;
         while (!unsendedText.isEmpty()) {
-            const int splitIndex = getSplitIndex(unsendedText, GOOGLE_TRANSLATE_LIMIT); // Split the part by special symbol
+            const int splitIndex = getSplitIndex(unsendedText, GOOGLE_TRANSLATE_LIMIT);
 
             // Do not translate the part if it looks like garbage
             if (splitIndex == -1) {
@@ -168,10 +175,9 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
 
     case Yandex:
         // Get translation
-        // Yandex has a limit of characters per translation request. If the query is larger, then it should be splited into several.
         unsendedText = m_source;
         while (!unsendedText.isEmpty()) {
-            const int splitIndex = getSplitIndex(unsendedText, YANDEX_TRANSLATE_LIMIT); // Split the part by special symbol
+            const int splitIndex = getSplitIndex(unsendedText, YANDEX_TRANSLATE_LIMIT);
 
             // Do not translate the part if it looks like garbage
             if (splitIndex == -1) {
@@ -210,10 +216,9 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
 
         // Get source transliteration
         if (isSupportYandexTranslit(m_sourceLang)) {
-            // Yandex has a limit of characters per transliteration request. If the query is larger, then it should be splited into several.
             unsendedText = m_source;
             while (!unsendedText.isEmpty()) {
-                const int splitIndex = getSplitIndex(unsendedText, YANDEX_TRANSLIT_LIMIT); // Split the part by special symbol
+                const int splitIndex = getSplitIndex(unsendedText, YANDEX_TRANSLIT_LIMIT);
 
                 // Do not translate the part if it looks like garbage
                 if (splitIndex == -1) {
@@ -243,10 +248,9 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
 
         // Get translation transliteration
         if (isSupportYandexTranslit(m_translationLang)) {
-            // Yandex has a limit of characters per transliteration request. If the query is larger, then it should be splited into several.
             unsendedText = m_translation;
             while (!unsendedText.isEmpty()) {
-                const int splitIndex = getSplitIndex(unsendedText, YANDEX_TRANSLIT_LIMIT); // Split the part by special symbol
+                const int splitIndex = getSplitIndex(unsendedText, YANDEX_TRANSLIT_LIMIT);
 
                 // Do not translate the part if it looks like garbage
                 if (splitIndex == -1) {
@@ -308,10 +312,9 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
 
     case Bing:
         // Get translation
-        // Bing has a limit of characters per translation request. If the query is larger, then it should be splited into several.
         unsendedText = m_source;
         while (!unsendedText.isEmpty()) {
-            const int splitIndex = getSplitIndex(unsendedText, BING_TRANSLATE_LIMIT); // Split the part by special symbol
+            const int splitIndex = getSplitIndex(unsendedText, BING_TRANSLATE_LIMIT);
 
             // Do not translate the part if it looks like garbage
             if (splitIndex == -1) {
@@ -345,10 +348,9 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
 
         // Get source transliteration
         if (isSupportBingTranslit(m_sourceLang)) {
-            // Bing has a limit of characters per transliteration request. If the query is larger, then it should be splited into several.
             unsendedText = m_source;
             while (!unsendedText.isEmpty()) {
-                const int splitIndex = getSplitIndex(unsendedText, BING_TRANSLIT_LIMIT); // Split the part by special symbol
+                const int splitIndex = getSplitIndex(unsendedText, BING_TRANSLIT_LIMIT);
 
                 // Do not translate the part if it looks like garbage
                 if (splitIndex == -1) {
@@ -378,10 +380,9 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
 
         // Get translation transliteration
         if (isSupportBingTranslit(m_translationLang)) {
-            // Yandex has a limit of characters per transliteration request. If the query is larger, then it should be splited into several.
             unsendedText = m_translation;
             while (!unsendedText.isEmpty()) {
-                const int splitIndex = getSplitIndex(unsendedText, BING_TRANSLIT_LIMIT); // Split the part by special symbol
+                const int splitIndex = getSplitIndex(unsendedText, BING_TRANSLIT_LIMIT);
 
                 // Do not translate the part if it looks like garbage
                 if (splitIndex == -1) {
@@ -445,7 +446,6 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
         }
 
         return;
-
     }
 }
 
@@ -525,6 +525,7 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
     switch (engine) {
     case Google:
         if (voice != Default) {
+            // Google has no voice settings
             m_errorString = tr("Error: Incompatible voice and engine arguments");
             m_error = ParametersError;
             resetData();
@@ -1166,6 +1167,666 @@ QOnlineTranslator::Language QOnlineTranslator::language(const QString &langCode)
     return static_cast<Language>(m_languageCodes.indexOf(langCode));
 }
 
+QByteArray QOnlineTranslator::getGoogleTranslation(const QString &text, const QString &translationCode, const QString &sourceCode, const QString &uiCode)
+{
+    // Generate API url
+    QUrl url("https://translate.googleapis.com/translate_a/single");
+    url.setQuery("client=gtx&ie=UTF-8&oe=UTF-8&dt=bd&dt=ex&dt=ld&dt=md&dt=rw&dt=rm&dt=ss&dt=t&dt=at&dt=qc&sl=" + sourceCode
+                 + "&tl=" + translationCode
+                 + "&hl=" + uiCode
+                 + "&q=" + QUrl::toPercentEncoding(text));
+
+    // Send request and wait for the response
+    QNetworkReply *reply = m_network.get(QNetworkRequest(url));
+    QEventLoop waitForResponse;
+    connect(reply, &QNetworkReply::finished, &waitForResponse, &QEventLoop::quit);
+    waitForResponse.exec();
+
+    if (reply->error() != QNetworkReply::NoError) {
+        m_errorString = reply->errorString();
+        m_error = NetworkError;
+        delete reply;
+        return "";
+    }
+
+    const QByteArray data = reply->readAll();
+    delete reply;
+
+    // Check availability of service
+    if (data.startsWith("<")) {
+        m_errorString = tr("Error: Engine systems have detected unusual traffic from your computer network. Please try your request again later.");
+        m_error = ServiceError;
+        return "";
+    }
+
+    return data;
+}
+
+QByteArray QOnlineTranslator::getYandexTranslation(const QString &text, const QString &translationCode, const QString &sourceCode)
+{
+    // Generate session ID to access API (Required for Yandex)
+    if (m_yandexKey.isEmpty()) {
+        // Download web-version
+        QNetworkReply *reply = m_network.get(QNetworkRequest(QUrl("https://translate.yandex.com/")));
+        QEventLoop waitForResponse;
+        connect(reply, &QNetworkReply::finished, &waitForResponse, &QEventLoop::quit);
+        waitForResponse.exec();
+
+        if (reply->error() != QNetworkReply::NoError) {
+            m_errorString = reply->errorString();
+            m_error = NetworkError;
+            delete reply;
+            return "";
+        }
+
+        const QByteArray webSiteData = reply->readAll();
+        delete reply;
+
+        // Check availability of service
+        if (webSiteData.contains("<title>Oops!</title>") || webSiteData.contains("<title>302 Found</title>")) {
+            m_errorString = tr("Error: Engine systems have detected unusual traffic from your computer network. Please try your request again later.");
+            m_error = ServiceError;
+            return "";
+        }
+
+        // Parse SID
+        const QString sid = webSiteData.mid(webSiteData.indexOf("SID: '") + 6, 26);
+
+        // Yandex show reversed parts of session ID, need to decode
+        QStringList sidParts = sid.split(".");
+        for (short i = 0; i < sidParts.size(); ++i)
+            std::reverse(sidParts[i].begin(), sidParts[i].end());
+
+        m_yandexKey = sidParts.join(".");
+        if (m_yandexKey.isEmpty()) {
+            m_errorString = tr("Error: Unable to parse Yandex SID.");
+            m_error = ParsingError;
+            return "";
+        }
+    }
+
+    // Generate API url
+    QUrl url("https://translate.yandex.net/api/v1/tr.json/translate");
+    url.setQuery("id="
+                 + m_yandexKey
+                 + "-0-0&srv=tr-text&text="
+                 + QUrl::toPercentEncoding(text)
+                 + "&lang="
+                 + (sourceCode == "auto" ? translationCode : sourceCode + "-" + translationCode));
+
+    // Send request and wait for the response
+    QNetworkReply *reply = m_network.get(QNetworkRequest(url));
+    QEventLoop waitForResponse;
+    connect(reply, &QNetworkReply::finished, &waitForResponse, &QEventLoop::quit);
+    waitForResponse.exec();
+
+    // Check for errors
+    if (reply->error() != QNetworkReply::NoError) {
+        if (reply->error() < 201) {
+            // Network errors
+            m_errorString = reply->errorString();
+            m_error = NetworkError;
+            delete reply;
+            return "";
+        }
+
+        // On error try to generate a new session ID second time, if the previous is invalid
+        if (reply->error() == QNetworkReply::ContentAccessDenied && !m_secondYandexKeyRequest) {
+            m_yandexKey.clear();
+            m_secondYandexKeyRequest = true; // Do not generate the session ID third time if the second one was generated incorrectly
+            delete reply;
+            return getYandexTranslation(text, translationCode, sourceCode);
+        }
+
+        // Parse data to get request error type
+        const QJsonDocument jsonResponse = QJsonDocument::fromJson(reply->readAll());
+        m_errorString = jsonResponse.object().value("message").toString();
+        m_error = ServiceError;
+        delete reply;
+        return "";
+    }
+
+    m_secondYandexKeyRequest = false;
+    const QByteArray data = reply->readAll();
+    delete reply;
+    return data;
+}
+
+QByteArray QOnlineTranslator::getYandexTranslit(const QString &text, const QString &langCode)
+{
+    // Generate API url
+    QUrl url("https://translate.yandex.net/translit/translit");
+    url.setQuery("text=" + QUrl::toPercentEncoding(text)
+                 + "&lang=" + langCode);
+
+    // Send request and wait for the response
+    QNetworkReply *reply = m_network.get(QNetworkRequest(url));
+    QEventLoop waitForResponse;
+    connect(reply, &QNetworkReply::finished, &waitForResponse, &QEventLoop::quit);
+    waitForResponse.exec();
+
+    if (reply->error() != QNetworkReply::NoError) {
+        m_errorString = reply->errorString();
+        m_error = NetworkError;
+        delete reply;
+        return "";
+    }
+
+    const QByteArray data = reply->readAll();
+    delete reply;
+    return data;
+}
+
+QByteArray QOnlineTranslator::getYandexDictionary(const QString &text, const QString &translationCode, const QString &sourceCode, const QString &uiCode)
+{
+    // Generate API url
+    QUrl url("http://dictionary.yandex.net/dicservice.json/lookupMultiple");
+    url.setQuery("text=" + QUrl::toPercentEncoding(text)
+                 + "&ui=" + uiCode
+                 + "&dict=" + sourceCode + "-" + translationCode);
+
+    // Send request and wait for the response
+    QNetworkReply *reply = m_network.get(QNetworkRequest(url));
+    QEventLoop waitForResponse;
+    connect(reply, &QNetworkReply::finished, &waitForResponse, &QEventLoop::quit);
+    waitForResponse.exec();
+
+    if (reply->error() != QNetworkReply::NoError) {
+        m_errorString = reply->errorString();
+        m_error = NetworkError;
+        delete reply;
+        return "";
+    }
+
+    const QByteArray data = reply->readAll();
+    delete reply;
+    return data;
+}
+
+QByteArray QOnlineTranslator::getBingTextLanguage(const QString &text)
+{
+    // Generate POST data
+    QByteArray postData;
+    postData.append("&text=" + text);
+
+    // Generate POST request
+    QNetworkRequest request;
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+    request.setHeader(QNetworkRequest::ContentLengthHeader, postData.size());
+    request.setUrl(QUrl("http://www.bing.com/tdetect"));
+
+    // Send request and wait for the response
+    QNetworkReply *reply = m_network.post(request, postData);
+    QEventLoop waitForResponse;
+    connect(reply, &QNetworkReply::finished, &waitForResponse, &QEventLoop::quit);
+    waitForResponse.exec();
+
+    // Check for errors
+    if (reply->error() != QNetworkReply::NoError) {
+        m_errorString = reply->errorString();
+        m_error = NetworkError;
+        resetData();
+        delete reply;
+        return "";
+    }
+
+    const QByteArray data = reply->readAll();
+    delete reply;
+    return data;
+}
+
+QByteArray QOnlineTranslator::getBingTranslation(const QString &text, const QString &translationCode, const QString &sourceCode)
+{
+    // Generate POST data
+    QByteArray postData;
+    postData.append("&text=" + text + "&from=" + sourceCode + "&to=" + translationCode);
+
+    // Generate POST request
+    QNetworkRequest request;
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+    request.setHeader(QNetworkRequest::ContentLengthHeader, postData.size());
+    request.setUrl(QUrl("http://www.bing.com/ttranslate"));
+
+    // Send request and wait for the response
+    QNetworkReply *reply = m_network.post(request, postData);
+    QEventLoop waitForResponse;
+    connect(reply, &QNetworkReply::finished, &waitForResponse, &QEventLoop::quit);
+    waitForResponse.exec();
+
+    // Check for errors
+    if (reply->error() != QNetworkReply::NoError) {
+        m_errorString = reply->errorString();
+        m_error = NetworkError;
+        delete reply;
+        resetData();
+        return "";
+    }
+
+    const QByteArray data = reply->readAll();
+    delete reply;
+    return data;
+}
+
+QByteArray QOnlineTranslator::getBingTranslit(const QString &text, const QString &langCode)
+{
+    // Generate POST data
+    QByteArray postData;
+    postData.append("&text=" + text + "&language=" + langCode + "&toScript=latn");
+
+    // Generate POST request
+    QNetworkRequest request;
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+    request.setHeader(QNetworkRequest::ContentLengthHeader, postData.size());
+    request.setUrl(QUrl("http://www.bing.com/ttransliterate"));
+
+    // Send request and wait for the response
+    QNetworkReply *reply = m_network.post(request, postData);
+    QEventLoop waitForResponse;
+    connect(reply, &QNetworkReply::finished, &waitForResponse, &QEventLoop::quit);
+    waitForResponse.exec();
+
+    // Check for errors
+    if (reply->error() != QNetworkReply::NoError) {
+        m_errorString = reply->errorString();
+        m_error = NetworkError;
+        delete reply;
+        resetData();
+        return "";
+    }
+
+    const QByteArray data = reply->readAll();
+    delete reply;
+    return data;
+}
+
+QByteArray QOnlineTranslator::getBingDictionary(const QString &text, const QString &translationCode, const QString &sourceCode)
+{
+    // Generate POST data
+    QByteArray postData;
+    postData.append("&text=" + text + "&from=" + sourceCode + "&to=" + translationCode);
+
+    // Generate POST request
+    QNetworkRequest request;
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+    request.setHeader(QNetworkRequest::ContentLengthHeader, postData.size());
+    request.setUrl(QUrl("http://www.bing.com/ttranslationlookup"));
+
+    // Send request and wait for the response
+    QNetworkReply *reply = m_network.post(request, postData);
+    QEventLoop waitForResponse;
+    connect(reply, &QNetworkReply::finished, &waitForResponse, &QEventLoop::quit);
+    waitForResponse.exec();
+
+    // Check for errors
+    if (reply->error() != QNetworkReply::NoError) {
+        m_errorString = reply->errorString();
+        m_error = NetworkError;
+        delete reply;
+        resetData();
+        return "";
+    }
+
+    const QByteArray data = reply->readAll();
+    delete reply;
+    return data;
+}
+
+QString QOnlineTranslator::translationLanguageCode(QOnlineTranslator::Language lang, Engine engine)
+{
+    bool isSupported = true;
+
+    // Some engines have another language codes or do not support certain languages
+    switch (engine) {
+    case Google:
+        switch (lang) {
+        case NoLanguage:
+        case Bashkir:
+        case HillMari:
+        case Mari:
+        case Papiamento:
+        case Tatar:
+        case Udmurt:
+        case Cantonese:
+        case Fijian:
+        case Filipino:
+        case Georgian:
+        case Klingon:
+        case KlingonPlqaD:
+        case LevantineArabic:
+        case QueretaroOtomi:
+        case SerbianLatin:
+        case Tahitian:
+        case Tongan:
+        case YucatecMaya:
+            isSupported = false;
+            break;
+        case SerbianCyrillic:
+            return "sr";
+        default:
+            break;
+        }
+        break;
+    case Yandex:
+        switch (lang) {
+        case NoLanguage:
+        case LevantineArabic:
+        case Cantonese:
+        case Corsican:
+        case Fijian:
+        case Filipino:
+        case Frisian:
+        case Igbo:
+        case Hausa:
+        case Hawaiian:
+        case Klingon:
+        case KlingonPlqaD:
+        case Kurdish:
+        case Chichewa:
+        case Pashto:
+        case QueretaroOtomi:
+        case Samoan:
+        case SerbianLatin:
+        case Sesotho:
+        case Shona:
+        case Sindhi:
+        case Somali:
+        case Tahitian:
+        case Tongan:
+        case Yoruba:
+        case YucatecMaya:
+        case Zulu:
+            isSupported = false;
+            break;
+        case SimplifiedChinese:
+            return "zn";
+        case Javanese:
+            return "jv";
+        case SerbianCyrillic:
+            return "sr";
+        default:
+            break;
+        }
+        break;
+    case Bing:
+        switch (lang) {
+        case NoLanguage:
+        case Albanian:
+        case Amharic:
+        case Armenian:
+        case Azerbaijani:
+        case Basque:
+        case Bashkir:
+        case Belarusian:
+        case Cebuano:
+        case Corsican:
+        case Esperanto:
+        case Frisian:
+        case Galician:
+        case Georgian:
+        case Gujarati:
+        case Hausa:
+        case Hawaiian:
+        case HillMari:
+        case Igbo:
+        case Irish:
+        case Javanese:
+        case Kannada:
+        case Kazakh:
+        case Khmer:
+        case Kurdish:
+        case Kyrgyz:
+        case Lao:
+        case Latin:
+        case Luxembourgish:
+        case Macedonian:
+        case Malayalam:
+        case Maori:
+        case Marathi:
+        case Mari:
+        case Mongolian:
+        case Myanmar:
+        case Nepali:
+        case Chichewa:
+        case Papiamento:
+        case Pashto:
+        case Punjabi:
+        case ScotsGaelic:
+        case Sesotho:
+        case Shona:
+        case Sindhi:
+        case Sinhala:
+        case Somali:
+        case Sundanese:
+        case Tagalog:
+        case Tajik:
+        case Tatar:
+        case Udmurt:
+        case Uzbek:
+        case Xhosa:
+        case Yiddish:
+        case Yoruba:
+        case Zulu:
+            isSupported = false;
+            break;
+        case SimplifiedChinese:
+            return "zh-Hans";
+        case TraditionalChinese:
+            return "zh-Hant";
+        case Hmong:
+            return "mww";
+        default:
+            break;
+        }
+        break;
+    }
+
+    // Check for language support
+    if (!isSupported) {
+        m_errorString = tr("Error: Selected language for translation is not supported by this engine.");
+        m_error = ParametersError;
+        resetData();
+        return "";
+    }
+
+    // General case
+    return m_languageCodes.at(lang);
+}
+
+QString QOnlineTranslator::ttsLanguageCode(QOnlineTranslator::Language lang, QOnlineTranslator::Engine engine)
+{
+    switch (engine) {
+    case Google:
+        return translationLanguageCode(lang, engine); // Google use the same codes for tts
+    case Yandex:
+        switch (lang) {
+        case Russian:
+            return "ru_RU";
+        case Tatar:
+            return "tr_TR";
+        case English:
+            return "en_GB";
+        default:
+            break;
+        }
+        break;
+    case Bing:
+        switch (lang) {
+        case Arabic:
+            return "ar-EG";
+        case Catalan:
+            return "ca-ES";
+        case Danish:
+            return "da-DK";
+        case German:
+            return "de-DE";
+        case English:
+            return "en-GB";
+        case Spanish:
+            return "es-ES";
+        case Finnish:
+            return "fi-FI";
+        case French:
+            return "fr-FR";
+        case Hindi:
+            return "hi-IN";
+        case Italian:
+            return "it-IT";
+        case Japanese:
+            return "ja-JP";
+        case Korean:
+            return "ko-KR";
+        case Norwegian:
+            return "nb-NO";
+        case Dutch:
+            return "nl-NL";
+        case Polish:
+            return "pl-PL";
+        case Portuguese:
+            return "pt-PT";
+        case Russian:
+            return "ru-RU";
+        case Swedish:
+            return "sv-SE";
+        case SimplifiedChinese:
+            return "zh-CN";
+        case TraditionalChinese:
+            return "zh-HK";
+        default:
+            break;
+        }
+    }
+
+    m_errorString = tr("Error: Selected language for tts is not supported by this engine.");
+    m_error = ParametersError;
+    resetData();
+    return "";
+}
+
+QString QOnlineTranslator::voiceCode(QOnlineTranslator::Voice voice, QOnlineTranslator::Engine engine)
+{
+    switch (engine) {
+    case Google:
+        return "google";
+    case Yandex:
+        switch (voice) {
+        case Default:
+        case Zahar:
+            return "zahar";
+        case Ermil:
+            return "ermil";
+        case Jane:
+            return "jane";
+        case Oksana:
+            return "oksana";
+        case Alyss:
+            return "alyss";
+        case Omazh:
+            return "omazh";
+        default:
+            break;
+        }
+        break;
+    case Bing:
+        switch (voice) {
+        case Default:
+        case Male:
+            return "male";
+        case Female:
+            return "female";
+        default:
+            break;
+        }
+        break;
+    }
+
+    m_errorString = tr("Error: Selected voice is not supported by this engine.");
+    m_error = ParametersError;
+    resetData();
+    return "";
+}
+
+QString QOnlineTranslator::emotionCode(QOnlineTranslator::Emotion emotion)
+{
+    QString emotionString;
+    switch (emotion) {
+    case Good:
+        emotionString = "good";
+        break;
+    case Evil:
+        emotionString = "evil";
+        break;
+    case Neutral:
+        emotionString = "neutral";
+        break;
+    }
+
+    return emotionString;
+}
+
+bool QOnlineTranslator::isSupportGoogle(QOnlineTranslator::Language lang)
+{
+    switch (lang) {
+    case NoLanguage:
+    case Bashkir:
+    case HillMari:
+    case Mari:
+    case Papiamento:
+    case Tatar:
+    case Udmurt:
+    case Cantonese:
+    case Fijian:
+    case Filipino:
+    case Georgian:
+    case Klingon:
+    case KlingonPlqaD:
+    case LevantineArabic:
+    case QueretaroOtomi:
+    case SerbianLatin:
+    case Tahitian:
+    case Tongan:
+    case YucatecMaya:
+        return false;
+    default:
+        return true;
+    }
+}
+
+bool QOnlineTranslator::isSupportYandexTranslation(QOnlineTranslator::Language lang)
+{
+    switch (lang) {
+    case NoLanguage:
+    case LevantineArabic:
+    case Cantonese:
+    case Corsican:
+    case Fijian:
+    case Filipino:
+    case Frisian:
+    case Igbo:
+    case Hausa:
+    case Hawaiian:
+    case Klingon:
+    case KlingonPlqaD:
+    case Kurdish:
+    case Chichewa:
+    case Pashto:
+    case QueretaroOtomi:
+    case Samoan:
+    case SerbianLatin:
+    case Sesotho:
+    case Shona:
+    case Sindhi:
+    case Somali:
+    case Tahitian:
+    case Tongan:
+    case Yoruba:
+    case YucatecMaya:
+    case Zulu:
+        return false;
+    default:
+        return true;
+    }
+}
+
 bool QOnlineTranslator::isSupportYandexTranslit(QOnlineTranslator::Language lang)
 {
     switch (lang) {
@@ -1538,6 +2199,72 @@ bool QOnlineTranslator::isSupportYandexDictionary(QOnlineTranslator::Language so
     }
 }
 
+bool QOnlineTranslator::isSupportBingTranslation(QOnlineTranslator::Language lang)
+{
+    switch (lang) {
+    case NoLanguage:
+    case Albanian:
+    case Amharic:
+    case Armenian:
+    case Azerbaijani:
+    case Basque:
+    case Bashkir:
+    case Belarusian:
+    case Cebuano:
+    case Corsican:
+    case Esperanto:
+    case Frisian:
+    case Galician:
+    case Georgian:
+    case Gujarati:
+    case Hausa:
+    case Hawaiian:
+    case HillMari:
+    case Igbo:
+    case Irish:
+    case Javanese:
+    case Kannada:
+    case Kazakh:
+    case Khmer:
+    case Kurdish:
+    case Kyrgyz:
+    case Lao:
+    case Latin:
+    case Luxembourgish:
+    case Macedonian:
+    case Malayalam:
+    case Maori:
+    case Marathi:
+    case Mari:
+    case Mongolian:
+    case Myanmar:
+    case Nepali:
+    case Chichewa:
+    case Papiamento:
+    case Pashto:
+    case Punjabi:
+    case ScotsGaelic:
+    case Sesotho:
+    case Shona:
+    case Sindhi:
+    case Sinhala:
+    case Somali:
+    case Sundanese:
+    case Tagalog:
+    case Tajik:
+    case Tatar:
+    case Udmurt:
+    case Uzbek:
+    case Xhosa:
+    case Yiddish:
+    case Yoruba:
+    case Zulu:
+        return false;
+    default:
+        return true;
+    }
+}
+
 bool QOnlineTranslator::isSupportBingTranslit(QOnlineTranslator::Language lang)
 {
     switch (lang) {
@@ -1626,318 +2353,6 @@ bool QOnlineTranslator::isSupportBingDictionary(QOnlineTranslator::Language sour
     }
 }
 
-void QOnlineTranslator::resetData()
-{
-    m_translation.clear();
-    m_translationTranslit.clear();
-    m_sourceTranslit.clear();
-    m_sourceTranscription.clear();
-    m_dictionaryList.clear();
-    m_definitionsList.clear();
-}
-
-template<typename... Query>
-QByteArray QOnlineTranslator::get(const QString &urlString, const Query&... queryStrings)
-{
-    // Generate API url
-    QUrl url(urlString);
-    url.setQuery((queryStrings + ...));
-
-    // Send request and wait for the response
-    QNetworkReply *reply = m_network.get(QNetworkRequest(url));
-    QEventLoop waitForResponse;
-    connect(reply, &QNetworkReply::finished, &waitForResponse, &QEventLoop::quit);
-    waitForResponse.exec();
-
-    if (reply->error() != QNetworkReply::NoError) {
-        m_errorString = reply->errorString();
-        m_error = NetworkError;
-        delete reply;
-        return "";
-    }
-
-    const QByteArray data = reply->readAll();
-    delete reply;
-    return data;
-}
-
-QByteArray QOnlineTranslator::getGoogleTranslation(const QString &text, const QString &translationCode, const QString &sourceCode, const QString &uiCode)
-{
-    const QByteArray reply = get("https://translate.googleapis.com/translate_a/single",
-                                 "client=gtx&ie=UTF-8&oe=UTF-8&dt=bd&dt=ex&dt=ld&dt=md&dt=rw&dt=rm&dt=ss&dt=t&dt=at&dt=qc&sl=",
-                                 sourceCode,
-                                 "&tl=",
-                                 translationCode,
-                                 "&hl=",
-                                 uiCode,
-                                 "&q=",
-                                 QUrl::toPercentEncoding(text));
-
-    // Check availability of service
-    if (reply.startsWith("<")) {
-        m_errorString = tr("Error: Engine systems have detected unusual traffic from your computer network. Please try your request again later.");
-        m_error = ServiceError;
-        return "";
-    }
-
-    return reply;
-}
-
-QByteArray QOnlineTranslator::getYandexTranslation(const QString &text, const QString &translationCode, const QString &sourceCode)
-{
-    // Generate session ID to access API (Required for Yandex)
-    if (m_yandexKey.isEmpty()) {
-        // Download web-version
-        const QByteArray webSiteData = get("https://translate.yandex.com/", "");
-        if (webSiteData.isEmpty())
-            return "";
-
-        if (webSiteData.contains("<title>Oops!</title>") || webSiteData.contains("<title>302 Found</title>")) {
-            m_errorString = tr("Error: Engine systems have detected unusual traffic from your computer network. Please try your request again later.");
-            m_error = ServiceError;
-            return "";
-        }
-
-        // Parse SID
-        const QString sid = webSiteData.mid(webSiteData.indexOf("SID: '") + 6, 26);
-
-        // Yandex show reversed parts of session ID, need to decode
-        QStringList sidParts = sid.split(".");
-        for (short i = 0; i < sidParts.size(); ++i)
-            std::reverse(sidParts[i].begin(), sidParts[i].end());
-
-        m_yandexKey = sidParts.join(".");
-        if (m_yandexKey.isEmpty()) {
-            m_errorString = tr("Error: Unable to parse Yandex SID.");
-            m_error = ParsingError;
-            return "";
-        }
-    }
-
-    // Generate API url
-    QUrl url("https://translate.yandex.net/api/v1/tr.json/translate");
-    url.setQuery("id="
-                 + m_yandexKey
-                 + "-0-0&srv=tr-text&text="
-                 + QUrl::toPercentEncoding(text)
-                 + "&lang="
-                 + (sourceCode == "auto" ? translationCode : sourceCode + "-" + translationCode));
-
-    // Send request and wait for the response
-    QNetworkReply *reply = m_network.get(QNetworkRequest(url));
-    QEventLoop waitForResponse;
-    connect(reply, &QNetworkReply::finished, &waitForResponse, &QEventLoop::quit);
-    waitForResponse.exec();
-
-    // Check for errors
-    if (reply->error() != QNetworkReply::NoError) {
-        if (reply->error() < 201) {
-            // Network errors
-            m_errorString = reply->errorString();
-            m_error = NetworkError;
-            delete reply;
-            return "";
-        }
-
-        if (reply->error() == QNetworkReply::ContentAccessDenied && !m_secondYandexKeyRequest) {
-            // Try to generate a new session ID second time, if the previous is invalid
-            m_yandexKey.clear();
-            m_secondYandexKeyRequest = true; // Do not generate the session ID third time if the second one was generated incorrectly
-            delete reply;
-            return getYandexTranslation(text, translationCode, sourceCode);
-        }
-
-        // Parse data to get request error type
-        const QJsonDocument jsonResponse = QJsonDocument::fromJson(reply->readAll());
-        m_errorString = jsonResponse.object().value("message").toString();
-        m_error = ServiceError;
-        delete reply;
-        return "";
-    }
-
-    m_secondYandexKeyRequest = false;
-    const QByteArray data = reply->readAll();
-    delete reply;
-    return data;
-}
-
-QByteArray QOnlineTranslator::getYandexTranslit(const QString &text, const QString &langCode)
-{
-    return get("https://translate.yandex.net/translit/translit",
-               "text=",
-               QUrl::toPercentEncoding(text),
-               "&lang=",
-               langCode);
-}
-
-QByteArray QOnlineTranslator::getYandexDictionary(const QString &text, const QString &translationCode, const QString &sourceCode, const QString &uiCode)
-{
-    return get("http://dictionary.yandex.net/dicservice.json/lookupMultiple",
-               "text=",
-               QUrl::toPercentEncoding(text),
-               "&ui=",
-               uiCode,
-               "&dict=",
-               sourceCode,
-               "-",
-               translationCode);
-}
-
-QByteArray QOnlineTranslator::getBingTextLanguage(const QString &text)
-{
-    // Generate POST data
-    QByteArray postData;
-    postData.append("&text=" + text);
-
-    // Generate POST request
-    QNetworkRequest request;
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-    request.setHeader(QNetworkRequest::ContentLengthHeader, postData.size());
-    request.setUrl(QUrl("http://www.bing.com/tdetect"));
-
-    // Send request and wait for the response
-    QNetworkReply *reply = m_network.post(request, postData);
-    QEventLoop waitForResponse;
-    connect(reply, &QNetworkReply::finished, &waitForResponse, &QEventLoop::quit);
-    waitForResponse.exec();
-
-    // Check for errors
-    if (reply->error() != QNetworkReply::NoError) {
-        m_errorString = reply->errorString();
-        m_error = NetworkError;
-        resetData();
-        delete reply;
-        return "";
-    }
-
-    const QByteArray data = reply->readAll();
-    delete reply;
-    return data;
-}
-
-QByteArray QOnlineTranslator::getBingTranslation(const QString &text, const QString &translationCode, const QString &sourceCode)
-{
-    // Generate POST data
-    QByteArray postData;
-    postData.append("&text=" + text + "&from=" + sourceCode + "&to=" + translationCode);
-
-    // Generate POST request
-    QNetworkRequest request;
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-    request.setHeader(QNetworkRequest::ContentLengthHeader, postData.size());
-    request.setUrl(QUrl("http://www.bing.com/ttranslate"));
-
-    // Send request and wait for the response
-    QNetworkReply *reply = m_network.post(request, postData);
-    QEventLoop waitForResponse;
-    connect(reply, &QNetworkReply::finished, &waitForResponse, &QEventLoop::quit);
-    waitForResponse.exec();
-
-    // Check for errors
-    if (reply->error() != QNetworkReply::NoError) {
-        m_errorString = reply->errorString();
-        m_error = NetworkError;
-        delete reply;
-        resetData();
-        return "";
-    }
-
-    const QByteArray data = reply->readAll();
-    delete reply;
-    return data;
-}
-
-QByteArray QOnlineTranslator::getBingTranslit(const QString &text, const QString &langCode)
-{
-    // Generate POST data
-    QByteArray postData;
-    postData.append("&text=" + text + "&language=" + langCode + "&toScript=latn");
-
-    // Generate POST request
-    QNetworkRequest request;
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-    request.setHeader(QNetworkRequest::ContentLengthHeader, postData.size());
-    request.setUrl(QUrl("http://www.bing.com/ttransliterate"));
-
-    // Send request and wait for the response
-    QNetworkReply *reply = m_network.post(request, postData);
-    QEventLoop waitForResponse;
-    connect(reply, &QNetworkReply::finished, &waitForResponse, &QEventLoop::quit);
-    waitForResponse.exec();
-
-    // Check for errors
-    if (reply->error() != QNetworkReply::NoError) {
-        m_errorString = reply->errorString();
-        m_error = NetworkError;
-        delete reply;
-        resetData();
-        return "";
-    }
-
-    const QByteArray data = reply->readAll();
-    delete reply;
-    return data;
-}
-
-QByteArray QOnlineTranslator::getBingDictionary(const QString &text, const QString &translationCode, const QString &sourceCode)
-{
-    // Generate POST data
-    QByteArray postData;
-    postData.append("&text=" + text + "&from=" + sourceCode + "&to=" + translationCode);
-
-    // Generate POST request
-    QNetworkRequest request;
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-    request.setHeader(QNetworkRequest::ContentLengthHeader, postData.size());
-    request.setUrl(QUrl("http://www.bing.com/ttranslationlookup"));
-
-    // Send request and wait for the response
-    QNetworkReply *reply = m_network.post(request, postData);
-    QEventLoop waitForResponse;
-    connect(reply, &QNetworkReply::finished, &waitForResponse, &QEventLoop::quit);
-    waitForResponse.exec();
-
-    // Check for errors
-    if (reply->error() != QNetworkReply::NoError) {
-        m_errorString = reply->errorString();
-        m_error = NetworkError;
-        delete reply;
-        resetData();
-        return "";
-    }
-
-    const QByteArray data = reply->readAll();
-    delete reply;
-    return data;
-}
-
-// Get split index of the text according to the limit
-int QOnlineTranslator::getSplitIndex(const QString &untranslatedText, int limit)
-{
-    if (untranslatedText.size() < limit)
-        return limit;
-
-    int splitIndex = untranslatedText.lastIndexOf(". ", limit - 1);
-    if (splitIndex != -1)
-        return splitIndex + 1;
-
-    splitIndex = untranslatedText.lastIndexOf(" ", limit - 1);
-    if (splitIndex != -1)
-        return splitIndex + 1;
-
-    splitIndex = untranslatedText.lastIndexOf("\n", limit - 1);
-    if (splitIndex != -1)
-        return splitIndex + 1;
-
-    // Non-breaking space
-    splitIndex = untranslatedText.lastIndexOf(0x00a0, limit - 1);
-    if (splitIndex != -1)
-        return splitIndex + 1;
-
-    // If the text has not passed any check and is most likely garbage
-    return limit;
-}
-
 // Parse language from response language code
 QOnlineTranslator::Language QOnlineTranslator::language(const QString &langCode, Engine engine)
 {
@@ -1969,304 +2384,39 @@ QOnlineTranslator::Language QOnlineTranslator::language(const QString &langCode,
     return static_cast<Language>(m_languageCodes.indexOf(langCode));
 }
 
-QString QOnlineTranslator::translationLanguageCode(QOnlineTranslator::Language lang, Engine engine)
+// Get split index of the text according to the limit
+int QOnlineTranslator::getSplitIndex(const QString &untranslatedText, int limit)
 {
-    if (lang == NoLanguage) {
-        return "";
-    }
+    if (untranslatedText.size() < limit)
+        return limit;
 
-    // Engines execptions
-    switch (engine) {
-    case Google:
-        if (lang == SerbianCyrillic)
-            return "sr";
-        if (lang == Bashkir
-                || lang == HillMari
-                || lang == Mari
-                || lang == Papiamento
-                || lang == Tatar
-                || lang == Udmurt
-                || lang == LevantineArabic
-                || lang == Cantonese
-                || lang == Fijian
-                || lang == Filipino
-                || lang == Georgian
-                || lang == Klingon
-                || lang == KlingonPlqaD
-                || lang == LevantineArabic
-                || lang == QueretaroOtomi
-                || lang == SerbianLatin
-                || lang == Tahitian
-                || lang == Tongan
-                || lang == YucatecMaya) {
-            return "";
-        }
-        break;
-    case Yandex:
-        if (lang == SimplifiedChinese)
-            return "zn";
-        if (lang == Javanese)
-            return  "jv";
-        if (lang == SerbianCyrillic)
-            return "sr";
-        if (lang == Kurdish
-                || lang == LevantineArabic
-                || lang == Cantonese
-                || lang == Corsican
-                || lang == Fijian
-                || lang == Filipino
-                || lang == Frisian
-                || lang == Igbo
-                || lang == Hausa
-                || lang == Hawaiian
-                || lang == Klingon
-                || lang == KlingonPlqaD
-                || lang == Kurdish
-                || lang == Chichewa
-                || lang == Pashto
-                || lang == QueretaroOtomi
-                || lang == Samoan
-                || lang == SerbianLatin
-                || lang == Sesotho
-                || lang == Shona
-                || lang == Sindhi
-                || lang == Somali
-                || lang == Tahitian
-                || lang == Tongan
-                || lang == Yoruba
-                || lang == YucatecMaya
-                || lang == Zulu) {
-            return "";
-        }
-        break;
-    case Bing:
-        if (lang == SimplifiedChinese)
-            return "zh-Hans";
-        if (lang == TraditionalChinese)
-            return "zh-Hant";
-        if (lang == Hmong)
-            return "mww";
-        if (lang == Albanian
-                || lang == Amharic
-                || lang == Armenian
-                || lang == Azerbaijani
-                || lang == Basque
-                || lang == Bashkir
-                || lang == Belarusian
-                || lang == Cebuano
-                || lang == Corsican
-                || lang == Esperanto
-                || lang == Frisian
-                || lang == Galician
-                || lang == Georgian
-                || lang == Gujarati
-                || lang == Hausa
-                || lang == Hawaiian
-                || lang == HillMari
-                || lang == Igbo
-                || lang == Irish
-                || lang == Javanese
-                || lang == Kannada
-                || lang == Kazakh
-                || lang == Khmer
-                || lang == Kurdish
-                || lang == Kyrgyz
-                || lang == Lao
-                || lang == Latin
-                || lang == Luxembourgish
-                || lang == Macedonian
-                || lang == Malayalam
-                || lang == Maori
-                || lang == Marathi
-                || lang == Mari
-                || lang == Mongolian
-                || lang == Myanmar
-                || lang == Nepali
-                || lang == Chichewa
-                || lang == Papiamento
-                || lang == Pashto
-                || lang == Punjabi
-                || lang == ScotsGaelic
-                || lang == Sesotho
-                || lang == Shona
-                || lang == Sindhi
-                || lang == Sinhala
-                || lang == Somali
-                || lang == Sundanese
-                || lang == Tagalog
-                || lang == Tajik
-                || lang == Tatar
-                || lang == Udmurt
-                || lang == Uzbek
-                || lang == Xhosa
-                || lang == Yiddish
-                || lang == Yoruba
-                || lang == Zulu)
-            return "";
-        break;
-    }
+    int splitIndex = untranslatedText.lastIndexOf(". ", limit - 1);
+    if (splitIndex != -1)
+        return splitIndex + 1;
 
-    // General case
-    return m_languageCodes.at(lang);
+    splitIndex = untranslatedText.lastIndexOf(" ", limit - 1);
+    if (splitIndex != -1)
+        return splitIndex + 1;
+
+    splitIndex = untranslatedText.lastIndexOf("\n", limit - 1);
+    if (splitIndex != -1)
+        return splitIndex + 1;
+
+    // Non-breaking space
+    splitIndex = untranslatedText.lastIndexOf(0x00a0, limit - 1);
+    if (splitIndex != -1)
+        return splitIndex + 1;
+
+    // If the text has not passed any check and is most likely garbage
+    return limit;
 }
 
-QString QOnlineTranslator::ttsLanguageCode(QOnlineTranslator::Language lang, QOnlineTranslator::Engine engine)
+void QOnlineTranslator::resetData()
 {
-    QString langCode;
-    switch (engine) {
-    case Google:
-        langCode = translationLanguageCode(lang, engine); // Google use the same codes for tts
-        break;
-    case Yandex:
-        switch (lang) {
-        case Russian:
-            langCode = "ru_RU";
-            break;
-        case Tatar:
-            langCode = "tr_TR";
-            break;
-        case English:
-            langCode = "en_GB";
-            break;
-        default:
-            langCode = "";
-            break;
-        }
-        break;
-    case Bing:
-        switch (lang) {
-        case Arabic:
-            langCode = "ar-EG";
-            break;
-        case Catalan:
-            langCode = "ca-ES";
-            break;
-        case Danish:
-            langCode = "da-DK";
-            break;
-        case German:
-            langCode = "de-DE";
-            break;
-        case English:
-            langCode = "en-GB";
-            break;
-        case Spanish:
-            langCode = "es-ES";
-            break;
-        case Finnish:
-            langCode = "fi-FI";
-            break;
-        case French:
-            langCode = "fr-FR";
-            break;
-        case Hindi:
-            langCode = "hi-IN";
-            break;
-        case Italian:
-            langCode = "it-IT";
-            break;
-        case Japanese:
-            langCode = "ja-JP";
-            break;
-        case Korean:
-            langCode = "ko-KR";
-            break;
-        case Norwegian:
-            langCode = "nb-NO";
-            break;
-        case Dutch:
-            langCode = "nl-NL";
-            break;
-        case Polish:
-            langCode = "pl-PL";
-            break;
-        case Portuguese:
-            langCode = "pt-PT";
-            break;
-        case Russian:
-            langCode = "ru-RU";
-            break;
-        case Swedish:
-            langCode = "sv-SE";
-            break;
-        case SimplifiedChinese:
-            langCode = "zh-CN";
-            break;
-        case TraditionalChinese:
-            langCode = "zh-HK";
-            break;
-        default:
-            langCode = "";
-            break;
-        }
-    }
-
-    return langCode;
-}
-
-QString QOnlineTranslator::voiceCode(QOnlineTranslator::Voice voice, QOnlineTranslator::Engine engine)
-{
-    QString voiceCode;
-    switch (engine) {
-    case Yandex:
-        switch (voice) {
-        case Default:
-        case Zahar:
-            voiceCode = "zahar";
-            break;
-        case Ermil:
-            voiceCode = "ermil";
-            break;
-        case Jane:
-            voiceCode = "jane";
-            break;
-        case Oksana:
-            voiceCode = "oksana";
-            break;
-        case Alyss:
-            voiceCode = "alyss";
-            break;
-        case Omazh:
-            voiceCode = "omazh";
-            break;
-        default:
-            break;
-        }
-        break;
-    case Bing:
-        switch (voice) {
-        case Default:
-        case Male:
-            voiceCode = "male";
-            break;
-        case Female:
-            voiceCode = "female";
-            break;
-        default:
-            break;
-        }
-        break;
-    default:
-        break;
-    }
-
-    return voiceCode;
-}
-
-QString QOnlineTranslator::emotionCode(QOnlineTranslator::Emotion emotion)
-{
-    QString emotionString;
-    switch (emotion) {
-    case Good:
-        emotionString = "good";
-        break;
-    case Evil:
-        emotionString = "evil";
-        break;
-    case Neutral:
-        emotionString = "neutral";
-        break;
-    }
-
-    return emotionString;
+    m_translation.clear();
+    m_translationTranslit.clear();
+    m_sourceTranslit.clear();
+    m_sourceTranscription.clear();
+    m_dictionaryList.clear();
+    m_definitionsList.clear();
 }
