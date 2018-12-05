@@ -40,7 +40,7 @@ public:
         Amharic,
         Arabic,
         Armenian,
-        Azeerbaijani,
+        Azerbaijani,
         Basque,
         Bashkir,
         Belarusian,

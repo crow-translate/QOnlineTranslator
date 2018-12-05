@@ -712,7 +712,7 @@ QString QOnlineTranslator::languageString(QOnlineTranslator::Language lang)
         return tr("Arabic");
     case Armenian:
         return tr("Armenian");
-    case Azeerbaijani:
+    case Azerbaijani:
         return tr("Azeerbaijani");
     case Basque:
         return tr("Basque");
@@ -971,7 +971,7 @@ QOnlineTranslator::Language QOnlineTranslator::language(const QLocale &locale)
     case QLocale::Armenian:
         return Armenian;
     case QLocale::Azerbaijani:
-        return Azeerbaijani;
+        return Azerbaijani;
     case QLocale::Basque:
         return Basque;
     case QLocale::Belarusian:
@@ -1127,7 +1127,7 @@ QOnlineTranslator::Language QOnlineTranslator::language(const QLocale &locale)
     case QLocale::Swedish:
         return Swedish;
     case QLocale::Filipino:
-        return Tagalog;
+        return Filipino;
     case QLocale::Tajik:
         return Tajik;
     case QLocale::Tamil:
@@ -1990,8 +1990,10 @@ QString QOnlineTranslator::translationLanguageCode(QOnlineTranslator::Language l
                 || lang == Cantonese
                 || lang == Fijian
                 || lang == Filipino
+                || lang == Georgian
                 || lang == Klingon
                 || lang == KlingonPlqaD
+                || lang == LevantineArabic
                 || lang == QueretaroOtomi
                 || lang == SerbianLatin
                 || lang == Tahitian
@@ -2010,15 +2012,30 @@ QString QOnlineTranslator::translationLanguageCode(QOnlineTranslator::Language l
         if (lang == Kurdish
                 || lang == LevantineArabic
                 || lang == Cantonese
+                || lang == Corsican
                 || lang == Fijian
                 || lang == Filipino
+                || lang == Frisian
+                || lang == Igbo
+                || lang == Hausa
+                || lang == Hawaiian
                 || lang == Klingon
                 || lang == KlingonPlqaD
+                || lang == Kurdish
+                || lang == Chichewa
+                || lang == Pashto
                 || lang == QueretaroOtomi
+                || lang == Samoan
                 || lang == SerbianLatin
+                || lang == Sesotho
+                || lang == Shona
+                || lang == Sindhi
+                || lang == Somali
                 || lang == Tahitian
                 || lang == Tongan
-                || lang == YucatecMaya) {
+                || lang == Yoruba
+                || lang == YucatecMaya
+                || lang == Zulu) {
             return "";
         }
         break;
@@ -2032,7 +2049,7 @@ QString QOnlineTranslator::translationLanguageCode(QOnlineTranslator::Language l
         if (lang == Albanian
                 || lang == Amharic
                 || lang == Armenian
-                || lang == Azeerbaijani
+                || lang == Azerbaijani
                 || lang == Basque
                 || lang == Bashkir
                 || lang == Belarusian
