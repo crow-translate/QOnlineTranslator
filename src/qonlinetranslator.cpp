@@ -315,7 +315,7 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
                     m_translationOptions.last().addWord(word, gender, translations);
 
                     // Parse examples
-                    if (wordData.toObject().contains("ex")) {
+                    if (m_examplesEnabled && wordData.toObject().contains("ex")) {
                         // Check if no examples with this type of speech
                         if (m_examples.isEmpty() || m_examples.constLast().typeOfSpeech() != typeOfSpeech)
                             m_examples << QExample(typeOfSpeech);
