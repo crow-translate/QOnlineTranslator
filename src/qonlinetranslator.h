@@ -243,6 +243,8 @@ public:
     static QString languageCode(Language lang);
     static Language language(const QLocale &locale);
     static Language language(const QString &langCode);
+    static bool isSupportTranslation(Engine engine, Language lang);
+    static bool isSupportTts(Engine engine, Language lang);
 
 private:
     // Get API reply as JSON
@@ -256,9 +258,9 @@ private:
     QByteArray getBingDictionary(const QString &text, const QString &translationCode, const QString &sourceCode);
 
     // Generate Codes for API
-    QString translationLanguageCode(Language lang, Engine engine);
-    QString ttsLanguageCode(Language lang, Engine engine);
-    QString voiceCode(Voice voice, Engine engine);
+    QString translationLanguageCode(Engine engine, Language lang);
+    QString ttsLanguageCode(Engine engine, Language lang);
+    QString voiceCode(Engine engine, Voice voice);
     static QString emotionCode(Emotion emotion);
 
     // Check for service support
@@ -271,7 +273,7 @@ private:
     static bool isSupportBingDictionary(Language sourceLang, Language translationLang);
 
     // Other
-    static Language language(const QString &langCode, Engine engine);
+    static Language language(Engine engine, const QString &langCode);
     static int getSplitIndex(const QString &untranslatedText, int limit);
     void resetData();
 

@@ -55,12 +55,14 @@ The **QOnlineTranslator** class provides translation data.
 
 ## Static Public Members
 
-| Return type | Data member                                               |
-| ----------: | :-------------------------------------------------------- |
-|     QString | [**languageString**(Language language)](#language-string) |
-|     QString | [**languageCode**(Language language)](#language-code)     |
-|    Language | [**language**(const QLocale &locale)](#language-1)        |
-|    Language | [**language**(const QString &languageCode)](#language-2)  |
+| Return type | Data member                                                                       |
+| ----------: | :-------------------------------------------------------------------------------- |
+|     QString | [**languageString**(Language language)](#language-string)                         |
+|     QString | [**languageCode**(Language language)](#language-code)                             |
+|    Language | [**language**(const QLocale &locale)](#language-1)                                |
+|    Language | [**language**(const QString &languageCode)](#language-2)                          |
+|        bool | [**isSupportTranslation**(Engine engine, Language lang)](#is-support-translation) |
+|        bool | [**isSupportTts**(Engine engine, Language lang)](#is-support-tts)                 |
 
 ## Member Type Documentation
 
@@ -461,3 +463,15 @@ Returns [Language](#language) from _locale_ object.
 ### <a id='language-2'/> static Language QOnlineTranslator::language(_const QString &languageCode_)
 
 Returns [Language](#language) from ISO _languageCode_.
+
+* * *
+
+### <a id='is-support-translation'/> static bool QOnlineTranslator::isSupportTranslation(_Engine engine, Language lang_)
+
+Returns true if the _lang_ is supported by the _engine_ for translation.
+
+* * *
+
+### <a id='is-support-tts'/> static bool QOnlineTranslator::isSupportTts(_Engine engine, Language lang_)
+
+Returns true if the _lang_ is supported by the _engine_ for tts.

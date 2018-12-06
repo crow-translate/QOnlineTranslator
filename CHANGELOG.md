@@ -9,8 +9,9 @@ All notable changes to this project will be documented in this file. This projec
 **Added**
 
 -   Bing support.
--   Yandex: examples support.
 -   Parsing options.
+-   Ability to check if the language is supported by the engine.
+-   Yandex: examples support.
 
 **Changed**
 

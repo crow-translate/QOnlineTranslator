@@ -75,15 +75,15 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
     m_error = NoError;
 
     // Generate API codes
-    QString sourceCode = translationLanguageCode(m_sourceLang, engine); // Not const, because it can be autodetected by engine
+    QString sourceCode = translationLanguageCode(engine, m_sourceLang); // Not const, because it can be autodetected by engine
     if (sourceCode.isEmpty())
         return;
 
-    const QString translationCode = translationLanguageCode(m_translationLang, engine);
+    const QString translationCode = translationLanguageCode(engine, m_translationLang);
     if (sourceCode.isEmpty())
         return;
 
-    const QString uiCode = translationLanguageCode(m_uiLang, engine);
+    const QString uiCode = translationLanguageCode(engine, m_uiLang);
     if (uiCode.isEmpty())
         return;
 
@@ -132,7 +132,7 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
 
             if (m_sourceLang == Auto) {
                 // Parse language
-                m_sourceLang = language(jsonData.at(2).toString(), engine);
+                m_sourceLang = language(engine, jsonData.at(2).toString());
                 if (m_sourceLang == NoLanguage) {
                     m_errorString = tr("Error: Unable to parse language from response.");
                     m_error = ParsingError;
@@ -207,7 +207,7 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
                 // Parse language
                 sourceCode = jsonData.value("lang").toString();
                 sourceCode = sourceCode.left(sourceCode.indexOf("-"));
-                m_sourceLang = language(sourceCode, engine);
+                m_sourceLang = language(engine, sourceCode);
                 if (m_sourceLang == NoLanguage) {
                     m_errorString = tr("Error: Unable to parse language from response.");
                     m_error = ParsingError;
@@ -351,7 +351,7 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
                 if (sourceCode.isEmpty())
                     return;
 
-                m_sourceLang = language(sourceCode, Bing);
+                m_sourceLang = language(Bing, sourceCode);
             }
 
             // Get API reply
@@ -478,7 +478,7 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
 
     // Detect language if required
     if (lang != Auto) {
-        langCode = ttsLanguageCode(lang, engine);
+        langCode = ttsLanguageCode(engine, lang);
         if (langCode.isEmpty()) {
             m_errorString = tr("Error: Unsupported language for tts.");
             m_error = ParametersError;
@@ -515,8 +515,8 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
             langCode = langCode.left(langCode.indexOf("-"));
             
             // Convert to tts code
-            const Language detectedLang = language(langCode, Yandex);
-            langCode = ttsLanguageCode(detectedLang, Yandex);
+            const Language detectedLang = language(Yandex, langCode);
+            langCode = ttsLanguageCode(Yandex, detectedLang);
             if (langCode.isEmpty()) {
                 m_errorString = tr("Error: Unable to parse language");
                 m_error = ParametersError;
@@ -531,8 +531,8 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
                 return mediaList;
 
             // Convert to tts code
-            const Language detectedLang = language(langCode, Bing);
-            langCode = ttsLanguageCode(detectedLang, Bing);
+            const Language detectedLang = language(Bing, langCode);
+            langCode = ttsLanguageCode(Bing, detectedLang);
             if (langCode.isEmpty()) {
                 m_errorString = tr("Error: Unable to parse language");
                 m_error = ParametersError;
@@ -575,7 +575,7 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
     case Yandex:
     {
         const QString emotionCode = QOnlineTranslator::emotionCode(emotion);
-        const QString voiceCode = QOnlineTranslator::voiceCode(voice, Yandex);
+        const QString voiceCode = QOnlineTranslator::voiceCode(Yandex, voice);
         if (voiceCode.isEmpty()) {
             m_errorString = tr("Error: Incompatible voice and engine arguments");
             m_error = ParametersError;
@@ -610,7 +610,7 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
         break;
     }
     case Bing:
-        const QString voiceCode = QOnlineTranslator::voiceCode(voice, Bing);
+        const QString voiceCode = QOnlineTranslator::voiceCode(Bing, voice);
         if (voiceCode.isEmpty()) {
             m_errorString = tr("Error: Incompatible voice and engine arguments");
             m_error = ParametersError;
@@ -1183,9 +1183,202 @@ QOnlineTranslator::Language QOnlineTranslator::language(const QLocale &locale)
     }
 }
 
+// Returns general language code
 QOnlineTranslator::Language QOnlineTranslator::language(const QString &langCode)
 {
     return static_cast<Language>(m_languageCodes.indexOf(langCode));
+}
+
+bool QOnlineTranslator::isSupportTranslation(QOnlineTranslator::Engine engine, QOnlineTranslator::Language lang)
+{
+    bool isSupported = false;
+
+    switch (engine) {
+    case Google:
+        switch (lang) {
+        case NoLanguage:
+        case Bashkir:
+        case HillMari:
+        case Mari:
+        case Papiamento:
+        case Tatar:
+        case Udmurt:
+        case Cantonese:
+        case Fijian:
+        case Filipino:
+        case Georgian:
+        case Klingon:
+        case KlingonPlqaD:
+        case LevantineArabic:
+        case QueretaroOtomi:
+        case SerbianLatin:
+        case Tahitian:
+        case Tongan:
+        case YucatecMaya:
+            isSupported = false;
+            break;
+        default:
+            isSupported = true;
+            break;
+        }
+        break;
+    case Yandex:
+        switch (lang) {
+        case NoLanguage:
+        case LevantineArabic:
+        case Cantonese:
+        case Corsican:
+        case Fijian:
+        case Filipino:
+        case Frisian:
+        case Igbo:
+        case Hausa:
+        case Hawaiian:
+        case Klingon:
+        case KlingonPlqaD:
+        case Kurdish:
+        case Chichewa:
+        case Pashto:
+        case QueretaroOtomi:
+        case Samoan:
+        case SerbianLatin:
+        case Sesotho:
+        case Shona:
+        case Sindhi:
+        case Somali:
+        case Tahitian:
+        case Tongan:
+        case Yoruba:
+        case YucatecMaya:
+        case Zulu:
+            isSupported = false;
+            break;
+        default:
+            isSupported = true;
+            break;
+        }
+        break;
+    case Bing:
+        switch (lang) {
+        case NoLanguage:
+        case Albanian:
+        case Amharic:
+        case Armenian:
+        case Azerbaijani:
+        case Basque:
+        case Bashkir:
+        case Belarusian:
+        case Cebuano:
+        case Corsican:
+        case Esperanto:
+        case Frisian:
+        case Galician:
+        case Georgian:
+        case Gujarati:
+        case Hausa:
+        case Hawaiian:
+        case HillMari:
+        case Igbo:
+        case Irish:
+        case Javanese:
+        case Kannada:
+        case Kazakh:
+        case Khmer:
+        case Kurdish:
+        case Kyrgyz:
+        case Lao:
+        case Latin:
+        case Luxembourgish:
+        case Macedonian:
+        case Malayalam:
+        case Maori:
+        case Marathi:
+        case Mari:
+        case Mongolian:
+        case Myanmar:
+        case Nepali:
+        case Chichewa:
+        case Papiamento:
+        case Pashto:
+        case Punjabi:
+        case ScotsGaelic:
+        case Sesotho:
+        case Shona:
+        case Sindhi:
+        case Sinhala:
+        case Somali:
+        case Sundanese:
+        case Tagalog:
+        case Tajik:
+        case Tatar:
+        case Udmurt:
+        case Uzbek:
+        case Xhosa:
+        case Yiddish:
+        case Yoruba:
+        case Zulu:
+            isSupported = false;
+            break;
+        default:
+            isSupported = true;
+            break;
+        }
+    }
+
+    return isSupported;
+}
+
+bool QOnlineTranslator::isSupportTts(QOnlineTranslator::Engine engine, QOnlineTranslator::Language lang)
+{
+    bool isSupported = false;
+
+    switch (engine) {
+    case Google:
+        isSupported = isSupportTranslation(engine, lang); // Google use the same codes for tts
+        break;
+    case Yandex:
+        switch (lang) {
+        case Russian:
+        case Tatar:
+        case English:
+            isSupported = true;
+            break;
+        default:
+            isSupported = false;
+            break;
+        }
+        break;
+    case Bing:
+        switch (lang) {
+        case Arabic:
+        case Catalan:
+        case Danish:
+        case German:
+        case English:
+        case Spanish:
+        case Finnish:
+        case French:
+        case Hindi:
+        case Italian:
+        case Japanese:
+        case Korean:
+        case Norwegian:
+        case Dutch:
+        case Polish:
+        case Portuguese:
+        case Russian:
+        case Swedish:
+        case SimplifiedChinese:
+        case TraditionalChinese:
+            isSupported = true;
+            break;
+        default:
+            isSupported = false;
+            break;
+        }
+    }
+
+    return isSupported;
 }
 
 QByteArray QOnlineTranslator::getGoogleTranslation(const QString &text, const QString &translationCode, const QString &sourceCode, const QString &uiCode)
@@ -1492,72 +1685,24 @@ QByteArray QOnlineTranslator::getBingDictionary(const QString &text, const QStri
     return data;
 }
 
-QString QOnlineTranslator::translationLanguageCode(QOnlineTranslator::Language lang, Engine engine)
+// Returns engine-specific language code for translation
+QString QOnlineTranslator::translationLanguageCode(Engine engine, QOnlineTranslator::Language lang)
 {
-    bool isSupported = true;
+    if (!isSupportTranslation(engine, lang)) {
+        m_errorString = tr("Error: Selected language for translation is not supported by this engine - ") + languageString(lang);
+        m_error = ParametersError;
+        resetData();
+        return "";
+    }
 
-    // Some engines have another language codes or do not support certain languages
+    // Engines have some language codes exceptions
     switch (engine) {
     case Google:
-        switch (lang) {
-        case NoLanguage:
-        case Bashkir:
-        case HillMari:
-        case Mari:
-        case Papiamento:
-        case Tatar:
-        case Udmurt:
-        case Cantonese:
-        case Fijian:
-        case Filipino:
-        case Georgian:
-        case Klingon:
-        case KlingonPlqaD:
-        case LevantineArabic:
-        case QueretaroOtomi:
-        case SerbianLatin:
-        case Tahitian:
-        case Tongan:
-        case YucatecMaya:
-            isSupported = false;
-            break;
-        case SerbianCyrillic:
+        if (lang == SerbianCyrillic)
             return "sr";
-        default:
-            break;
-        }
         break;
     case Yandex:
         switch (lang) {
-        case NoLanguage:
-        case LevantineArabic:
-        case Cantonese:
-        case Corsican:
-        case Fijian:
-        case Filipino:
-        case Frisian:
-        case Igbo:
-        case Hausa:
-        case Hawaiian:
-        case Klingon:
-        case KlingonPlqaD:
-        case Kurdish:
-        case Chichewa:
-        case Pashto:
-        case QueretaroOtomi:
-        case Samoan:
-        case SerbianLatin:
-        case Sesotho:
-        case Shona:
-        case Sindhi:
-        case Somali:
-        case Tahitian:
-        case Tongan:
-        case Yoruba:
-        case YucatecMaya:
-        case Zulu:
-            isSupported = false;
-            break;
         case SimplifiedChinese:
             return "zn";
         case Javanese:
@@ -1570,65 +1715,6 @@ QString QOnlineTranslator::translationLanguageCode(QOnlineTranslator::Language l
         break;
     case Bing:
         switch (lang) {
-        case NoLanguage:
-        case Albanian:
-        case Amharic:
-        case Armenian:
-        case Azerbaijani:
-        case Basque:
-        case Bashkir:
-        case Belarusian:
-        case Cebuano:
-        case Corsican:
-        case Esperanto:
-        case Frisian:
-        case Galician:
-        case Georgian:
-        case Gujarati:
-        case Hausa:
-        case Hawaiian:
-        case HillMari:
-        case Igbo:
-        case Irish:
-        case Javanese:
-        case Kannada:
-        case Kazakh:
-        case Khmer:
-        case Kurdish:
-        case Kyrgyz:
-        case Lao:
-        case Latin:
-        case Luxembourgish:
-        case Macedonian:
-        case Malayalam:
-        case Maori:
-        case Marathi:
-        case Mari:
-        case Mongolian:
-        case Myanmar:
-        case Nepali:
-        case Chichewa:
-        case Papiamento:
-        case Pashto:
-        case Punjabi:
-        case ScotsGaelic:
-        case Sesotho:
-        case Shona:
-        case Sindhi:
-        case Sinhala:
-        case Somali:
-        case Sundanese:
-        case Tagalog:
-        case Tajik:
-        case Tatar:
-        case Udmurt:
-        case Uzbek:
-        case Xhosa:
-        case Yiddish:
-        case Yoruba:
-        case Zulu:
-            isSupported = false;
-            break;
         case SimplifiedChinese:
             return "zh-Hans";
         case TraditionalChinese:
@@ -1641,23 +1727,16 @@ QString QOnlineTranslator::translationLanguageCode(QOnlineTranslator::Language l
         break;
     }
 
-    // Check for language support
-    if (!isSupported) {
-        m_errorString = tr("Error: Selected language for translation is not supported by this engine.");
-        m_error = ParametersError;
-        resetData();
-        return "";
-    }
-
     // General case
     return m_languageCodes.at(lang);
 }
 
-QString QOnlineTranslator::ttsLanguageCode(QOnlineTranslator::Language lang, QOnlineTranslator::Engine engine)
+// Returns engine-specific language code for tts
+QString QOnlineTranslator::ttsLanguageCode(QOnlineTranslator::Engine engine, QOnlineTranslator::Language lang)
 {
     switch (engine) {
     case Google:
-        return translationLanguageCode(lang, engine); // Google use the same codes for tts
+        return translationLanguageCode(engine, lang); // Google use the same codes for tts
     case Yandex:
         switch (lang) {
         case Russian:
@@ -1717,13 +1796,13 @@ QString QOnlineTranslator::ttsLanguageCode(QOnlineTranslator::Language lang, QOn
         }
     }
 
-    m_errorString = tr("Error: Selected language for tts is not supported by this engine.");
+    m_errorString = tr("Error: Selected language for tts is not supported by this engine - ") + languageString(lang);
     m_error = ParametersError;
     resetData();
     return "";
 }
 
-QString QOnlineTranslator::voiceCode(QOnlineTranslator::Voice voice, QOnlineTranslator::Engine engine)
+QString QOnlineTranslator::voiceCode(QOnlineTranslator::Engine engine, QOnlineTranslator::Voice voice)
 {
     switch (engine) {
     case Google:
@@ -2375,7 +2454,7 @@ bool QOnlineTranslator::isSupportBingDictionary(QOnlineTranslator::Language sour
 }
 
 // Parse language from response language code
-QOnlineTranslator::Language QOnlineTranslator::language(const QString &langCode, Engine engine)
+QOnlineTranslator::Language QOnlineTranslator::language(Engine engine, const QString &langCode)
 {
     // Engine exceptions
     switch (engine) {
