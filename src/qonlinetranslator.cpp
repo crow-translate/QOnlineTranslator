@@ -503,8 +503,14 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
     QString unparsedText = text;
     switch (engine) {
     case Google:
-        if (voice != Default)
-            return mediaList; // Google has no voice settings
+    {
+        const QString emotionCode = QOnlineTranslator::emotionCode(Google, emotion);
+        if (emotionCode.isEmpty())
+            return mediaList;
+
+        const QString voiceCode = QOnlineTranslator::voiceCode(Google, voice);
+        if (voiceCode.isEmpty())
+            return mediaList;
 
         // Google has a limit of characters per tts request. If the query is larger, then it should be splited into several
         while (!unparsedText.isEmpty()) {
@@ -525,9 +531,13 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
             unparsedText = unparsedText.mid(splitIndex);
         }
         break;
+    }
     case Yandex:
     {
-        const QString emotionCode = QOnlineTranslator::emotionCode(emotion);
+        const QString emotionCode = QOnlineTranslator::emotionCode(Yandex, emotion);
+        if (emotionCode.isEmpty())
+            return mediaList;
+
         const QString voiceCode = QOnlineTranslator::voiceCode(Yandex, voice);
         if (voiceCode.isEmpty())
             return mediaList;
@@ -559,6 +569,10 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
         break;
     }
     case Bing:
+        const QString emotionCode = QOnlineTranslator::emotionCode(Bing, emotion);
+        if (emotionCode.isEmpty())
+            return mediaList;
+
         const QString voiceCode = QOnlineTranslator::voiceCode(Bing, voice);
         if (voiceCode.isEmpty())
             return mediaList;
@@ -1758,10 +1772,12 @@ QString QOnlineTranslator::voiceCode(QOnlineTranslator::Engine engine, QOnlineTr
 {
     switch (engine) {
     case Google:
-        return "google";
+        if (voice == DefaultVoice)
+            return "default";
+        break;
     case Yandex:
         switch (voice) {
-        case Default:
+        case DefaultVoice:
         case Zahar:
             return "zahar";
         case Ermil:
@@ -1780,7 +1796,7 @@ QString QOnlineTranslator::voiceCode(QOnlineTranslator::Engine engine, QOnlineTr
         break;
     case Bing:
         switch (voice) {
-        case Default:
+        case DefaultVoice:
         case Male:
             return "male";
         case Female:
@@ -1797,22 +1813,31 @@ QString QOnlineTranslator::voiceCode(QOnlineTranslator::Engine engine, QOnlineTr
     return "";
 }
 
-QString QOnlineTranslator::emotionCode(QOnlineTranslator::Emotion emotion)
+QString QOnlineTranslator::emotionCode(Engine engine, QOnlineTranslator::Emotion emotion)
 {
     QString emotionString;
-    switch (emotion) {
-    case Good:
-        emotionString = "good";
+    switch (engine) {
+    case Google:
+    case Bing:
+        if (emotion == DefaultEmotion)
+            return "default";
         break;
-    case Evil:
-        emotionString = "evil";
-        break;
-    case Neutral:
-        emotionString = "neutral";
-        break;
+    case Yandex:
+        switch (emotion) {
+        case DefaultEmotion:
+        case Neutral:
+            return "neutral";
+        case Good:
+            return "good";
+        case Evil:
+            return "evil";
+        }
     }
 
-    return emotionString;
+    m_errorString = tr("Error: Selected emotion is not supported by this engine.");
+    m_error = ParametersError;
+    resetData();
+    return "";
 }
 
 bool QOnlineTranslator::isSupportGoogle(QOnlineTranslator::Language lang)

@@ -4,9 +4,17 @@ All notable changes to this project will be documented in this file. This projec
 
 ## [Unreleased](https://github.com/Shatur95/crow-translate/tree/HEAD)
 
-[Full Changelog](https://github.com/Shatur95/QOnlineTranslator/compare/1.1.0...HEAD)
+[Full Changelog](https://github.com/Shatur95/QOnlineTranslator/compare/1.1.1...HEAD)
 
 _No unreleased changes yet_
+
+## [1.1.1](https://github.com/Shatur95/QOnlineTranslator/tree/1.1.1) (2018-12-07)
+
+[Full Changelog](https://github.com/Shatur95/QOnlineTranslator/compare/1.1.0...1.1.1)
+
+**Added**
+
+-   Emotion check and `DefaultEmotion`.
 
 ## [1.1.0](https://github.com/Shatur95/QOnlineTranslator/tree/1.1.0) (2018-12-06)
 

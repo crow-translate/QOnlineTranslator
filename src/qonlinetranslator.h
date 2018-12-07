@@ -168,7 +168,7 @@ public:
 
     enum Voice {
         // All
-        Default,
+        DefaultVoice,
 
         // Yandex
         Zahar,
@@ -185,6 +185,10 @@ public:
     Q_ENUM(Voice)
 
     enum Emotion {
+        // All
+        DefaultEmotion,
+
+        // Yandex
         Neutral,
         Good,
         Evil
@@ -202,10 +206,10 @@ public:
     explicit QOnlineTranslator(QObject *parent = nullptr);
 
     void translate(const QString &text, Engine engine = Google, Language translationLang = Auto, Language sourceLang = Auto, Language uiLang = Auto);
-    QList<QMediaContent> media(const QString &text, Engine engine, Language lang = Auto, Voice voice = Default, Emotion emotion = Neutral);
+    QList<QMediaContent> media(const QString &text, Engine engine, Language lang = Auto, Voice voice = DefaultVoice, Emotion emotion = DefaultEmotion);
 
-    QList<QMediaContent> sourceMedia(Engine engine, Voice voice = Default, Emotion emotion = Neutral);
-    QList<QMediaContent> translationMedia(Engine engine, Voice voice = Default, Emotion emotion = Neutral);
+    QList<QMediaContent> sourceMedia(Engine engine, Voice voice = DefaultVoice, Emotion emotion = DefaultEmotion);
+    QList<QMediaContent> translationMedia(Engine engine, Voice voice = DefaultVoice, Emotion emotion = DefaultEmotion);
 
     QString source() const;
     QString sourceTranslit() const;
@@ -261,7 +265,7 @@ private:
     QString translationLanguageCode(Engine engine, Language lang);
     QString ttsLanguageCode(Engine engine, Language lang);
     QString voiceCode(Engine engine, Voice voice);
-    static QString emotionCode(Emotion emotion);
+    QString emotionCode(Engine engine, Emotion emotion);
 
     // Check for service support
     static bool isSupportGoogle(Language lang);

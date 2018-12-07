@@ -16,8 +16,8 @@ The **QOnlineTranslator** class provides translation data.
 | ---: | :---------------------------------------------------------------------------------------------------------------- |
 | enum | [**Language**](#language) { Auto, Afrikaans, Albanian, Amharic, ..., Zulu }                                       |
 | enum | [**Engine**](#engine) { Google, Yandex }                                                                          |
-| enum | [**Voice**](#voice) { Zahar, Ermil, Jane, Oksana, ..., Female }                                                   |
-| enum | [**Emotion**](#emotion) { Good, Evil, Neutral }                                                                   |
+| enum | [**Voice**](#voice) { DefaultVoice, Zahar, Ermil, Jane, ..., Female }                                             |
+| enum | [**Emotion**](#emotion) { DefaultEmotion, Good, Evil, Neutral }                                                   |
 | enum | [**TranslationError**](#translation-error) { NoError, ParametersError, NetworkError, ServiceError, ParsingError } |
 
 ## Public Functions
@@ -26,9 +26,9 @@ The **QOnlineTranslator** class provides translation data.
 | --------------------: | :------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 |                       | [**QOnlineTranslator**(QWidget \*parent = nullptr)](#constructor)                                                                                             |
 |                  void | [**translate**(const QString &text, Engine engine = Google, Language translationLang = Auto, Language sourceLang = Auto, Language uiLang = Auto)](#translate) |
-| QList\<QMediaContent> | [**media**(const QString &text, Engine engine, Language language = Auto, Voice voice = Default, Emotion emotion = Neutral)](#media)                           |
-| QList\<QMediaContent> | [**sourceMedia**(Engine engine, Voice voice = Default, Emotion emotion = Neutral)](#source-media)                                                             |
-| QList\<QMediaContent> | [**translationMedia**(Engine engine, Voice voice = Default, Emotion emotion = Neutral)](#translation-media)                                                   |
+| QList\<QMediaContent> | [**media**(const QString &text, Engine engine, Language language = Auto, Voice voice = DefaultVoice, Emotion emotion = DefaultEmotion)](#media)               |
+| QList\<QMediaContent> | [**sourceMedia**(Engine engine, Voice voice = DefaultVoice, Emotion emotion = DefaultEmotion)](#source-media)                                                 |
+| QList\<QMediaContent> | [**translationMedia**(Engine engine, Voice voice = DefaultVoice, Emotion emotion = DefaultEmotion)](#translation-media)                                       |
 |               QString | [**source**()](#source)                                                                                                                                       |
 |               QString | [**sourceTranslit**()](#source-translit)                                                                                                                      |
 |               QString | [**sourceTranscription**()](source-transcription)                                                                                                             |
@@ -210,27 +210,28 @@ This enum has the following values:
 
 This enum has the following values:
 
-|                   Constant | Value | Engine               |
-| -------------------------: | :---: | :------------------- |
-| QOnlineTranslator::Default |   0   | Google, Yandex, Bing |
-|   QOnlineTranslator::Zahar |   1   | Yandex               |
-|   QOnlineTranslator::Ermil |   2   | Yandex               |
-|    QOnlineTranslator::Jane |   3   | Yandex               |
-|  QOnlineTranslator::Oksana |   4   | Yandex               |
-|   QOnlineTranslator::Alyss |   5   | Yandex               |
-|   QOnlineTranslator::Omazh |   6   | Yandex               |
-|    QOnlineTranslator::Male |   7   | Bing                 |
-|  QOnlineTranslator::Female |   8   | Bing                 |
+|                        Constant | Value | Engine               |
+| ------------------------------: | :---: | :------------------- |
+| QOnlineTranslator::DefaultVoice |   0   | Google, Yandex, Bing |
+|        QOnlineTranslator::Zahar |   1   | Yandex               |
+|        QOnlineTranslator::Ermil |   2   | Yandex               |
+|         QOnlineTranslator::Jane |   3   | Yandex               |
+|       QOnlineTranslator::Oksana |   4   | Yandex               |
+|        QOnlineTranslator::Alyss |   5   | Yandex               |
+|        QOnlineTranslator::Omazh |   6   | Yandex               |
+|         QOnlineTranslator::Male |   7   | Bing                 |
+|       QOnlineTranslator::Female |   8   | Bing                 |
 
 ### <a id='emotion'/> enum QOnlineTranslator::Emotion
 
 This enum has the following values:
 
-|                   Constant | Value | Description              |
-| -------------------------: | :---: | :----------------------- |
-| QOnlineTranslator::Neutral |   0   | Neutral voice            |
-|    QOnlineTranslator::Good |   1   | Cheerful, friendly voice |
-|    QOnlineTranslator::Evil |   2   | Irritated voice          |
+|                          Constant | Value | Engine                   |
+| --------------------------------: | :---: | :----------------------- |
+| QOnlineTranslator::DefaultEmotion |   0   | Google, Yandex, Bing     |
+|        QOnlineTranslator::Neutral |   1   | Yandex                   |
+|           QOnlineTranslator::Good |   2   | Yandex                   |
+|           QOnlineTranslator::Evil |   3   | Yandex                   |
 
 ### <a id='translation-error'/> enum QOnlineTranslator::TranslationError
 
@@ -258,7 +259,7 @@ Parse _text_ and translate with _engine_ into _translationLang_ from _sourceLang
 
 * * *
 
-### <a id='media'/> [QList](https://doc.qt.io/qt-5/qlist.html "Qt Documentation")\<[QMediaContent](https://doc.qt.io/qt-5/qmediacontent.html "Qt Documentation")> QOnlineTranslator::media(_const QString &text, Engine engine, Language language = Auto, Voice voice = Default, Emotion emotion = Neutral_)
+### <a id='media'/> [QList](https://doc.qt.io/qt-5/qlist.html "Qt Documentation")\<[QMediaContent](https://doc.qt.io/qt-5/qmediacontent.html "Qt Documentation")> QOnlineTranslator::media(_const QString &text, Engine engine, Language language = Auto, Voice voice = DefaultVoice, Emotion emotion = DefaultEmotion_)
 
 Splits _text_ into parts (Google and Yandex have limits on the size of the request) and returns list with the generated API URLs to play this text on _language_ with _voice_. _emotion_ argument only affects Yandex engine.
 
@@ -277,7 +278,7 @@ player->play(); // Plays "Hello World!"
 
 * * *
 
-### <a id='source-media'/> [QList](https://doc.qt.io/qt-5/qlist.html "Qt Documentation")\<[QMediaContent](https://doc.qt.io/qt-5/qmediacontent.html "Qt Documentation")> QOnlineTranslator::sourceMedia(_Engine engine, Voice voice = Default, Emotion emotion = Neutral_)
+### <a id='source-media'/> [QList](https://doc.qt.io/qt-5/qlist.html "Qt Documentation")\<[QMediaContent](https://doc.qt.io/qt-5/qmediacontent.html "Qt Documentation")> QOnlineTranslator::sourceMedia(_Engine engine, Voice voice = DefaultVoice, Emotion emotion = DefaultEmotion_)
 
 Splits the source text of translator into parts (because engines have limit of size per one request) and returns list with the generated API URLs to play this text with _voice_. _emotion_ argument only affects Yandex engine.
 
@@ -298,7 +299,7 @@ player->play(); // Plays "Hello World!"
 
 * * *
 
-### <a id='translation-media'/> [QList](https://doc.qt.io/qt-5/qlist.html "Qt Documentation")\<[QMediaContent](https://doc.qt.io/qt-5/qmediacontent.html "Qt Documentation")> QOnlineTranslator::translationMedia(_Engine engine, Voice voice = Default, Emotion emotion = Neutral_)
+### <a id='translation-media'/> [QList](https://doc.qt.io/qt-5/qlist.html "Qt Documentation")\<[QMediaContent](https://doc.qt.io/qt-5/qmediacontent.html "Qt Documentation")> QOnlineTranslator::translationMedia(_Engine engine, Voice voice = DefaultVoice, Emotion emotion = DefaultEmotion_)
 
 Splits the translation of translator into parts (Google and Yandex have limits on the size of the request) and returns list with the generated API URLs to play this text with _voice_. _emotion_ argument only affects Yandex engine.
 
