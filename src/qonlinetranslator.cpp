@@ -1815,7 +1815,6 @@ QString QOnlineTranslator::voiceCode(QOnlineTranslator::Engine engine, QOnlineTr
 
 QString QOnlineTranslator::emotionCode(Engine engine, QOnlineTranslator::Emotion emotion)
 {
-    QString emotionString;
     switch (engine) {
     case Google:
     case Bing:

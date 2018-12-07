@@ -20,9 +20,9 @@
 
 #include "qexample.h"
 
-QExample::QExample(const QString &typeOfSpeech)
+QExample::QExample(const QString &typeOfSpeech) :
+    m_typeOfSpeech(typeOfSpeech)
 {
-    m_typeOfSpeech = typeOfSpeech;
 }
 
 QString QExample::typeOfSpeech() const

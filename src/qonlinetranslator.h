@@ -303,7 +303,7 @@ private:
     bool m_sourceTranscriptionEnabled = true;
     bool m_translationOptionsEnabled = true;
     bool m_examplesEnabled = true;
-    char m_padding[3];
+    const char m_padding[3] = " "; // Avoid padding size warning
 
     static QString m_yandexKey;
     static const QStringList m_languageCodes;

@@ -20,9 +20,9 @@
 
 #include "qoption.h"
 
-QOption::QOption(const QString &typeOfSpeech)
+QOption::QOption(const QString &typeOfSpeech) :
+    m_typeOfSpeech(typeOfSpeech)
 {
-    m_typeOfSpeech = typeOfSpeech;
 }
 
 QString QOption::typeOfSpeech() const
