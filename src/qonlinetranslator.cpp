@@ -87,13 +87,6 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
     if (uiCode.isEmpty())
         return;
 
-    // Check for errors
-    if (uiCode.isEmpty() || translationCode.isEmpty() || sourceCode.isEmpty()) {
-        m_errorString = tr("Error: One of languages is not supported for this engine.");
-        m_error = ParametersError;
-        return;
-    }
-
     QString unsendedText;
     switch (engine) {
     case Google:
@@ -109,10 +102,8 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
             }
 
             const QByteArray reply = getGoogleTranslation(unsendedText.left(splitIndex), translationCode, sourceCode, uiCode);
-            if (reply.isEmpty()) {
-                resetData();
+            if (reply.isEmpty())
                 return;
-            }
 
             // Convert to JsonArray
             const QJsonDocument jsonResponse = QJsonDocument::fromJson(reply);
@@ -133,12 +124,8 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
             if (m_sourceLang == Auto) {
                 // Parse language
                 m_sourceLang = language(engine, jsonData.at(2).toString());
-                if (m_sourceLang == NoLanguage) {
-                    m_errorString = tr("Error: Unable to parse language from response.");
-                    m_error = ParsingError;
-                    resetData();
+                if (m_sourceLang == NoLanguage)
                     return;
-                }
             }
 
             // Remove the parsed part from the next parsing
@@ -194,10 +181,8 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
 
             // Get API reply
             const QByteArray reply = getYandexTranslation(unsendedText.left(splitIndex), translationCode, sourceCode);
-            if (reply.isEmpty()) {
-                resetData();
+            if (reply.isEmpty())
                 return;
-            }
 
             // Parse translation data
             const QJsonDocument jsonResponse = QJsonDocument::fromJson(reply);
@@ -208,12 +193,8 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
                 sourceCode = jsonData.value("lang").toString();
                 sourceCode = sourceCode.left(sourceCode.indexOf("-"));
                 m_sourceLang = language(engine, sourceCode);
-                if (m_sourceLang == NoLanguage) {
-                    m_errorString = tr("Error: Unable to parse language from response.");
-                    m_error = ParsingError;
-                    resetData();
+                if (m_sourceLang == NoLanguage)
                     return;
-                }
             }
 
             // Remove the parsed part from the next parsing
@@ -235,10 +216,8 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
 
                 // Get API reply
                 const QByteArray reply = getYandexTranslit(unsendedText.left(splitIndex), sourceCode);
-                if (reply.isEmpty()) {
-                    resetData();
+                if (reply.isEmpty())
                     return;
-                }
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
                 m_sourceTranslit += reply.mid(1).chopped(1);
@@ -267,10 +246,8 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
 
                 // Get API reply
                 const QByteArray reply = getYandexTranslit(unsendedText.left(splitIndex), translationCode);
-                if (reply.isEmpty()) {
-                    resetData();
+                if (reply.isEmpty())
                     return;
-                }
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
                 m_translationTranslit += reply.mid(1).chopped(1);
@@ -287,10 +264,8 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
         // Request dictionary data if only one word is translated.
         if (m_translationOptionsEnabled && isSupportYandexDictionary(m_sourceLang, m_translationLang) && !m_source.contains(" ")) {
             const QByteArray reply = getYandexDictionary(m_source, translationCode, sourceCode, uiCode);
-            if (reply.isEmpty()) {
-                resetData();
+            if (reply.isEmpty())
                 return;
-            }
 
             // Parse reply
             const QJsonDocument jsonResponse = QJsonDocument::fromJson(reply);
@@ -356,10 +331,8 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
 
             // Get API reply
             const QByteArray reply = getBingTranslation(unsendedText.left(splitIndex), translationCode, sourceCode);
-            if (reply.isEmpty()) {
-                resetData();
+            if (reply.isEmpty())
                 return;
-            }
 
             // Parse translation data
             m_translation += QJsonDocument::fromJson(reply).object().value("translationResponse").toString();
@@ -383,10 +356,8 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
 
                 // Get API reply
                 const QByteArray reply = getBingTranslit(unsendedText.left(splitIndex), sourceCode);
-                if (reply.isEmpty()) {
-                    resetData();
+                if (reply.isEmpty())
                     return;
-                }
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
                 m_sourceTranslit += reply.mid(1).chopped(1);
@@ -415,10 +386,8 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
 
                 // Get API reply
                 const QByteArray reply = getBingTranslit(unsendedText.left(splitIndex), translationCode);
-                if (reply.isEmpty()) {
-                    resetData();
+                if (reply.isEmpty())
                     return;
-                }
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
                 m_translationTranslit += reply.mid(1).chopped(1);
@@ -435,10 +404,8 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
         // Request dictionary data if only one word is translated.
         if (m_translationOptionsEnabled && isSupportBingDictionary(m_sourceLang, m_translationLang) && !m_source.contains(" ")) {
             const QByteArray reply = getBingDictionary(m_source, translationCode, sourceCode);
-            if (reply.isEmpty()) {
-                resetData();
+            if (reply.isEmpty())
                 return;
-            }
 
             // Parse reply
             const QJsonDocument jsonResponse = QJsonDocument::fromJson(reply);
@@ -479,11 +446,8 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
     // Detect language if required
     if (lang != Auto) {
         langCode = ttsLanguageCode(engine, lang);
-        if (langCode.isEmpty()) {
-            m_errorString = tr("Error: Unsupported language for tts.");
-            m_error = ParametersError;
+        if (langCode.isEmpty())
             return mediaList;
-        }
     } else {
         switch (engine) {
         case Google: {
@@ -517,11 +481,8 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
             // Convert to tts code
             const Language detectedLang = language(Yandex, langCode);
             langCode = ttsLanguageCode(Yandex, detectedLang);
-            if (langCode.isEmpty()) {
-                m_errorString = tr("Error: Unable to parse language");
-                m_error = ParametersError;
+            if (langCode.isEmpty())
                 return mediaList;
-            }
             break;
         }
         case Bing:
@@ -533,11 +494,8 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
             // Convert to tts code
             const Language detectedLang = language(Bing, langCode);
             langCode = ttsLanguageCode(Bing, detectedLang);
-            if (langCode.isEmpty()) {
-                m_errorString = tr("Error: Unable to parse language");
-                m_error = ParametersError;
+            if (langCode.isEmpty())
                 return mediaList;
-            }
         }
     }
 
@@ -545,13 +503,8 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
     QString unparsedText = text;
     switch (engine) {
     case Google:
-        if (voice != Default) {
-            // Google has no voice settings
-            m_errorString = tr("Error: Incompatible voice and engine arguments");
-            m_error = ParametersError;
-            resetData();
-            return mediaList;
-        }
+        if (voice != Default)
+            return mediaList; // Google has no voice settings
 
         // Google has a limit of characters per tts request. If the query is larger, then it should be splited into several
         while (!unparsedText.isEmpty()) {
@@ -576,12 +529,8 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
     {
         const QString emotionCode = QOnlineTranslator::emotionCode(emotion);
         const QString voiceCode = QOnlineTranslator::voiceCode(Yandex, voice);
-        if (voiceCode.isEmpty()) {
-            m_errorString = tr("Error: Incompatible voice and engine arguments");
-            m_error = ParametersError;
-            resetData();
+        if (voiceCode.isEmpty())
             return mediaList;
-        }
 
         // Yandex has a limit of characters per tts request. If the query is larger, then it should be splited into several
         while (!unparsedText.isEmpty()) {
@@ -611,12 +560,8 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
     }
     case Bing:
         const QString voiceCode = QOnlineTranslator::voiceCode(Bing, voice);
-        if (voiceCode.isEmpty()) {
-            m_errorString = tr("Error: Incompatible voice and engine arguments");
-            m_error = ParametersError;
-            resetData();
+        if (voiceCode.isEmpty())
             return mediaList;
-        }
 
         while (!unparsedText.isEmpty()) {
             const int splitIndex = getSplitIndex(unparsedText, BING_TTS_LIMIT); // Split the part by special symbol
@@ -1408,8 +1353,9 @@ QByteArray QOnlineTranslator::getGoogleTranslation(const QString &text, const QS
 
     // Check availability of service
     if (data.startsWith("<")) {
-        m_errorString = tr("Error: Engine systems have detected unusual traffic from your computer network. Please try your request again later.");
+        m_errorString = tr("Error: Engine systems have detected suspicious traffic from your computer network. Please try your request again later.");
         m_error = ServiceError;
+        resetData();
         return "";
     }
 
@@ -1438,8 +1384,9 @@ QByteArray QOnlineTranslator::getYandexTranslation(const QString &text, const QS
 
         // Check availability of service
         if (webSiteData.contains("<title>Oops!</title>") || webSiteData.contains("<title>302 Found</title>")) {
-            m_errorString = tr("Error: Engine systems have detected unusual traffic from your computer network. Please try your request again later.");
+            m_errorString = tr("Error: Engine systems have detected suspicious traffic from your computer network. Please try your request again later.");
             m_error = ServiceError;
+            resetData();
             return "";
         }
 
@@ -1455,6 +1402,7 @@ QByteArray QOnlineTranslator::getYandexTranslation(const QString &text, const QS
         if (m_yandexKey.isEmpty()) {
             m_errorString = tr("Error: Unable to parse Yandex SID.");
             m_error = ParsingError;
+            resetData();
             return "";
         }
     }
@@ -1481,6 +1429,7 @@ QByteArray QOnlineTranslator::getYandexTranslation(const QString &text, const QS
             m_errorString = reply->errorString();
             m_error = NetworkError;
             delete reply;
+            resetData();
             return "";
         }
 
@@ -1497,6 +1446,7 @@ QByteArray QOnlineTranslator::getYandexTranslation(const QString &text, const QS
         m_errorString = jsonResponse.object().value("message").toString();
         m_error = ServiceError;
         delete reply;
+        resetData();
         return "";
     }
 
@@ -1523,6 +1473,7 @@ QByteArray QOnlineTranslator::getYandexTranslit(const QString &text, const QStri
         m_errorString = reply->errorString();
         m_error = NetworkError;
         delete reply;
+        resetData();
         return "";
     }
 
@@ -1549,6 +1500,7 @@ QByteArray QOnlineTranslator::getYandexDictionary(const QString &text, const QSt
         m_errorString = reply->errorString();
         m_error = NetworkError;
         delete reply;
+        resetData();
         return "";
     }
 
@@ -1579,8 +1531,8 @@ QByteArray QOnlineTranslator::getBingTextLanguage(const QString &text)
     if (reply->error() != QNetworkReply::NoError) {
         m_errorString = reply->errorString();
         m_error = NetworkError;
-        resetData();
         delete reply;
+        resetData();
         return "";
     }
 
@@ -1689,7 +1641,7 @@ QByteArray QOnlineTranslator::getBingDictionary(const QString &text, const QStri
 QString QOnlineTranslator::translationLanguageCode(Engine engine, QOnlineTranslator::Language lang)
 {
     if (!isSupportTranslation(engine, lang)) {
-        m_errorString = tr("Error: Selected language for translation is not supported by this engine - ") + languageString(lang);
+        m_errorString = tr("Error: Selected language for translation is not supported by this engine.");
         m_error = ParametersError;
         resetData();
         return "";
@@ -1796,7 +1748,7 @@ QString QOnlineTranslator::ttsLanguageCode(QOnlineTranslator::Engine engine, QOn
         }
     }
 
-    m_errorString = tr("Error: Selected language for tts is not supported by this engine - ") + languageString(lang);
+    m_errorString = tr("Error: Selected language for tts is not supported by this engine.");
     m_error = ParametersError;
     resetData();
     return "";
