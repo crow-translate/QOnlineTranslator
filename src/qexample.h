@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef QDEFINITION_H
-#define QDEFINITION_H
+#ifndef QEXAMPLE_H
+#define QEXAMPLE_H
 
 #include <QStringList>
 
@@ -42,4 +42,4 @@ private:
     QStringList m_examples;
 };
 
-#endif // QDEFINITION_H
+#endif // QEXAMPLE_H
