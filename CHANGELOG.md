@@ -4,9 +4,17 @@ All notable changes to this project will be documented in this file. This projec
 
 ## [Unreleased](https://github.com/Shatur95/crow-translate/tree/HEAD)
 
-[Full Changelog](https://github.com/Shatur95/QOnlineTranslator/compare/1.1.1...HEAD)
+[Full Changelog](https://github.com/Shatur95/QOnlineTranslator/compare/1.1.2...HEAD)
 
 _No unreleased changes yet_
+
+## [1.1.2](https://github.com/Shatur95/QOnlineTranslator/tree/1.1.2) (2018-12-08)
+
+[Full Changelog](https://github.com/Shatur95/QOnlineTranslator/compare/1.1.1...1.1.2)
+
+**Changed**
+
+-   Fix wrong language codes order.
 
 ## [1.1.1](https://github.com/Shatur95/QOnlineTranslator/tree/1.1.1) (2018-12-07)
 

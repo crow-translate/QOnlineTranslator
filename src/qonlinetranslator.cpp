@@ -44,7 +44,7 @@ bool QOnlineTranslator::m_secondYandexKeyRequest = false;
 
 const QStringList QOnlineTranslator::m_languageCodes = { "auto", "af", "sq", "am", "ar", "hy", "az", "eu", "ba", "be", "bn", "bs", "bg", "ca", "yue", "ceb", "zh-CN", "zh-TW", "co", "hr", "cs",
                                                          "da", "nl", "en", "eo", "et", "fj", "fil", "fi", "fr", "fy", "gl", "ka", "de", "el", "gu", "ht", "ha", "haw", "he", "mrj", "hi", "hmn", "hu",
-                                                         "is", "ig", "id", "ga", "it", "ja", "jw", "kn", "kk", "km", "ko", "tlh", "tlh-Qaak", "ku", "ky", "lo", "la", "lv", "apc", "lt", "lb", "mk", "mg",
+                                                         "is", "ig", "id", "ga", "it", "ja", "jw", "kn", "kk", "km", "tlh", "tlh-Qaak", "ko", "ku", "ky", "lo", "la", "lv", "apc", "lt", "lb", "mk", "mg",
                                                          "ms", "ml", "mt", "mi", "mr", "mhr", "mn", "my", "ne", "no", "ny", "pap", "ps", "fa", "pl", "pt", "pa", "otq", "ro", "ru", "sm", "gd", "sr-Cyrl", "sr-Latin",
                                                          "st", "sn", "sd", "si", "sk", "sl", "so", "es", "su", "sw", "sv", "tl", "ty", "tg", "ta", "tt", "te", "th", "to", "tr", "udm", "uk", "ur", "uz",
                                                          "vi", "cy", "xh", "yi", "yo", "yua", "zu" };
