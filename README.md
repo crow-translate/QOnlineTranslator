@@ -23,9 +23,9 @@ For real example of usage you can look into my other project: [Crow Translate](h
 
 ## Requirements
 
-**Linux**: GCC 6+
+**Linux**: GCC 6 +
 
-**Windows**: MSVC2017
+**Windows**: MSVC2017 / MinGW 7 +
 
 ## Installation
 
