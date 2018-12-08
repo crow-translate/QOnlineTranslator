@@ -70,131 +70,131 @@ The **QOnlineTranslator** class provides translation data.
 
 This enum has the following values:
 
-|                              Constant | Value | Engine               |
-| ------------------------------------: | :---: | :------------------- |
-|         QOnlineTranslator::NoLanguage |   -1  |                      |
-|               QOnlineTranslator::Auto |   0   |                      |
-|          QOnlineTranslator::Afrikaans |   1   | Google, Yandex, Bing |
-|           QOnlineTranslator::Albanian |   2   | Google, Yandex       |
-|            QOnlineTranslator::Amharic |   3   | Google, Yandex       |
-|             QOnlineTranslator::Arabic |   4   | Google, Yandex, Bing |
-|           QOnlineTranslator::Armenian |   5   | Google, Yandex       |
-|        QOnlineTranslator::Azerbaijani |   6   | Google               |
-|             QOnlineTranslator::Basque |   7   | Google, Yandex       |
-|            QOnlineTranslator::Bashkir |   8   | Yandex               |
-|         QOnlineTranslator::Belarusian |   9   | Google, Yandex       |
-|            QOnlineTranslator::Bengali |   10  | Google, Yandex, Bing |
-|            QOnlineTranslator::Bosnian |   11  | Google, Yandex, Bing |
-|          QOnlineTranslator::Bulgarian |   12  | Google, Yandex, Bing |
-|            QOnlineTranslator::Catalan |   13  | Google, Yandex, Bing |
-|          QOnlineTranslator::Cantonese |   14  | Bing                 |
-|            QOnlineTranslator::Cebuano |   15  | Google, Yandex       |
-|  QOnlineTranslator::SimplifiedChinese |   16  | Google, Yandex, Bing |
-| QOnlineTranslator::TraditionalChinese |   17  | Google, Yandex, Bing |
-|           QOnlineTranslator::Corsican |   18  | Google               |
-|           QOnlineTranslator::Croatian |   19  | Google, Yandex, Bing |
-|              QOnlineTranslator::Czech |   20  | Google, Yandex, Bing |
-|             QOnlineTranslator::Danish |   21  | Google, Yandex, Bing |
-|              QOnlineTranslator::Dutch |   22  | Google, Yandex, Bing |
-|            QOnlineTranslator::English |   23  | Google, Yandex, Bing |
-|          QOnlineTranslator::Esperanto |   24  | Google, Yandex       |
-|           QOnlineTranslator::Estonian |   25  | Google, Yandex, Bing |
-|             QOnlineTranslator::Fijian |   26  | Bing                 |
-|           QOnlineTranslator::Filipino |   27  | Bing                 |
-|            QOnlineTranslator::Finnish |   28  | Google, Yandex, Bing |
-|             QOnlineTranslator::French |   29  | Google, Yandex, Bing |
-|            QOnlineTranslator::Frisian |   30  | Google               |
-|           QOnlineTranslator::Galician |   31  | Google, Yandex, Bing |
-|           QOnlineTranslator::Georgian |   32  | Yandex               |
-|             QOnlineTranslator::German |   33  | Google, Yandex, Bing |
-|              QOnlineTranslator::Greek |   34  | Google, Yandex, Bing |
-|           QOnlineTranslator::Gujarati |   35  | Google, Yandex       |
-|      QOnlineTranslator::HaitianCreole |   36  | Google, Yandex, Bing |
-|              QOnlineTranslator::Hausa |   37  | Google               |
-|           QOnlineTranslator::Hawaiian |   38  | Google               |
-|             QOnlineTranslator::Hebrew |   39  | Google, Yandex, Bing |
-|           QOnlineTranslator::HillMari |   40  | Yandex               |
-|              QOnlineTranslator::Hindi |   41  | Google, Yandex, Bing |
-|              QOnlineTranslator::Hmong |   42  | Google, Bing         |
-|          QOnlineTranslator::Hungarian |   43  | Google, Yandex, Bing |
-|          QOnlineTranslator::Icelandic |   44  | Google, Yandex, Bing |
-|               QOnlineTranslator::Igbo |   45  | Google               |
-|         QOnlineTranslator::Indonesian |   46  | Google, Yandex, Bing |
-|              QOnlineTranslator::Irish |   47  | Google, Yandex       |
-|            QOnlineTranslator::Italian |   48  | Google, Yandex, Bing |
-|           QOnlineTranslator::Japanese |   49  | Google, Yandex, Bing |
-|           QOnlineTranslator::Javanese |   50  | Google, Yandex       |
-|            QOnlineTranslator::Kannada |   51  | Google, Yandex       |
-|             QOnlineTranslator::Kazakh |   52  | Google, Yandex       |
-|              QOnlineTranslator::Khmer |   53  | Google, Yandex       |
-|            QOnlineTranslator::Klingon |   54  | Bing                 |
-|       QOnlineTranslator::KlingonPlqaD |   55  | Bing                 |
-|             QOnlineTranslator::Korean |   56  | Google, Yandex, Bing |
-|            QOnlineTranslator::Kurdish |   57  | Google               |
-|             QOnlineTranslator::Kyrgyz |   58  | Google, Yandex       |
-|                QOnlineTranslator::Lao |   59  | Google, Yandex       |
-|              QOnlineTranslator::Latin |   60  | Google, Yandex       |
-|            QOnlineTranslator::Latvian |   61  | Google, Yandex, Bing |
-|    QOnlineTranslator::LevantineArabic |   62  | Bing                 |
-|         QOnlineTranslator::Lithuanian |   63  | Google, Yandex, Bing |
-|      QOnlineTranslator::Luxembourgish |   64  | Google, Yandex       |
-|         QOnlineTranslator::Macedonian |   65  | Google, Yandex       |
-|           QOnlineTranslator::Malagasy |   66  | Google, Yandex, Bing |
-|              QOnlineTranslator::Malay |   67  | Google, Yandex, Bing |
-|          QOnlineTranslator::Malayalam |   68  | Google, Yandex       |
-|            QOnlineTranslator::Maltese |   69  | Google, Yandex, Bing |
-|              QOnlineTranslator::Maori |   70  | Google, Yandex       |
-|            QOnlineTranslator::Marathi |   71  | Google, Yandex       |
-|               QOnlineTranslator::Mari |   72  | Yandex               |
-|          QOnlineTranslator::Mongolian |   73  | Google, Yandex       |
-|            QOnlineTranslator::Myanmar |   74  | Google, Yandex       |
-|             QOnlineTranslator::Nepali |   75  | Google, Yandex       |
-|          QOnlineTranslator::Norwegian |   76  | Google, Yandex, Bing |
-|           QOnlineTranslator::Chichewa |   77  | Google               |
-|         QOnlineTranslator::Papiamento |   78  | Yandex               |
-|             QOnlineTranslator::Pashto |   79  | Google               |
-|            QOnlineTranslator::Persian |   80  | Google, Yandex, Bing |
-|             QOnlineTranslator::Polish |   81  | Google, Yandex, Bing |
-|         QOnlineTranslator::Portuguese |   82  | Google, Yandex, Bing |
-|            QOnlineTranslator::Punjabi |   83  | Google, Yandex       |
-|     QOnlineTranslator::QueretaroOtomi |   84  | Bing                 |
-|           QOnlineTranslator::Romanian |   85  | Google, Yandex, Bing |
-|            QOnlineTranslator::Russian |   86  | Google, Yandex, Bing |
-|             QOnlineTranslator::Samoan |   87  | Google, Bing         |
-|        QOnlineTranslator::ScotsGaelic |   88  | Google, Yandex       |
-|    QOnlineTranslator::SerbianCyrillic |   89  | Google, Yandex, Bing |
-|       QOnlineTranslator::SerbianLatin |   90  | Bing                 |
-|            QOnlineTranslator::Sesotho |   91  | Google               |
-|              QOnlineTranslator::Shona |   92  | Google               |
-|             QOnlineTranslator::Sindhi |   93  | Google               |
-|            QOnlineTranslator::Sinhala |   94  | Google, Yandex       |
-|             QOnlineTranslator::Slovak |   95  | Google, Yandex, Bing |
-|          QOnlineTranslator::Slovenian |   96  | Google, Yandex, Bing |
-|             QOnlineTranslator::Somali |   97  | Google               |
-|            QOnlineTranslator::Spanish |   98  | Google, Yandex, Bing |
-|          QOnlineTranslator::Sundanese |   99  | Google, Yandex       |
-|            QOnlineTranslator::Swahili |  100  | Google, Yandex, Bing |
-|            QOnlineTranslator::Swedish |  101  | Google, Yandex, Bing |
-|            QOnlineTranslator::Tagalog |  102  | Google, Yandex       |
-|           QOnlineTranslator::Tahitian |  103  | Bing                 |
-|              QOnlineTranslator::Tajik |  104  | Google, Yandex       |
-|              QOnlineTranslator::Tamil |  105  | Google, Yandex, Bing |
-|              QOnlineTranslator::Tatar |  106  | Yandex               |
-|             QOnlineTranslator::Telugu |  107  | Google, Yandex, Bing |
-|               QOnlineTranslator::Thai |  108  | Google, Yandex, Bing |
-|             QOnlineTranslator::Tongan |  109  | Bing                 |
-|            QOnlineTranslator::Turkish |  110  | Google, Yandex, Bing |
-|             QOnlineTranslator::Udmurt |  111  | Yandex               |
-|          QOnlineTranslator::Ukrainian |  112  | Google, Yandex, Bing |
-|               QOnlineTranslator::Urdu |  113  | Google, Yandex, Bing |
-|              QOnlineTranslator::Uzbek |  114  | Google, Yandex       |
-|         QOnlineTranslator::Vietnamese |  115  | Google, Yandex, Bing |
-|              QOnlineTranslator::Welsh |  116  | Google, Yandex, Bing |
-|              QOnlineTranslator::Xhosa |  117  | Google, Yandex       |
-|            QOnlineTranslator::Yiddish |  118  | Google, Yandex       |
-|             QOnlineTranslator::Yoruba |  119  | Google               |
-|        QOnlineTranslator::YucatecMaya |  120  | Bing                 |
-|               QOnlineTranslator::Zulu |  121  | Google               |
+|                              Constant | Value | Engine               | Language code |
+| ------------------------------------: | :---: | :------------------- | :------------ |
+|         QOnlineTranslator::NoLanguage |   -1  |                      |               |
+|               QOnlineTranslator::Auto |   0   | Google, Yandex, Bing | auto          |
+|          QOnlineTranslator::Afrikaans |   1   | Google, Yandex, Bing | af            |
+|           QOnlineTranslator::Albanian |   2   | Google, Yandex       | sq            |
+|            QOnlineTranslator::Amharic |   3   | Google, Yandex       | am            |
+|             QOnlineTranslator::Arabic |   4   | Google, Yandex, Bing | ar            |
+|           QOnlineTranslator::Armenian |   5   | Google, Yandex       | hy            |
+|        QOnlineTranslator::Azerbaijani |   6   | Google               | az            |
+|             QOnlineTranslator::Basque |   7   | Google, Yandex       | eu            |
+|            QOnlineTranslator::Bashkir |   8   | Yandex               | ba            |
+|         QOnlineTranslator::Belarusian |   9   | Google, Yandex       | be            |
+|            QOnlineTranslator::Bengali |   10  | Google, Yandex, Bing | bn            |
+|            QOnlineTranslator::Bosnian |   11  | Google, Yandex, Bing | bs            |
+|          QOnlineTranslator::Bulgarian |   12  | Google, Yandex, Bing | bg            |
+|            QOnlineTranslator::Catalan |   13  | Google, Yandex, Bing | ca            |
+|          QOnlineTranslator::Cantonese |   14  | Bing                 | yue           |
+|            QOnlineTranslator::Cebuano |   15  | Google, Yandex       | ceb           |
+|  QOnlineTranslator::SimplifiedChinese |   16  | Google, Yandex, Bing | zh-CN         |
+| QOnlineTranslator::TraditionalChinese |   17  | Google, Yandex, Bing | zh-TW         |
+|           QOnlineTranslator::Corsican |   18  | Google               | co            |
+|           QOnlineTranslator::Croatian |   19  | Google, Yandex, Bing | hr            |
+|              QOnlineTranslator::Czech |   20  | Google, Yandex, Bing | cs            |
+|             QOnlineTranslator::Danish |   21  | Google, Yandex, Bing | da            |
+|              QOnlineTranslator::Dutch |   22  | Google, Yandex, Bing | nl            |
+|            QOnlineTranslator::English |   23  | Google, Yandex, Bing | en            |
+|          QOnlineTranslator::Esperanto |   24  | Google, Yandex       | eo            |
+|           QOnlineTranslator::Estonian |   25  | Google, Yandex, Bing | et            |
+|             QOnlineTranslator::Fijian |   26  | Bing                 | fj            |
+|           QOnlineTranslator::Filipino |   27  | Bing                 | fil           |
+|            QOnlineTranslator::Finnish |   28  | Google, Yandex, Bing | fi            |
+|             QOnlineTranslator::French |   29  | Google, Yandex, Bing | fr            |
+|            QOnlineTranslator::Frisian |   30  | Google               | fy            |
+|           QOnlineTranslator::Galician |   31  | Google, Yandex, Bing | gl            |
+|           QOnlineTranslator::Georgian |   32  | Yandex               | ka            |
+|             QOnlineTranslator::German |   33  | Google, Yandex, Bing | de            |
+|              QOnlineTranslator::Greek |   34  | Google, Yandex, Bing | el            |
+|           QOnlineTranslator::Gujarati |   35  | Google, Yandex       | gu            |
+|      QOnlineTranslator::HaitianCreole |   36  | Google, Yandex, Bing | ht            |
+|              QOnlineTranslator::Hausa |   37  | Google               | ha            |
+|           QOnlineTranslator::Hawaiian |   38  | Google               | haw           |
+|             QOnlineTranslator::Hebrew |   39  | Google, Yandex, Bing | he            |
+|           QOnlineTranslator::HillMari |   40  | Yandex               | mrj           |
+|              QOnlineTranslator::Hindi |   41  | Google, Yandex, Bing | hi            |
+|              QOnlineTranslator::Hmong |   42  | Google, Bing         | hmn           |
+|          QOnlineTranslator::Hungarian |   43  | Google, Yandex, Bing | hu            |
+|          QOnlineTranslator::Icelandic |   44  | Google, Yandex, Bing | is            |
+|               QOnlineTranslator::Igbo |   45  | Google               | ig            |
+|         QOnlineTranslator::Indonesian |   46  | Google, Yandex, Bing | id            |
+|              QOnlineTranslator::Irish |   47  | Google, Yandex       | ga            |
+|            QOnlineTranslator::Italian |   48  | Google, Yandex, Bing | it            |
+|           QOnlineTranslator::Japanese |   49  | Google, Yandex, Bing | ja            |
+|           QOnlineTranslator::Javanese |   50  | Google, Yandex       | jw            |
+|            QOnlineTranslator::Kannada |   51  | Google, Yandex       | kn            |
+|             QOnlineTranslator::Kazakh |   52  | Google, Yandex       | kk            |
+|              QOnlineTranslator::Khmer |   53  | Google, Yandex       | km            |
+|            QOnlineTranslator::Klingon |   54  | Bing                 | tlh           |
+|       QOnlineTranslator::KlingonPlqaD |   55  | Bing                 | tlh-Qaak      |
+|             QOnlineTranslator::Korean |   56  | Google, Yandex, Bing | ko            |
+|            QOnlineTranslator::Kurdish |   57  | Google               | ku            |
+|             QOnlineTranslator::Kyrgyz |   58  | Google, Yandex       | ky            |
+|                QOnlineTranslator::Lao |   59  | Google, Yandex       | lo            |
+|              QOnlineTranslator::Latin |   60  | Google, Yandex       | la            |
+|            QOnlineTranslator::Latvian |   61  | Google, Yandex, Bing | lv            |
+|    QOnlineTranslator::LevantineArabic |   62  | Bing                 | apc           |
+|         QOnlineTranslator::Lithuanian |   63  | Google, Yandex, Bing | lt            |
+|      QOnlineTranslator::Luxembourgish |   64  | Google, Yandex       | lb            |
+|         QOnlineTranslator::Macedonian |   65  | Google, Yandex       | mk            |
+|           QOnlineTranslator::Malagasy |   66  | Google, Yandex, Bing | mg            |
+|              QOnlineTranslator::Malay |   67  | Google, Yandex, Bing | ms            |
+|          QOnlineTranslator::Malayalam |   68  | Google, Yandex       | ml            |
+|            QOnlineTranslator::Maltese |   69  | Google, Yandex, Bing | mt            |
+|              QOnlineTranslator::Maori |   70  | Google, Yandex       | mi            |
+|            QOnlineTranslator::Marathi |   71  | Google, Yandex       | mr            |
+|               QOnlineTranslator::Mari |   72  | Yandex               | mhr           |
+|          QOnlineTranslator::Mongolian |   73  | Google, Yandex       | mn            |
+|            QOnlineTranslator::Myanmar |   74  | Google, Yandex       | my            |
+|             QOnlineTranslator::Nepali |   75  | Google, Yandex       | ne            |
+|          QOnlineTranslator::Norwegian |   76  | Google, Yandex, Bing | no            |
+|           QOnlineTranslator::Chichewa |   77  | Google               | ny            |
+|         QOnlineTranslator::Papiamento |   78  | Yandex               | pap           |
+|             QOnlineTranslator::Pashto |   79  | Google               | ps            |
+|            QOnlineTranslator::Persian |   80  | Google, Yandex, Bing | fa            |
+|             QOnlineTranslator::Polish |   81  | Google, Yandex, Bing | pl            |
+|         QOnlineTranslator::Portuguese |   82  | Google, Yandex, Bing | pt            |
+|            QOnlineTranslator::Punjabi |   83  | Google, Yandex       | pa            |
+|     QOnlineTranslator::QueretaroOtomi |   84  | Bing                 | otq           |
+|           QOnlineTranslator::Romanian |   85  | Google, Yandex, Bing | ro            |
+|            QOnlineTranslator::Russian |   86  | Google, Yandex, Bing | ru            |
+|             QOnlineTranslator::Samoan |   87  | Google, Bing         | sm            |
+|        QOnlineTranslator::ScotsGaelic |   88  | Google, Yandex       | gd            |
+|    QOnlineTranslator::SerbianCyrillic |   89  | Google, Yandex, Bing | sr-Cyrl       |
+|       QOnlineTranslator::SerbianLatin |   90  | Bing                 | sr-Latin      |
+|            QOnlineTranslator::Sesotho |   91  | Google               | st            |
+|              QOnlineTranslator::Shona |   92  | Google               | sn            |
+|             QOnlineTranslator::Sindhi |   93  | Google               | sd            |
+|            QOnlineTranslator::Sinhala |   94  | Google, Yandex       | si            |
+|             QOnlineTranslator::Slovak |   95  | Google, Yandex, Bing | sk            |
+|          QOnlineTranslator::Slovenian |   96  | Google, Yandex, Bing | sl            |
+|             QOnlineTranslator::Somali |   97  | Google               | so            |
+|            QOnlineTranslator::Spanish |   98  | Google, Yandex, Bing | es            |
+|          QOnlineTranslator::Sundanese |   99  | Google, Yandex       | su            |
+|            QOnlineTranslator::Swahili |  100  | Google, Yandex, Bing | sw            |
+|            QOnlineTranslator::Swedish |  101  | Google, Yandex, Bing | sv            |
+|            QOnlineTranslator::Tagalog |  102  | Google, Yandex       | tl            |
+|           QOnlineTranslator::Tahitian |  103  | Bing                 | ty            |
+|              QOnlineTranslator::Tajik |  104  | Google, Yandex       | tg            |
+|              QOnlineTranslator::Tamil |  105  | Google, Yandex, Bing | ta            |
+|              QOnlineTranslator::Tatar |  106  | Yandex               | tt            |
+|             QOnlineTranslator::Telugu |  107  | Google, Yandex, Bing | te            |
+|               QOnlineTranslator::Thai |  108  | Google, Yandex, Bing | th            |
+|             QOnlineTranslator::Tongan |  109  | Bing                 | to            |
+|            QOnlineTranslator::Turkish |  110  | Google, Yandex, Bing | tr            |
+|             QOnlineTranslator::Udmurt |  111  | Yandex               | udm           |
+|          QOnlineTranslator::Ukrainian |  112  | Google, Yandex, Bing | uk            |
+|               QOnlineTranslator::Urdu |  113  | Google, Yandex, Bing | ur            |
+|              QOnlineTranslator::Uzbek |  114  | Google, Yandex       | uz            |
+|         QOnlineTranslator::Vietnamese |  115  | Google, Yandex, Bing | vi            |
+|              QOnlineTranslator::Welsh |  116  | Google, Yandex, Bing | cy            |
+|              QOnlineTranslator::Xhosa |  117  | Google, Yandex       | xh            |
+|            QOnlineTranslator::Yiddish |  118  | Google, Yandex       | yi            |
+|             QOnlineTranslator::Yoruba |  119  | Google               | yo            |
+|        QOnlineTranslator::YucatecMaya |  120  | Bing                 | yua           |
+|               QOnlineTranslator::Zulu |  121  | Google               | zu            |
 
 ### <a id='engine'/> enum QOnlineTranslator::Engine
 
@@ -451,7 +451,9 @@ Returns the _language_ name.
 
 ### <a id='language-code'/> static [QString](https://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::languageCode(_Language language_)
 
-Returns code of the _language_.
+Returns code of the _language_. See table [below](#language).
+
+**Note**: These are not the codes for sending API requests.
 
 * * *
 
