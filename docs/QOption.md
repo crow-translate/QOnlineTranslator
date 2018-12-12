@@ -23,7 +23,7 @@ The **QOption** class provides storage for translation options data for a single
 
 ## Detailed Description
 
-The **QOption** object can be obtained from the [QOnlineTranslator](docs/QOnlineTranslator.md "Class documentation") object, which contains translation options for a single type of speech.
+A **QOption** object can be obtained from the [QOnlineTranslator](docs/QOnlineTranslator.md "Class documentation") object, which contains translation options for a single type of speech.
 
 **Example:**
 
@@ -36,11 +36,11 @@ if (translator.error() != QOnlineTranslator::NoError) {
     out << translator.errorString() << endl; // Print the text of the network error
 } else {
     foreach (const QOption &option, translator.translationOptions()) {
-        out << option.typeOfSpeech() << ":" << endl; // Output type of speech with a colon
+        out << option.typeOfSpeech() << ":" << endl; // Output the type of speech with a colon
         for (auto i = 0; i <  option.count(); i++) {
             if (!option.gender(i).isEmpty())
-                out << " " << option.gender(i); // Print word gender
-            out << " " << option.word(i) << ": "; // Print word
+                out << " " << option.gender(i); // Print the gender of the word
+            out << " " << option.word(i) << ": "; // Print the word
             out << option.translations(i); // Print translations
             out << endl;
         }
@@ -71,13 +71,19 @@ noun:
 
 ### <a id='constructor'/> QOption::QOption(_const QString &typeOfSpeech = ""_)
 
-Constructs an empty object with the type of speech text _typeOfSpeech_.
+Constructs an empty object with the type of speech _typeOfSpeech_ for translation options.
 
 * * *
 
 ### <a id='type-of-speech'/> [QString](https://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOption::typeOfSpeech()
 
-Returns type of speech of the text.
+Returns the type of speech of translation options.
+
+* * *
+
+### <a id='set-type-of-speech'/> void QOption::setTypeOfSpeech(_const QString &typeOfSpeech_)
+
+Sets the type of speech of translation options to _typeOfSpeech_.
 
 * * *
 
@@ -96,12 +102,6 @@ Returns the gender of the word with _index_.
 ### <a id='translations'/> [QStringList](https://doc.qt.io/qt-5/qstringlist.html "Qt Documentation") QOption::translations(_int index_)
 
 Returns translations for the word with the _index_.
-
-* * *
-
-### <a id='set-type-of-speech'/> void QOption::setTypeOfSpeech(_const QString &typeOfSpeech_)
-
-Sets type of speech of the text to _typeOfSpeech_.
 
 * * *
 

@@ -249,7 +249,7 @@ Indicates all possible error conditions found during the processing of the trans
 
 ### <a id='constructor'/> QOnlineTranslator::QOnlineTranslator(_QObject \*parent = nullptr_)
 
-Constructs an translator with empty data and with parent object _parent_. You can use [translate()](#translate) to send text to object. The destructor of a parent object destroys all child objects. Setting parent to 0 constructs an object with no parent. The parent of an object may be viewed as the object's owner.
+Constructs an object with empty data and with _parent_. You can use [translate()](#translate) to send text to object. The destructor of a parent object destroys all child objects. Setting parent to 0 constructs an object with no parent. The parent of an object may be viewed as the object's owner.
 
 * * *
 
@@ -261,7 +261,7 @@ Parse _text_ and translate with _engine_ into _translationLang_ from _sourceLang
 
 ### <a id='media'/> [QList](https://doc.qt.io/qt-5/qlist.html "Qt Documentation")\<[QMediaContent](https://doc.qt.io/qt-5/qmediacontent.html "Qt Documentation")> QOnlineTranslator::media(_const QString &text, Engine engine, Language language = Auto, Voice voice = DefaultVoice, Emotion emotion = DefaultEmotion_)
 
-Splits _text_ into parts (Google and Yandex have limits on the size of the request) and returns list with the generated API URLs to play this text on _language_ with _voice_. _emotion_ argument only affects Yandex engine.
+Splits _text_ into parts (engines have a limited number of characters per request) and returns list with the generated API URLs to play this text on _language_ with _voice_. _emotion_ argument only affects Yandex engine.
 
 Example:
 
@@ -280,7 +280,7 @@ player->play(); // Plays "Hello World!"
 
 ### <a id='source-media'/> [QList](https://doc.qt.io/qt-5/qlist.html "Qt Documentation")\<[QMediaContent](https://doc.qt.io/qt-5/qmediacontent.html "Qt Documentation")> QOnlineTranslator::sourceMedia(_Engine engine, Voice voice = DefaultVoice, Emotion emotion = DefaultEmotion_)
 
-Splits the source text of translator into parts (because engines have limit of size per one request) and returns list with the generated API URLs to play this text with _voice_. _emotion_ argument only affects Yandex engine.
+Splits the source text of translator into parts (engines have a limited number of characters per request) and returns list with the generated API URLs to play this text with _voice_. _emotion_ argument only affects Yandex engine.
 
 Example:
 
@@ -301,61 +301,61 @@ player->play(); // Plays "Hello World!"
 
 ### <a id='translation-media'/> [QList](https://doc.qt.io/qt-5/qlist.html "Qt Documentation")\<[QMediaContent](https://doc.qt.io/qt-5/qmediacontent.html "Qt Documentation")> QOnlineTranslator::translationMedia(_Engine engine, Voice voice = DefaultVoice, Emotion emotion = DefaultEmotion_)
 
-Splits the translation of translator into parts (Google and Yandex have limits on the size of the request) and returns list with the generated API URLs to play this text with _voice_. _emotion_ argument only affects Yandex engine.
+Splits the translation of translator into parts (engines have a limited number of characters per request) and returns list with the generated API URLs to play this text with _voice_. _emotion_ argument only affects Yandex engine.
 
 * * *
 
 ### <a id='source'/> [QString](https://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::source()
 
-Returns source text.
+Returns the source text.
 
 * * *
 
 ### <a id='source-transliteration'/> [QString](https://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::sourceTranslit()
 
-Returns transliteration of source text. Google sends source transliteration only if source text is one word, otherwise function returns empty string.
+Returns the transliteration of the source text.
 
 * * *
 
 ### <a id='source-language-string'/> [QString](https://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::sourceLanguage()
 
-Returns name of source language.
+Returns the name of the source language.
 
 * * *
 
 ### <a id='source-language'/> Language QOnlineTranslator::sourceLanguage()
 
-Returns source language.
+Returns the source language.
 
 * * *
 
 ### <a id='translation'/> [QString](https://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::translation()
 
-Returns translated text.
+Returns the translated text.
 
 * * *
 
 ### <a id='translation-translit'/> [QString](https://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::translationTranslit()
 
-Returns transliteration of translated text.
+Returns the transliteration of the translated text.
 
 * * *
 
 ### <a id='source-transcription'/> [QString](https://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::sourceTranscription()
 
-Returns transcription of source text. Supports only for Yandex.
+Returns the transcription of the source text. Supports only for Yandex.
 
 * * *
 
 ### <a id='translation-language-string'/> [QString](https://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::translationLanguage()
 
-Returns name of translation language.
+Returns the name of the translation language.
 
 * * *
 
 ### <a id='translation-language'/> Language QOnlineTranslator::translationLanguage()
 
-Returns translation language.
+Returns the translation language.
 
 * * *
 
@@ -373,7 +373,7 @@ Returns a list of [QDefinition](QDefinition.md "Class documentation"). Read the 
 
 ### <a id='error'/> TranslationError QOnlineTranslator::error()
 
-Returns the error that was found during the processing of last translation or tts. If no error was found, returns NoError. The text of the error can be obtained by [**errorString**()](#error-string).
+Returns the error that was found during the processing of the last translation or tts. If no error was found, returns `NoError`. The text of the error can be obtained by [**errorString**()](#error-string).
 
 * * *
 
@@ -451,7 +451,7 @@ Returns the _language_ name.
 
 ### <a id='language-code'/> static [QString](https://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::languageCode(_Language language_)
 
-Returns code of the _language_. See table [below](#language).
+Returns the code of the _language_. See table [below](#language).
 
 **Note**: These are not the codes for sending API requests.
 
@@ -459,13 +459,13 @@ Returns code of the _language_. See table [below](#language).
 
 ### <a id='language-1'/> static Language QOnlineTranslator::language(_const QLocale &locale_)
 
-Returns [Language](#language) from _locale_ object.
+Returns the [Language](#language) from _locale_ object.
 
 * * *
 
 ### <a id='language-2'/> static Language QOnlineTranslator::language(_const QString &languageCode_)
 
-Returns [Language](#language) from ISO _languageCode_.
+Returns the [Language](#language) from ISO _languageCode_.
 
 * * *
 

@@ -1,5 +1,5 @@
 /*
- *  Copyright © 2018 Gennady Chernyshchuk <genaloner@gmail.com>
+ *  Copyright © 2018 Hennadii Chernyshchyk <genaloner@gmail.com>
  *
  *  This file is part of QOnlineTranslator.
  *
@@ -29,10 +29,11 @@ public:
     explicit QExample(const QString &typeOfSpeech = "");
 
     QString typeOfSpeech() const;
+    void setTypeOfSpeech(const QString &typeOfSpeech);
+
     QString description(int index) const;
     QString example(int index) const;
 
-    void setTypeOfSpeech(const QString &typeOfSpeech);
     void addExample(const QString &description, const QString &example);
     int count() const;
 

@@ -1,5 +1,5 @@
 /*
- *  Copyright © 2018 Gennady Chernyshchuk <genaloner@gmail.com>
+ *  Copyright © 2018 Hennadii Chernyshchyk <genaloner@gmail.com>
  *
  *  This file is part of QOnlineTranslator.
  *
@@ -29,11 +29,12 @@ public:
     explicit QOption(const QString &typeOfSpeech = "");
 
     QString typeOfSpeech() const;
+    void setTypeOfSpeech(const QString &typeOfSpeech);
+
     QString word(int index) const;
     QString gender(int index) const;
     QString translations(int index) const;
 
-    void setTypeOfSpeech(const QString &typeOfSpeech);
     void addWord(const QString &word, const QString &gender = "", const QStringList &translations = QStringList());
     int count() const;
 

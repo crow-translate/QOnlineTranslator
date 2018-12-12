@@ -1,5 +1,5 @@
 /*
- *  Copyright © 2018 Gennady Chernyshchuk <genaloner@gmail.com>
+ *  Copyright © 2018 Hennadii Chernyshchyk <genaloner@gmail.com>
  *
  *  This file is part of QOnlineTranslator.
  *
@@ -30,6 +30,11 @@ QString QExample::typeOfSpeech() const
     return m_typeOfSpeech;
 }
 
+void QExample::setTypeOfSpeech(const QString &typeOfSpeech)
+{
+    m_typeOfSpeech = typeOfSpeech;
+}
+
 QString QExample::description(int index) const
 {
     return m_descriptions.at(index);
@@ -38,11 +43,6 @@ QString QExample::description(int index) const
 QString QExample::example(int index) const
 {
     return m_examples.at(index);
-}
-
-void QExample::setTypeOfSpeech(const QString &typeOfSpeech)
-{
-    m_typeOfSpeech = typeOfSpeech;
 }
 
 void QExample::addExample(const QString &description, const QString &example)

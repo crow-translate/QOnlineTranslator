@@ -22,7 +22,7 @@ The **QExample** class provides storage for example usage examples for a single 
 
 ## Detailed Description
 
-The **QExample** object can be obtained from the [QOnlineTranslator](docs/QOnlineTranslator.md "Class documentation") object, which contains examples for a single type of speech.
+A **QExample** object can be obtained from the [QOnlineTranslator](docs/QOnlineTranslator.md "Class documentation") object, which contains examples for a single type of speech.
 
 **Example:**
 
@@ -61,13 +61,19 @@ exclamation
 
 ### <a id='constructor'/> QExample::QExample(_const QString &typeOfSpeech = ""_)
 
-Constructs an empty object with the type of speech text _typeOfSpeech_.
+Constructs an empty object with the type of speech _typeOfSpeech_ of examples.
 
 * * *
 
 ### <a id='type-of-speech'/> [QString](https://doc.qt.io/qt-5/qstring.html "Qt Documentation") QExample::typeOfSpeech()
 
-Returns type of speech of the text.
+Returns the type of speech of examples.
+
+* * *
+
+### <a id='set-type-of-speech'/> void QExample::setTypeOfSpeech(_const QString &typeOfSpeech_)
+
+Sets the type of speech of examples to _typeOfSpeech_.
 
 * * *
 
@@ -83,15 +89,9 @@ Returns the description for the example with the _index_.
 
 * * *
 
-### <a id='set-type-of-speech'/> void QExample::setTypeOfSpeech(_const QString &typeOfSpeech_)
-
-Sets type of speech of the examples to _typeOfSpeech_.
-
-* * *
-
 ### <a id='add-example'/> void QExample::addWord(_const QString &description, const QString &example_)
 
-Appends the _example_ with _description_ onto the end of examples.
+Appends the _example_ with the _description_ onto the end of examples.
 
 * * *
 
