@@ -6,7 +6,9 @@ All notable changes to this project will be documented in this file. This projec
 
 [Full Changelog](https://github.com/crow-translate/QOnlineTranslator/compare/1.1.2...HEAD)
 
-_No unreleased changes yet_
+**Changed**
+
+-   Fix data reset on error.
 
 ## [1.1.2](https://github.com/crow-translate/QOnlineTranslator/tree/1.1.2) (2018-12-08)
 

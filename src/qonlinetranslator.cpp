@@ -1359,6 +1359,7 @@ QByteArray QOnlineTranslator::getGoogleTranslation(const QString &text, const QS
         m_errorString = reply->errorString();
         m_error = NetworkError;
         delete reply;
+        resetData();
         return "";
     }
 
@@ -1390,6 +1391,7 @@ QByteArray QOnlineTranslator::getYandexTranslation(const QString &text, const QS
             m_errorString = reply->errorString();
             m_error = NetworkError;
             delete reply;
+            resetData();
             return "";
         }
 
