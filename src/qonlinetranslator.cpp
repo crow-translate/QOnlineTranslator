@@ -1356,8 +1356,13 @@ QByteArray QOnlineTranslator::getGoogleTranslation(const QString &text, const QS
     waitForResponse.exec();
 
     if (reply->error() != QNetworkReply::NoError) {
-        m_errorString = reply->errorString();
-        m_error = NetworkError;
+        if (reply->error() == QNetworkReply::ServiceUnavailableError) {
+            m_errorString = tr("Error: Engine systems have detected suspicious traffic from your computer network. Please try your request again later.");
+            m_error = ServiceError;
+        } else {
+            m_errorString = reply->errorString();
+            m_error = NetworkError;
+        }
         delete reply;
         resetData();
         return "";
