@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file. This projec
 
 -   Fix data reset on error.
 -   Google: Show message about suspicious traffic.
+-   Google: Fix language parsing for saying.
 
 ## [1.1.2](https://github.com/crow-translate/QOnlineTranslator/tree/1.1.2) (2018-12-08)
 

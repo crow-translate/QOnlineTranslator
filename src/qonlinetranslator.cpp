@@ -456,14 +456,12 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
             if (reply.isEmpty())
                 return mediaList;
 
+            // Convert to JsonArray
+            const QJsonDocument jsonResponse = QJsonDocument::fromJson(reply);
+            const QJsonArray jsonData = jsonResponse.array();
+
             // Parse language
-#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
-            langCode = reply.chopped(4);
-#else
-            langCode = reply;
-            langCode.chop(4);
-#endif
-            langCode = langCode.mid(langCode.lastIndexOf("\"") + 1);
+            langCode = jsonData.at(2).toString();
             break;
         }
         case Yandex: {
