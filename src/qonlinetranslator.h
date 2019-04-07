@@ -24,8 +24,11 @@
 #include "qoption.h"
 #include "qexample.h"
 
-#include <QNetworkReply>
-#include <QMediaPlaylist>
+#include <QObject>
+
+class QMediaContent;
+class QNetworkAccessManager;
+class QNetworkReply;
 
 class QOnlineTranslator : public QObject
 {
@@ -251,6 +254,12 @@ public:
     static bool isSupportTts(Engine engine, Language lang);
 
 private:
+    // Generate Codes for API
+    QString translationLanguageCode(Engine engine, Language lang);
+    QString ttsLanguageCode(Engine engine, Language lang);
+    QString voiceCode(Engine engine, Voice voice);
+    QString emotionCode(Engine engine, Emotion emotion);
+
     // Get API reply as JSON
     QByteArray getGoogleTranslation(const QString &text, const QString &translationCode, const QString &sourceCode = "auto", const QString &uiCode = "en");
     QByteArray getYandexTranslation(const QString &text, const QString &translationCode, const QString &sourceCode = "auto");
@@ -261,11 +270,9 @@ private:
     QByteArray getBingTranslit(const QString &text, const QString &langCode);
     QByteArray getBingDictionary(const QString &text, const QString &translationCode, const QString &sourceCode);
 
-    // Generate Codes for API
-    QString translationLanguageCode(Engine engine, Language lang);
-    QString ttsLanguageCode(Engine engine, Language lang);
-    QString voiceCode(Engine engine, Voice voice);
-    QString emotionCode(Engine engine, Emotion emotion);
+    // Network requests
+    QNetworkReply *getReply(const QUrl &url);
+    QNetworkReply *postReply(const QUrl &url, const QByteArray &postData);
 
     // Check for service support
     static bool isSupportGoogle(Language lang);
@@ -279,9 +286,10 @@ private:
     // Other
     static Language language(Engine engine, const QString &langCode);
     static int getSplitIndex(const QString &untranslatedText, int limit);
-    void resetData();
+    void resetData(TranslationError error = NoError, const QString &errorString = QString());
 
-    QNetworkAccessManager m_network{this};
+    QNetworkAccessManager *m_networkManager;
+    QNetworkReply *m_currentReply = nullptr;
 
     Language m_sourceLang = NoLanguage;
     Language m_translationLang = NoLanguage;
@@ -303,7 +311,6 @@ private:
     bool m_sourceTranscriptionEnabled = true;
     bool m_translationOptionsEnabled = true;
     bool m_examplesEnabled = true;
-    const char m_padding[3] = " "; // Avoid padding size warning
 
     static QString m_yandexKey;
     static const QStringList m_languageCodes;

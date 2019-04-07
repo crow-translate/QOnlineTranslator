@@ -25,19 +25,21 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QNetworkReply>
+#include <QPointer>
 
 // Engines have a limit of characters per translation request.
 // If the query is larger, then it should be splited into several with getSplitIndex() helper function
-constexpr int GOOGLE_TRANSLATE_LIMIT = 5000;
-constexpr int GOOGLE_TTS_LIMIT = 200;
+constexpr int googleTranslateLimit = 5000;
+constexpr int googleTtsLimit = 200;
 
-constexpr int YANDEX_TRANSLATE_LIMIT = 150;
-constexpr int YANDEX_TRANSLIT_LIMIT = 180;
-constexpr int YANDEX_TTS_LIMIT = 1400;
+constexpr int yandexTranslateLimit = 150;
+constexpr int yandexTranslitLimit = 180;
+constexpr int yandexTtsLimit = 1400;
 
-constexpr int BING_TRANSLATE_LIMIT = 5001;
-constexpr int BING_TRANSLIT_LIMIT = 5000;
-constexpr int BING_TTS_LIMIT = 2001;
+constexpr int bingTranslateLimit = 5001;
+constexpr int bingTranslitLimit = 5000;
+constexpr int bingTtsLimit = 2001;
 
 QString QOnlineTranslator::m_yandexKey;
 bool QOnlineTranslator::m_secondYandexKeyRequest = false;
@@ -52,6 +54,7 @@ const QStringList QOnlineTranslator::m_languageCodes = { "auto", "af", "sq", "am
 QOnlineTranslator::QOnlineTranslator(QObject *parent) :
     QObject(parent)
 {
+    m_networkManager = new QNetworkAccessManager(this);
 }
 
 void QOnlineTranslator::translate(const QString &text, Engine engine, Language translationLang, Language sourceLang, Language uiLang)
@@ -92,12 +95,12 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
     case Google:
         unsendedText = m_source;
         while (!unsendedText.isEmpty()) {
-            const int splitIndex = getSplitIndex(unsendedText, GOOGLE_TRANSLATE_LIMIT);
+            const int splitIndex = getSplitIndex(unsendedText, googleTranslateLimit);
 
             // Do not translate the part if it looks like garbage
             if (splitIndex == -1) {
-                m_translation.append(unsendedText.leftRef(GOOGLE_TRANSLATE_LIMIT));
-                unsendedText = unsendedText.mid(GOOGLE_TRANSLATE_LIMIT);
+                m_translation.append(unsendedText.leftRef(googleTranslateLimit));
+                unsendedText = unsendedText.mid(googleTranslateLimit);
                 continue;
             }
 
@@ -138,7 +141,7 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
                 m_sourceTranslit.append(" ");
             }
 
-            if (m_translationOptionsEnabled && text.size() < GOOGLE_TRANSLATE_LIMIT) {
+            if (m_translationOptionsEnabled && text.size() < googleTranslateLimit) {
                 // Translation options
                 foreach (const QJsonValue &typeOfSpeechData, jsonData.at(1).toArray()) {
                     m_translationOptions << QOption(typeOfSpeechData.toArray().at(0).toString());
@@ -170,12 +173,12 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
         // Get translation
         unsendedText = m_source;
         while (!unsendedText.isEmpty()) {
-            const int splitIndex = getSplitIndex(unsendedText, YANDEX_TRANSLATE_LIMIT);
+            const int splitIndex = getSplitIndex(unsendedText, yandexTranslateLimit);
 
             // Do not translate the part if it looks like garbage
             if (splitIndex == -1) {
-                m_translation.append(unsendedText.leftRef(YANDEX_TRANSLATE_LIMIT));
-                unsendedText = unsendedText.mid(YANDEX_TRANSLATE_LIMIT);
+                m_translation.append(unsendedText.leftRef(yandexTranslateLimit));
+                unsendedText = unsendedText.mid(yandexTranslateLimit);
                 continue;
             }
 
@@ -205,12 +208,12 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
         if (m_sourceTranslitEnabled && isSupportYandexTranslit(m_sourceLang)) {
             unsendedText = m_source;
             while (!unsendedText.isEmpty()) {
-                const int splitIndex = getSplitIndex(unsendedText, YANDEX_TRANSLIT_LIMIT);
+                const int splitIndex = getSplitIndex(unsendedText, yandexTranslitLimit);
 
                 // Do not translate the part if it looks like garbage
                 if (splitIndex == -1) {
-                    m_sourceTranslit.append(unsendedText.leftRef(YANDEX_TRANSLIT_LIMIT));
-                    unsendedText = unsendedText.mid(YANDEX_TRANSLIT_LIMIT);
+                    m_sourceTranslit.append(unsendedText.leftRef(yandexTranslitLimit));
+                    unsendedText = unsendedText.mid(yandexTranslitLimit);
                     continue;
                 }
 
@@ -235,12 +238,12 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
         if (m_sourceTranslitEnabled && isSupportYandexTranslit(m_translationLang)) {
             unsendedText = m_translation;
             while (!unsendedText.isEmpty()) {
-                const int splitIndex = getSplitIndex(unsendedText, YANDEX_TRANSLIT_LIMIT);
+                const int splitIndex = getSplitIndex(unsendedText, yandexTranslitLimit);
 
                 // Do not translate the part if it looks like garbage
                 if (splitIndex == -1) {
-                    m_translationTranslit.append(unsendedText.leftRef(YANDEX_TRANSLIT_LIMIT));
-                    unsendedText = unsendedText.mid(YANDEX_TRANSLIT_LIMIT);
+                    m_translationTranslit.append(unsendedText.leftRef(yandexTranslitLimit));
+                    unsendedText = unsendedText.mid(yandexTranslitLimit);
                     continue;
                 }
 
@@ -311,12 +314,12 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
         // Get translation
         unsendedText = m_source;
         while (!unsendedText.isEmpty()) {
-            const int splitIndex = getSplitIndex(unsendedText, BING_TRANSLATE_LIMIT);
+            const int splitIndex = getSplitIndex(unsendedText, bingTranslateLimit);
 
             // Do not translate the part if it looks like garbage
             if (splitIndex == -1) {
-                m_translation.append(unsendedText.leftRef(BING_TRANSLATE_LIMIT));
-                unsendedText = unsendedText.mid(BING_TRANSLATE_LIMIT);
+                m_translation.append(unsendedText.leftRef(bingTranslateLimit));
+                unsendedText = unsendedText.mid(bingTranslateLimit);
                 continue;
             }
 
@@ -345,12 +348,12 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
         if (m_sourceTranslitEnabled && isSupportBingTranslit(m_sourceLang)) {
             unsendedText = m_source;
             while (!unsendedText.isEmpty()) {
-                const int splitIndex = getSplitIndex(unsendedText, BING_TRANSLIT_LIMIT);
+                const int splitIndex = getSplitIndex(unsendedText, bingTranslitLimit);
 
                 // Do not translate the part if it looks like garbage
                 if (splitIndex == -1) {
-                    m_sourceTranslit.append(unsendedText.leftRef(BING_TRANSLIT_LIMIT));
-                    unsendedText = unsendedText.mid(BING_TRANSLIT_LIMIT);
+                    m_sourceTranslit.append(unsendedText.leftRef(bingTranslitLimit));
+                    unsendedText = unsendedText.mid(bingTranslitLimit);
                     continue;
                 }
 
@@ -375,12 +378,12 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
         if (m_translationTranslitEnabled && isSupportBingTranslit(m_translationLang)) {
             unsendedText = m_translation;
             while (!unsendedText.isEmpty()) {
-                const int splitIndex = getSplitIndex(unsendedText, BING_TRANSLIT_LIMIT);
+                const int splitIndex = getSplitIndex(unsendedText, bingTranslitLimit);
 
                 // Do not translate the part if it looks like garbage
                 if (splitIndex == -1) {
-                    m_translationTranslit.append(unsendedText.leftRef(BING_TRANSLIT_LIMIT));
-                    unsendedText = unsendedText.mid(BING_TRANSLIT_LIMIT);
+                    m_translationTranslit.append(unsendedText.leftRef(bingTranslitLimit));
+                    unsendedText = unsendedText.mid(bingTranslitLimit);
                     continue;
                 }
 
@@ -452,7 +455,7 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
         switch (engine) {
         case Google: {
             // Get API reply
-            const QByteArray reply = getGoogleTranslation(text.left(getSplitIndex(text, GOOGLE_TRANSLATE_LIMIT)), "en");
+            const QByteArray reply = getGoogleTranslation(text.left(getSplitIndex(text, googleTranslateLimit)), "en");
             if (reply.isEmpty())
                 return mediaList;
 
@@ -466,7 +469,7 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
         }
         case Yandex: {
             // Get API reply
-            const QByteArray reply = getYandexTranslation(text.left(getSplitIndex(text, YANDEX_TRANSLATE_LIMIT)), "en");
+            const QByteArray reply = getYandexTranslation(text.left(getSplitIndex(text, yandexTranslateLimit)), "en");
             if (reply.isEmpty())
                 return mediaList;
 
@@ -485,7 +488,7 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
         }
         case Bing:
             // Get API reply
-            langCode = getBingTextLanguage(text.left(getSplitIndex(text, BING_TRANSLATE_LIMIT)));
+            langCode = getBingTextLanguage(text.left(getSplitIndex(text, bingTranslateLimit)));
             if (langCode.isEmpty())
                 return mediaList;
 
@@ -512,7 +515,7 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
 
         // Google has a limit of characters per tts request. If the query is larger, then it should be splited into several
         while (!unparsedText.isEmpty()) {
-            const int splitIndex = getSplitIndex(unparsedText, GOOGLE_TTS_LIMIT); // Split the part by special symbol
+            const int splitIndex = getSplitIndex(unparsedText, googleTtsLimit); // Split the part by special symbol
 
             // Generate URL API for add it to the playlist
             QUrl apiUrl("http://translate.googleapis.com/translate_tts");
@@ -542,7 +545,7 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
 
         // Yandex has a limit of characters per tts request. If the query is larger, then it should be splited into several
         while (!unparsedText.isEmpty()) {
-            const int splitIndex = getSplitIndex(unparsedText, YANDEX_TTS_LIMIT); // Split the part by special symbol
+            const int splitIndex = getSplitIndex(unparsedText, yandexTtsLimit); // Split the part by special symbol
 
             // Generate URL API for add it to the playlist
             QUrl apiUrl("https://tts.voicetech.yandex.net/tts");
@@ -576,7 +579,7 @@ QList<QMediaContent> QOnlineTranslator::media(const QString &text, Engine engine
             return mediaList;
 
         while (!unparsedText.isEmpty()) {
-            const int splitIndex = getSplitIndex(unparsedText, BING_TTS_LIMIT); // Split the part by special symbol
+            const int splitIndex = getSplitIndex(unparsedText, bingTtsLimit); // Split the part by special symbol
 
             // Generate URL API for add it to the playlist
             QUrl apiUrl("https://www.bing.com/tspeak");
@@ -1338,324 +1341,6 @@ bool QOnlineTranslator::isSupportTts(QOnlineTranslator::Engine engine, QOnlineTr
     return isSupported;
 }
 
-QByteArray QOnlineTranslator::getGoogleTranslation(const QString &text, const QString &translationCode, const QString &sourceCode, const QString &uiCode)
-{
-    // Generate API url
-    QUrl url("https://translate.googleapis.com/translate_a/single");
-    url.setQuery("client=gtx&ie=UTF-8&oe=UTF-8&dt=bd&dt=ex&dt=ld&dt=md&dt=rw&dt=rm&dt=ss&dt=t&dt=at&dt=qc&sl=" + sourceCode
-                 + "&tl=" + translationCode
-                 + "&hl=" + uiCode
-                 + "&q=" + QUrl::toPercentEncoding(text));
-
-    // Send request and wait for the response
-    QNetworkReply *reply = m_network.get(QNetworkRequest(url));
-    QEventLoop waitForResponse;
-    connect(reply, &QNetworkReply::finished, &waitForResponse, &QEventLoop::quit);
-    waitForResponse.exec();
-
-    if (reply->error() != QNetworkReply::NoError) {
-        if (reply->error() == QNetworkReply::ServiceUnavailableError) {
-            m_errorString = tr("Error: Engine systems have detected suspicious traffic from your computer network. Please try your request again later.");
-            m_error = ServiceError;
-        } else {
-            m_errorString = reply->errorString();
-            m_error = NetworkError;
-        }
-        delete reply;
-        resetData();
-        return "";
-    }
-
-    const QByteArray data = reply->readAll();
-    delete reply;
-
-    // Check availability of service
-    if (data.startsWith("<")) {
-        m_errorString = tr("Error: Engine systems have detected suspicious traffic from your computer network. Please try your request again later.");
-        m_error = ServiceError;
-        resetData();
-        return "";
-    }
-
-    return data;
-}
-
-QByteArray QOnlineTranslator::getYandexTranslation(const QString &text, const QString &translationCode, const QString &sourceCode)
-{
-    // Generate session ID to access API (Required for Yandex)
-    if (m_yandexKey.isEmpty()) {
-        // Download web-version
-        QNetworkReply *reply = m_network.get(QNetworkRequest(QUrl("https://translate.yandex.com/")));
-        QEventLoop waitForResponse;
-        connect(reply, &QNetworkReply::finished, &waitForResponse, &QEventLoop::quit);
-        waitForResponse.exec();
-
-        if (reply->error() != QNetworkReply::NoError) {
-            m_errorString = reply->errorString();
-            m_error = NetworkError;
-            delete reply;
-            resetData();
-            return "";
-        }
-
-        const QByteArray webSiteData = reply->readAll();
-        delete reply;
-
-        // Check availability of service
-        if (webSiteData.contains("<title>Oops!</title>") || webSiteData.contains("<title>302 Found</title>")) {
-            m_errorString = tr("Error: Engine systems have detected suspicious traffic from your computer network. Please try your request again later.");
-            m_error = ServiceError;
-            resetData();
-            return "";
-        }
-
-        // Parse SID
-        const QString sid = webSiteData.mid(webSiteData.indexOf("SID: '") + 6, 26);
-
-        // Yandex show reversed parts of session ID, need to decode
-        QStringList sidParts = sid.split(".");
-        for (short i = 0; i < sidParts.size(); ++i)
-            std::reverse(sidParts[i].begin(), sidParts[i].end());
-
-        m_yandexKey = sidParts.join(".");
-        if (m_yandexKey.isEmpty()) {
-            m_errorString = tr("Error: Unable to parse Yandex SID.");
-            m_error = ParsingError;
-            resetData();
-            return "";
-        }
-    }
-
-    // Generate API url
-    QUrl url("https://translate.yandex.net/api/v1/tr.json/translate");
-    url.setQuery("id="
-                 + m_yandexKey
-                 + "-0-0&srv=tr-text&text="
-                 + QUrl::toPercentEncoding(text)
-                 + "&lang="
-                 + (sourceCode == "auto" ? translationCode : sourceCode + "-" + translationCode));
-
-    // Send request and wait for the response
-    QNetworkReply *reply = m_network.get(QNetworkRequest(url));
-    QEventLoop waitForResponse;
-    connect(reply, &QNetworkReply::finished, &waitForResponse, &QEventLoop::quit);
-    waitForResponse.exec();
-
-    // Check for errors
-    if (reply->error() != QNetworkReply::NoError) {
-        if (reply->error() < 201) {
-            // Network errors
-            m_errorString = reply->errorString();
-            m_error = NetworkError;
-            delete reply;
-            resetData();
-            return "";
-        }
-
-        // On error try to generate a new session ID second time, if the previous is invalid
-        if (reply->error() == QNetworkReply::ContentAccessDenied && !m_secondYandexKeyRequest) {
-            m_yandexKey.clear();
-            m_secondYandexKeyRequest = true; // Do not generate the session ID third time if the second one was generated incorrectly
-            delete reply;
-            return getYandexTranslation(text, translationCode, sourceCode);
-        }
-
-        // Parse data to get request error type
-        const QJsonDocument jsonResponse = QJsonDocument::fromJson(reply->readAll());
-        m_errorString = jsonResponse.object().value("message").toString();
-        m_error = ServiceError;
-        delete reply;
-        resetData();
-        return "";
-    }
-
-    m_secondYandexKeyRequest = false;
-    const QByteArray data = reply->readAll();
-    delete reply;
-    return data;
-}
-
-QByteArray QOnlineTranslator::getYandexTranslit(const QString &text, const QString &langCode)
-{
-    // Generate API url
-    QUrl url("https://translate.yandex.net/translit/translit");
-    url.setQuery("text=" + QUrl::toPercentEncoding(text)
-                 + "&lang=" + langCode);
-
-    // Send request and wait for the response
-    QNetworkReply *reply = m_network.get(QNetworkRequest(url));
-    QEventLoop waitForResponse;
-    connect(reply, &QNetworkReply::finished, &waitForResponse, &QEventLoop::quit);
-    waitForResponse.exec();
-
-    if (reply->error() != QNetworkReply::NoError) {
-        m_errorString = reply->errorString();
-        m_error = NetworkError;
-        delete reply;
-        resetData();
-        return "";
-    }
-
-    const QByteArray data = reply->readAll();
-    delete reply;
-    return data;
-}
-
-QByteArray QOnlineTranslator::getYandexDictionary(const QString &text, const QString &translationCode, const QString &sourceCode, const QString &uiCode)
-{
-    // Generate API url
-    QUrl url("http://dictionary.yandex.net/dicservice.json/lookupMultiple");
-    url.setQuery("text=" + QUrl::toPercentEncoding(text)
-                 + "&ui=" + uiCode
-                 + "&dict=" + sourceCode + "-" + translationCode);
-
-    // Send request and wait for the response
-    QNetworkReply *reply = m_network.get(QNetworkRequest(url));
-    QEventLoop waitForResponse;
-    connect(reply, &QNetworkReply::finished, &waitForResponse, &QEventLoop::quit);
-    waitForResponse.exec();
-
-    if (reply->error() != QNetworkReply::NoError) {
-        m_errorString = reply->errorString();
-        m_error = NetworkError;
-        delete reply;
-        resetData();
-        return "";
-    }
-
-    const QByteArray data = reply->readAll();
-    delete reply;
-    return data;
-}
-
-QByteArray QOnlineTranslator::getBingTextLanguage(const QString &text)
-{
-    // Generate POST data
-    QByteArray postData;
-    postData.append("&text=" + text);
-
-    // Generate POST request
-    QNetworkRequest request;
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-    request.setHeader(QNetworkRequest::ContentLengthHeader, postData.size());
-    request.setUrl(QUrl("http://www.bing.com/tdetect"));
-
-    // Send request and wait for the response
-    QNetworkReply *reply = m_network.post(request, postData);
-    QEventLoop waitForResponse;
-    connect(reply, &QNetworkReply::finished, &waitForResponse, &QEventLoop::quit);
-    waitForResponse.exec();
-
-    // Check for errors
-    if (reply->error() != QNetworkReply::NoError) {
-        m_errorString = reply->errorString();
-        m_error = NetworkError;
-        delete reply;
-        resetData();
-        return "";
-    }
-
-    const QByteArray data = reply->readAll();
-    delete reply;
-    return data;
-}
-
-QByteArray QOnlineTranslator::getBingTranslation(const QString &text, const QString &translationCode, const QString &sourceCode)
-{
-    // Generate POST data
-    QByteArray postData;
-    postData.append("&text=" + text + "&from=" + sourceCode + "&to=" + translationCode);
-
-    // Generate POST request
-    QNetworkRequest request;
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-    request.setHeader(QNetworkRequest::ContentLengthHeader, postData.size());
-    request.setUrl(QUrl("http://www.bing.com/ttranslate"));
-
-    // Send request and wait for the response
-    QNetworkReply *reply = m_network.post(request, postData);
-    QEventLoop waitForResponse;
-    connect(reply, &QNetworkReply::finished, &waitForResponse, &QEventLoop::quit);
-    waitForResponse.exec();
-
-    // Check for errors
-    if (reply->error() != QNetworkReply::NoError) {
-        m_errorString = reply->errorString();
-        m_error = NetworkError;
-        delete reply;
-        resetData();
-        return "";
-    }
-
-    const QByteArray data = reply->readAll();
-    delete reply;
-    return data;
-}
-
-QByteArray QOnlineTranslator::getBingTranslit(const QString &text, const QString &langCode)
-{
-    // Generate POST data
-    QByteArray postData;
-    postData.append("&text=" + text + "&language=" + langCode + "&toScript=latn");
-
-    // Generate POST request
-    QNetworkRequest request;
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-    request.setHeader(QNetworkRequest::ContentLengthHeader, postData.size());
-    request.setUrl(QUrl("http://www.bing.com/ttransliterate"));
-
-    // Send request and wait for the response
-    QNetworkReply *reply = m_network.post(request, postData);
-    QEventLoop waitForResponse;
-    connect(reply, &QNetworkReply::finished, &waitForResponse, &QEventLoop::quit);
-    waitForResponse.exec();
-
-    // Check for errors
-    if (reply->error() != QNetworkReply::NoError) {
-        m_errorString = reply->errorString();
-        m_error = NetworkError;
-        delete reply;
-        resetData();
-        return "";
-    }
-
-    const QByteArray data = reply->readAll();
-    delete reply;
-    return data;
-}
-
-QByteArray QOnlineTranslator::getBingDictionary(const QString &text, const QString &translationCode, const QString &sourceCode)
-{
-    // Generate POST data
-    QByteArray postData;
-    postData.append("&text=" + text + "&from=" + sourceCode + "&to=" + translationCode);
-
-    // Generate POST request
-    QNetworkRequest request;
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-    request.setHeader(QNetworkRequest::ContentLengthHeader, postData.size());
-    request.setUrl(QUrl("http://www.bing.com/ttranslationlookup"));
-
-    // Send request and wait for the response
-    QNetworkReply *reply = m_network.post(request, postData);
-    QEventLoop waitForResponse;
-    connect(reply, &QNetworkReply::finished, &waitForResponse, &QEventLoop::quit);
-    waitForResponse.exec();
-
-    // Check for errors
-    if (reply->error() != QNetworkReply::NoError) {
-        m_errorString = reply->errorString();
-        m_error = NetworkError;
-        delete reply;
-        resetData();
-        return "";
-    }
-
-    const QByteArray data = reply->readAll();
-    delete reply;
-    return data;
-}
-
 // Returns engine-specific language code for translation
 QString QOnlineTranslator::translationLanguageCode(Engine engine, QOnlineTranslator::Language lang)
 {
@@ -1842,6 +1527,242 @@ QString QOnlineTranslator::emotionCode(Engine engine, QOnlineTranslator::Emotion
     m_error = ParametersError;
     resetData();
     return "";
+}
+
+QByteArray QOnlineTranslator::getGoogleTranslation(const QString &text, const QString &translationCode, const QString &sourceCode, const QString &uiCode)
+{
+    // Generate API url
+    QUrl url("https://translate.googleapis.com/translate_a/single");
+    url.setQuery("client=gtx&ie=UTF-8&oe=UTF-8&dt=bd&dt=ex&dt=ld&dt=md&dt=rw&dt=rm&dt=ss&dt=t&dt=at&dt=qc&sl=" + sourceCode
+                 + "&tl=" + translationCode
+                 + "&hl=" + uiCode
+                 + "&q=" + QUrl::toPercentEncoding(text));
+
+    QPointer<QNetworkReply> reply = getReply(url);
+    if (reply->error() != QNetworkReply::NoError) {
+        if (reply->error() == QNetworkReply::ServiceUnavailableError)
+            resetData(ServiceError, tr("Error: Engine systems have detected suspicious traffic from your computer network. Please try your request again later."));
+        else
+            resetData(NetworkError, m_currentReply->errorString());
+        return QByteArray();
+    }
+
+    const QByteArray data = reply->readAll();
+
+    // Check availability of service
+    if (data.startsWith("<")) {
+        resetData(ServiceError, tr("Error: Engine systems have detected suspicious traffic from your computer network. Please try your request again later."));
+        return QByteArray();
+    }
+
+    return data;
+}
+
+QByteArray QOnlineTranslator::getYandexTranslation(const QString &text, const QString &translationCode, const QString &sourceCode)
+{
+    // Generate session ID to access API (Required for Yandex)
+    if (m_yandexKey.isEmpty()) {
+        // Download web-version
+        QPointer<QNetworkReply> reply = getReply(QUrl("https://translate.yandex.com/"));
+        if (reply->error() != QNetworkReply::NoError) {
+            resetData(NetworkError, reply->errorString());
+            return QByteArray();
+        }
+
+        const QByteArray webSiteData = reply->readAll();
+
+        // Check availability of service
+        if (webSiteData.contains("<title>Oops!</title>") || webSiteData.contains("<title>302 Found</title>")) {
+            resetData(ServiceError, tr("Error: Engine systems have detected suspicious traffic from your computer network. Please try your request again later."));
+            return QByteArray();
+        }
+
+        // Parse SID
+        const QString sid = webSiteData.mid(webSiteData.indexOf("SID: '") + 6, 26);
+
+        // Yandex show reversed parts of session ID, need to decode
+        QStringList sidParts = sid.split(".");
+        for (short i = 0; i < sidParts.size(); ++i)
+            std::reverse(sidParts[i].begin(), sidParts[i].end());
+
+        m_yandexKey = sidParts.join(".");
+        if (m_yandexKey.isEmpty()) {
+            resetData(ParsingError, tr("Error: Unable to parse Yandex SID."));
+            return QByteArray();
+        }
+    }
+
+    // Generate API url
+    QUrl url("https://translate.yandex.net/api/v1/tr.json/translate");
+    url.setQuery("id="
+                 + m_yandexKey
+                 + "-0-0&srv=tr-text&text="
+                 + QUrl::toPercentEncoding(text)
+                 + "&lang="
+                 + (sourceCode == "auto" ? translationCode : sourceCode + "-" + translationCode));
+
+    // Send request and wait for the response
+    QPointer<QNetworkReply> reply = getReply(url);
+
+    // Check for errors
+    if (reply->error() != QNetworkReply::NoError) {
+        if (reply->error() < 201) {
+            // Network errors
+            resetData(NetworkError, reply->errorString());
+            return QByteArray();
+        }
+
+        // On error try to generate a new session ID second time, if the previous is invalid
+        if (reply->error() == QNetworkReply::ContentAccessDenied && !m_secondYandexKeyRequest) {
+            m_yandexKey.clear();
+            m_secondYandexKeyRequest = true; // Do not generate the session ID third time if the second one was generated incorrectly
+            return getYandexTranslation(text, translationCode, sourceCode);
+        }
+
+        // Parse data to get request error type
+        const QJsonDocument jsonResponse = QJsonDocument::fromJson(reply->readAll());
+        resetData(ServiceError, jsonResponse.object().value("message").toString());
+        return QByteArray();
+    }
+
+    m_secondYandexKeyRequest = false;
+    return reply->readAll();
+}
+
+QByteArray QOnlineTranslator::getYandexTranslit(const QString &text, const QString &langCode)
+{
+    // Generate API url
+    QUrl url("https://translate.yandex.net/translit/translit");
+    url.setQuery("text=" + QUrl::toPercentEncoding(text)
+                 + "&lang=" + langCode);
+
+    // Send request and wait for the response
+    QPointer<QNetworkReply> reply = getReply(url);
+
+    if (reply->error() != QNetworkReply::NoError) {
+        resetData(NetworkError, reply->errorString());
+        return QByteArray();
+    }
+
+    return reply->readAll();
+}
+
+QByteArray QOnlineTranslator::getYandexDictionary(const QString &text, const QString &translationCode, const QString &sourceCode, const QString &uiCode)
+{
+    // Generate API url
+    QUrl url("http://dictionary.yandex.net/dicservice.json/lookupMultiple");
+    url.setQuery("text=" + QUrl::toPercentEncoding(text)
+                 + "&ui=" + uiCode
+                 + "&dict=" + sourceCode + "-" + translationCode);
+
+    // Send request and wait for the response
+    QPointer<QNetworkReply> reply = getReply(url);
+
+    if (reply->error() != QNetworkReply::NoError) {
+        resetData(NetworkError, reply->errorString());
+        return QByteArray();
+    }
+
+    return reply->readAll();
+}
+
+QByteArray QOnlineTranslator::getBingTextLanguage(const QString &text)
+{
+    // Generate POST data
+    const QByteArray postData = "&text=" + text.toLocal8Bit();
+    const QUrl url("http://www.bing.com/tdetect");
+
+    // Send request and wait for the response
+    QPointer<QNetworkReply> reply = postReply(url, postData);
+
+    // Check for errors
+    if (reply->error() != QNetworkReply::NoError) {
+        resetData(NetworkError, reply->errorString());
+        return QByteArray();
+    }
+
+    return reply->readAll();
+}
+
+QByteArray QOnlineTranslator::getBingTranslation(const QString &text, const QString &translationCode, const QString &sourceCode)
+{
+    // Generate POST data
+    const QByteArray postData = "&text=" + text.toLocal8Bit() + "&from=" + sourceCode.toLocal8Bit() + "&to=" + translationCode.toLocal8Bit();
+    const QUrl url("http://www.bing.com/ttranslate");
+
+    // Send request and wait for the response
+    QPointer<QNetworkReply> reply = postReply(url, postData);
+
+    // Check for errors
+    if (reply->error() != QNetworkReply::NoError) {
+        resetData(NetworkError, reply->errorString());
+        return QByteArray();
+    }
+
+    return reply->readAll();
+}
+
+QByteArray QOnlineTranslator::getBingTranslit(const QString &text, const QString &langCode)
+{
+    // Generate POST data
+    const QByteArray postData = "&text=" + text.toLocal8Bit() + "&language=" + langCode.toLocal8Bit() + "&toScript=latn";
+    const QUrl url("http://www.bing.com/ttransliterate");
+
+    // Send request and wait for the response
+    QPointer<QNetworkReply> reply = postReply(url, postData);
+
+    // Check for errors
+    if (reply->error() != QNetworkReply::NoError) {
+        resetData(NetworkError, reply->errorString());
+        return QByteArray();
+    }
+
+    return reply->readAll();
+}
+
+QByteArray QOnlineTranslator::getBingDictionary(const QString &text, const QString &translationCode, const QString &sourceCode)
+{
+    // Generate POST data
+    const QByteArray postData = "&text=" + text.toLocal8Bit() + "&from=" + sourceCode.toLocal8Bit() + "&to=" + translationCode.toLocal8Bit();
+    const QUrl url("http://www.bing.com/ttranslationlookup");
+
+    // Send request and wait for the response
+    QPointer<QNetworkReply> reply = postReply(url, postData);
+
+    // Check for errors
+    if (reply->error() != QNetworkReply::NoError) {
+        resetData(NetworkError, reply->errorString());
+        return QByteArray();
+    }
+
+    return reply->readAll();
+}
+
+QNetworkReply *QOnlineTranslator::getReply(const QUrl &url)
+{
+    m_currentReply = m_networkManager->get(QNetworkRequest(url));
+
+    QEventLoop waitForResponse;
+    connect(m_currentReply, &QNetworkReply::finished, &waitForResponse, &QEventLoop::quit);
+    waitForResponse.exec();
+
+    return m_currentReply;
+}
+
+QNetworkReply *QOnlineTranslator::postReply(const QUrl &url, const QByteArray &postData)
+{
+    QNetworkRequest request;
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+    request.setHeader(QNetworkRequest::ContentLengthHeader, postData.size());
+    request.setUrl(url);
+
+    m_currentReply = m_networkManager->post(request, postData);
+
+    QEventLoop waitForResponse;
+    connect(m_currentReply, &QNetworkReply::finished, &waitForResponse, &QEventLoop::quit);
+    waitForResponse.exec();
+
+    return m_currentReply;
 }
 
 bool QOnlineTranslator::isSupportGoogle(QOnlineTranslator::Language lang)
@@ -2492,8 +2413,10 @@ int QOnlineTranslator::getSplitIndex(const QString &untranslatedText, int limit)
     return limit;
 }
 
-void QOnlineTranslator::resetData()
+void QOnlineTranslator::resetData(TranslationError error, const QString &errorString)
 {
+    m_error = error;
+    m_errorString = errorString;
     m_translation.clear();
     m_translationTranslit.clear();
     m_sourceTranslit.clear();
