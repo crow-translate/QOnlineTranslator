@@ -26,7 +26,6 @@
 
 #include <QObject>
 
-class QMediaContent;
 class QNetworkAccessManager;
 class QNetworkReply;
 
@@ -169,35 +168,6 @@ public:
     };
     Q_ENUM(Engine)
 
-    enum Voice {
-        // All
-        DefaultVoice,
-
-        // Yandex
-        Zahar,
-        Ermil,
-        Jane,
-        Oksana,
-        Alyss,
-        Omazh,
-
-        // Bing
-        Female,
-        Male
-    };
-    Q_ENUM(Voice)
-
-    enum Emotion {
-        // All
-        DefaultEmotion,
-
-        // Yandex
-        Neutral,
-        Good,
-        Evil
-    };
-    Q_ENUM(Emotion)
-
     enum TranslationError {
         NoError,
         ParametersError,
@@ -209,10 +179,7 @@ public:
     explicit QOnlineTranslator(QObject *parent = nullptr);
 
     void translate(const QString &text, Engine engine = Google, Language translationLang = Auto, Language sourceLang = Auto, Language uiLang = Auto);
-    QList<QMediaContent> media(const QString &text, Engine engine, Language lang = Auto, Voice voice = DefaultVoice, Emotion emotion = DefaultEmotion);
-
-    QList<QMediaContent> sourceMedia(Engine engine, Voice voice = DefaultVoice, Emotion emotion = DefaultEmotion);
-    QList<QMediaContent> translationMedia(Engine engine, Voice voice = DefaultVoice, Emotion emotion = DefaultEmotion);
+    void detectLanguage(const QString &text, Engine engine = Google);
 
     QString source() const;
     QString sourceTranslit() const;
@@ -251,14 +218,12 @@ public:
     static Language language(const QLocale &locale);
     static Language language(const QString &langCode);
     static bool isSupportTranslation(Engine engine, Language lang);
-    static bool isSupportTts(Engine engine, Language lang);
 
 private:
+    friend class QOnlineTts;
+
     // Generate Codes for API
-    QString translationLanguageCode(Engine engine, Language lang);
-    QString ttsLanguageCode(Engine engine, Language lang);
-    QString voiceCode(Engine engine, Voice voice);
-    QString emotionCode(Engine engine, Emotion emotion);
+    static QString translationLanguageCode(Engine engine, Language lang);
 
     // Get API reply as JSON
     QByteArray getGoogleTranslation(const QString &text, const QString &translationCode, const QString &sourceCode = "auto", const QString &uiCode = "en");
@@ -312,8 +277,8 @@ private:
     bool m_translationOptionsEnabled = true;
     bool m_examplesEnabled = true;
 
-    static QString m_yandexKey;
     static const QStringList m_languageCodes;
+    static QString m_yandexKey;
     static bool m_secondYandexKeyRequest;
 };
 
