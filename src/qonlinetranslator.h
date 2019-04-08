@@ -225,16 +225,22 @@ public:
 private:
     friend class QOnlineTts;
 
-    // Generate Codes for API
-    static QString translationLanguageCode(Engine engine, Language lang);
+    // Get data from online services
+    void googleTranslate(const QString &sourceCode, const QString &translationCode, const QString &uiCode);
+    void yandexTranslate(QString &sourceCode, const QString &translationCode);
+    void yandexTranslit(QString &translit, const QString &text, const QString &langCode);
+    void yandexDictionary(const QString &sourceCode, const QString &translationCode, const QString &uiCode);
+    void bingTranslate(QString &sourceCode, const QString &translationCode);
+    void bingTranslit(QString &translit, const QString &text, const QString &langCode);
+    void bingDictionary(const QString &sourceCode, const QString &translationCode);
 
     // Get API reply as JSON
-    QByteArray getGoogleTranslation(const QString &text, const QString &translationCode, const QString &sourceCode = "auto", const QString &uiCode = "en");
-    QByteArray getYandexTranslation(const QString &text, const QString &translationCode, const QString &sourceCode = "auto");
+    QByteArray getGoogleTranslation(const QString &text, const QString &translationCode, const QString &sourceCode, const QString &uiCode);
+    QByteArray getYandexTranslation(const QString &text, const QString &translationCode, const QString &sourceCode);
     QByteArray getYandexTranslit(const QString &text, const QString &langCode);
     QByteArray getYandexDictionary(const QString &text, const QString &translationCode, const QString &sourceCode, const QString &uiCode);
     QByteArray getBingTextLanguage(const QString &text);
-    QByteArray getBingTranslation(const QString &text, const QString &translationCode, const QString &sourceCode = "auto");
+    QByteArray getBingTranslation(const QString &text, const QString &translationCode, const QString &sourceCode);
     QByteArray getBingTranslit(const QString &text, const QString &langCode);
     QByteArray getBingDictionary(const QString &text, const QString &translationCode, const QString &sourceCode);
 
@@ -247,6 +253,7 @@ private:
     static bool isSupportDictionary(Engine engine, Language sourceLang, Language translationLang);
 
     // Other
+    static QString translationLanguageCode(Engine engine, Language lang); // Generate engine-specific codes for API
     static Language language(Engine engine, const QString &langCode);
     static int getSplitIndex(const QString &untranslatedText, int limit);
     void resetData(TranslationError error = NoError, const QString &errorString = QString());

@@ -93,352 +93,27 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
         return;
     }
 
-    QString unsendedText;
     switch (engine) {
     case Google:
-        unsendedText = m_source;
-        while (!unsendedText.isEmpty()) {
-            const int splitIndex = getSplitIndex(unsendedText, googleTranslateLimit);
-
-            // Do not translate the part if it looks like garbage
-            if (splitIndex == -1) {
-                m_translation.append(unsendedText.leftRef(googleTranslateLimit));
-                unsendedText = unsendedText.mid(googleTranslateLimit);
-                continue;
-            }
-
-            const QByteArray reply = getGoogleTranslation(unsendedText.left(splitIndex), translationCode, sourceCode, uiCode);
-            if (reply.isNull())
-                return;
-
-            // Convert to JsonArray
-            const QJsonDocument jsonResponse = QJsonDocument::fromJson(reply);
-            const QJsonArray jsonData = jsonResponse.array();
-
-            // Parse first sentense. If the answer contains more than one sentence, then at the end of the first one there will be a space
-            m_translation.append(jsonData.at(0).toArray().at(0).toArray().at(0).toString());
-            for (int i = 1; m_translation.endsWith(" ") || m_translation.endsWith("\n") || m_translation.endsWith(0x00a0); ++i)
-                m_translation.append(jsonData.at(0).toArray().at(i).toArray().at(0).toString());
-
-            // Parse transliterations and source language
-            if (m_translationTranslitEnabled)
-                m_translationTranslit.append(jsonData.at(0).toArray().last().toArray().at(2).toString());
-
-            if (m_sourceTranslitEnabled)
-                m_sourceTranslit.append(jsonData.at(0).toArray().last().toArray().at(3).toString());
-
-            if (m_sourceLang == Auto) {
-                // Parse language
-                m_sourceLang = language(engine, jsonData.at(2).toString());
-                if (m_sourceLang == NoLanguage)
-                    return;
-            }
-
-            // Remove the parsed part from the next parsing
-            unsendedText = unsendedText.mid(splitIndex);
-
-            // Add a space between parts
-            if (!unsendedText.isEmpty() && !m_translation.endsWith("\n")) {
-                m_translation.append(" ");
-                m_translationTranslit.append(" ");
-                m_sourceTranslit.append(" ");
-            }
-
-            if (m_translationOptionsEnabled && text.size() < googleTranslateLimit) {
-                // Translation options
-                foreach (const QJsonValue &typeOfSpeechData, jsonData.at(1).toArray()) {
-                    m_translationOptions << QOption(typeOfSpeechData.toArray().at(0).toString());
-                    foreach (const QJsonValue &wordData, typeOfSpeechData.toArray().at(2).toArray()) {
-                        QString word = wordData.toArray().at(0).toString();
-                        QString gender = wordData.toArray().at(4).toString();
-                        QStringList translations;
-                        foreach (const QJsonValue &wordTranslation, wordData.toArray().at(1).toArray()) {
-                            translations.append(wordTranslation.toString());
-                        }
-                        m_translationOptions.last().addWord(word, gender, translations);
-                    }
-                }
-
-                // Examples
-                if (m_translationOptionsEnabled) {
-                    foreach (const QJsonValue &exampleData, jsonData.at(12).toArray()) {
-                        const QJsonArray example = exampleData.toArray().at(1).toArray().at(0).toArray();
-
-                        m_examples << QExample(exampleData.toArray().at(0).toString());
-                        m_examples.last().addExample(example.at(0).toString(), example.at(2).toString());
-                    }
-                }
-            }
-        }
+        googleTranslate(sourceCode, translationCode, uiCode);
         return;
-
     case Yandex:
-        // Get translation
-        unsendedText = m_source;
-        while (!unsendedText.isEmpty()) {
-            const int splitIndex = getSplitIndex(unsendedText, yandexTranslateLimit);
-
-            // Do not translate the part if it looks like garbage
-            if (splitIndex == -1) {
-                m_translation.append(unsendedText.leftRef(yandexTranslateLimit));
-                unsendedText = unsendedText.mid(yandexTranslateLimit);
-                continue;
-            }
-
-            // Get API reply
-            const QByteArray reply = getYandexTranslation(unsendedText.left(splitIndex), translationCode, sourceCode);
-            if (reply.isEmpty())
-                return;
-
-            // Parse translation data
-            const QJsonDocument jsonResponse = QJsonDocument::fromJson(reply);
-            const QJsonObject jsonData = jsonResponse.object();
-            m_translation += jsonData.value("text").toArray().at(0).toString();
-            if (m_sourceLang == Auto) {
-                // Parse language
-                sourceCode = jsonData.value("lang").toString();
-                sourceCode = sourceCode.left(sourceCode.indexOf("-"));
-                m_sourceLang = language(engine, sourceCode);
-                if (m_sourceLang == NoLanguage)
-                    return;
-            }
-
-            // Remove the parsed part from the next parsing
-            unsendedText = unsendedText.mid(splitIndex);
-        }
-
-        // Get source transliteration
-        if (m_sourceTranslitEnabled && isSupportTranslit(Yandex, m_sourceLang)) {
-            unsendedText = m_source;
-            while (!unsendedText.isEmpty()) {
-                const int splitIndex = getSplitIndex(unsendedText, yandexTranslitLimit);
-
-                // Do not translate the part if it looks like garbage
-                if (splitIndex == -1) {
-                    m_sourceTranslit.append(unsendedText.leftRef(yandexTranslitLimit));
-                    unsendedText = unsendedText.mid(yandexTranslitLimit);
-                    continue;
-                }
-
-                // Get API reply
-                const QByteArray reply = getYandexTranslit(unsendedText.left(splitIndex), sourceCode);
-                if (reply.isEmpty())
-                    return;
-
-#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
-                m_sourceTranslit += reply.mid(1).chopped(1);
-#else
-                m_sourceTranslit += reply.mid(1);
-                m_sourceTranslit.chop(1);
-#endif
-
-                // Remove the parsed part from the next parsing
-                unsendedText = unsendedText.mid(splitIndex);
-            }
-        }
-
-        // Get translation transliteration
-        if (m_sourceTranslitEnabled && isSupportTranslit(Yandex, m_translationLang)) {
-            unsendedText = m_translation;
-            while (!unsendedText.isEmpty()) {
-                const int splitIndex = getSplitIndex(unsendedText, yandexTranslitLimit);
-
-                // Do not translate the part if it looks like garbage
-                if (splitIndex == -1) {
-                    m_translationTranslit.append(unsendedText.leftRef(yandexTranslitLimit));
-                    unsendedText = unsendedText.mid(yandexTranslitLimit);
-                    continue;
-                }
-
-                // Get API reply
-                const QByteArray reply = getYandexTranslit(unsendedText.left(splitIndex), translationCode);
-                if (reply.isEmpty())
-                    return;
-
-#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
-                m_translationTranslit += reply.mid(1).chopped(1);
-#else
-                m_translationTranslit += reply.mid(1);
-                m_translationTranslit.chop(1);
-#endif
-
-                // Remove the parsed part from the next parsing
-                unsendedText = unsendedText.mid(splitIndex);
-            }
-        }
-
-        // Request dictionary data if only one word is translated.
-        if (m_translationOptionsEnabled && isSupportDictionary(Yandex, m_sourceLang, m_translationLang) && !m_source.contains(" ")) {
-            const QByteArray reply = getYandexDictionary(m_source, translationCode, sourceCode, uiCode);
-            if (reply.isEmpty())
-                return;
-
-            // Parse reply
-            const QJsonDocument jsonResponse = QJsonDocument::fromJson(reply);
-            const QJsonValue jsonData = jsonResponse.object().value(sourceCode + "-" + translationCode).toObject().value("regular");
-
-            if (m_sourceTranscriptionEnabled)
-                m_sourceTranscription = jsonData.toArray().at(0).toObject().value("ts").toString();
-
-            foreach (const QJsonValue &typeOfSpeechData, jsonData.toArray()) {
-                const QString typeOfSpeech = typeOfSpeechData.toObject().value("pos").toObject().value("text").toString();
-                m_translationOptions << QOption(typeOfSpeech);
-
-                foreach (const QJsonValue &wordData, typeOfSpeechData.toObject().value("tr").toArray()) {
-                    // Parse translation options
-                    const QString word = wordData.toObject().value("text").toString();
-                    const QString gender = wordData.toObject().value("gen").toObject().value("text").toString();
-                    QStringList translations;
-                    foreach (const QJsonValue &wordTranslation, wordData.toObject().value("mean").toArray()) {
-                        translations.append(wordTranslation.toObject().value("text").toString());
-                    }
-
-                    m_translationOptions.last().addWord(word, gender, translations);
-
-                    // Parse examples
-                    if (m_examplesEnabled && wordData.toObject().contains("ex")) {
-                        // Check if no examples with this type of speech
-                        if (m_examples.isEmpty() || m_examples.constLast().typeOfSpeech() != typeOfSpeech)
-                            m_examples << QExample(typeOfSpeech);
-
-                        foreach (const QJsonValue exampleData, wordData.toObject().value("ex").toArray()) {
-                            const QString example = exampleData.toObject().value("text").toString();
-                            const QString description = exampleData.toObject().value("tr").toArray().at(0).toObject().value("text").toString();
-
-                            m_examples.last().addExample(description, example);
-                        }
-                    }
-                }
-            }
-        }
+        yandexTranslate(sourceCode, translationCode);
+        if (m_sourceTranslitEnabled && isSupportTranslit(Yandex, m_sourceLang))
+            yandexTranslit(m_sourceTranslit, m_source, sourceCode);
+        if (m_translationTranslitEnabled && isSupportTranslit(Yandex, m_translationLang))
+            yandexTranslit(m_translationTranslit, m_translation, translationCode);
+        if (m_translationOptionsEnabled && isSupportDictionary(Yandex, m_sourceLang, m_translationLang) && !m_source.contains(" "))
+            yandexDictionary(sourceCode, translationCode, uiCode);
         return;
-
     case Bing:
-        // Get translation
-        unsendedText = m_source;
-        while (!unsendedText.isEmpty()) {
-            const int splitIndex = getSplitIndex(unsendedText, bingTranslateLimit);
-
-            // Do not translate the part if it looks like garbage
-            if (splitIndex == -1) {
-                m_translation.append(unsendedText.leftRef(bingTranslateLimit));
-                unsendedText = unsendedText.mid(bingTranslateLimit);
-                continue;
-            }
-
-            // Detect language
-            if (m_sourceLang == Auto) {
-                sourceCode = getBingTextLanguage(unsendedText.left(splitIndex));
-                if (sourceCode.isEmpty())
-                    return;
-
-                m_sourceLang = language(Bing, sourceCode);
-            }
-
-            // Get API reply
-            const QByteArray reply = getBingTranslation(unsendedText.left(splitIndex), translationCode, sourceCode);
-            if (reply.isEmpty())
-                return;
-
-            // Parse translation data
-            m_translation += QJsonDocument::fromJson(reply).object().value("translationResponse").toString();
-
-            // Remove the parsed part from the next parsing
-            unsendedText = unsendedText.mid(splitIndex);
-        }
-
-        // Get source transliteration
-        if (m_sourceTranslitEnabled && isSupportTranslit(Bing, m_sourceLang)) {
-            unsendedText = m_source;
-            while (!unsendedText.isEmpty()) {
-                const int splitIndex = getSplitIndex(unsendedText, bingTranslitLimit);
-
-                // Do not translate the part if it looks like garbage
-                if (splitIndex == -1) {
-                    m_sourceTranslit.append(unsendedText.leftRef(bingTranslitLimit));
-                    unsendedText = unsendedText.mid(bingTranslitLimit);
-                    continue;
-                }
-
-                // Get API reply
-                const QByteArray reply = getBingTranslit(unsendedText.left(splitIndex), sourceCode);
-                if (reply.isEmpty())
-                    return;
-
-#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
-                m_sourceTranslit += reply.mid(1).chopped(1);
-#else
-                m_sourceTranslit += reply.mid(1);
-                m_sourceTranslit.chop(1);
-#endif
-
-                // Remove the parsed part from the next parsing
-                unsendedText = unsendedText.mid(splitIndex);
-            }
-        }
-
-        // Get translation transliteration
-        if (m_translationTranslitEnabled && isSupportTranslit(Bing, m_translationLang)) {
-            unsendedText = m_translation;
-            while (!unsendedText.isEmpty()) {
-                const int splitIndex = getSplitIndex(unsendedText, bingTranslitLimit);
-
-                // Do not translate the part if it looks like garbage
-                if (splitIndex == -1) {
-                    m_translationTranslit.append(unsendedText.leftRef(bingTranslitLimit));
-                    unsendedText = unsendedText.mid(bingTranslitLimit);
-                    continue;
-                }
-
-                // Get API reply
-                const QByteArray reply = getBingTranslit(unsendedText.left(splitIndex), translationCode);
-                if (reply.isEmpty())
-                    return;
-
-#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
-                m_translationTranslit += reply.mid(1).chopped(1);
-#else
-                m_translationTranslit += reply.mid(1);
-                m_translationTranslit.chop(1);
-#endif
-
-                // Remove the parsed part from the next parsing
-                unsendedText = unsendedText.mid(splitIndex);
-            }
-        }
-
-        // Request dictionary data if only one word is translated.
-        if (m_translationOptionsEnabled && isSupportDictionary(Bing, m_sourceLang, m_translationLang) && !m_source.contains(" ")) {
-            const QByteArray reply = getBingDictionary(m_source, translationCode, sourceCode);
-            if (reply.isEmpty())
-                return;
-
-            // Parse reply
-            const QJsonDocument jsonResponse = QJsonDocument::fromJson(reply);
-            const QJsonValue jsonData = jsonResponse.object().value("translations");
-            foreach (const QJsonValue &typeOfSpeechData, jsonData.toArray()) {
-                const QString typeOfSpeech = typeOfSpeechData.toObject().value("posTag").toString().toLower();
-
-                // Search for this type of speech
-                int i;
-                for (i = 0; i < m_translationOptions.size(); ++i) {
-                    if (m_translationOptions.at(i).typeOfSpeech() == typeOfSpeech)
-                        break;
-                }
-
-                // Add a new if current type of speech not found
-                if (i == m_translationOptions.size())
-                    m_translationOptions << QOption(typeOfSpeech);
-
-                const QString word = typeOfSpeechData.toObject().value("displayTarget").toString().toLower();
-                QStringList translations;
-                foreach (const QJsonValue &wordTranslation, typeOfSpeechData.toObject().value("backTranslations").toArray())
-                    translations.append(wordTranslation.toObject().value("displayText").toString());
-
-                m_translationOptions[i].addWord(word, "", translations);
-            }
-        }
-
+        bingTranslate(sourceCode, translationCode);
+        if (m_sourceTranslitEnabled && isSupportTranslit(Bing, m_sourceLang))
+            bingTranslit(m_sourceTranslit, m_source, sourceCode);
+        if (m_translationTranslitEnabled && isSupportTranslit(Bing, m_translationLang))
+            bingTranslit(m_translationTranslit, m_translation, translationCode);
+        if (m_translationOptionsEnabled && isSupportDictionary(Bing, m_sourceLang, m_translationLang) && !m_source.contains(" "))
+            bingDictionary(sourceCode, translationCode);
         return;
     }
 }
@@ -451,7 +126,7 @@ void QOnlineTranslator::detectLanguage(const QString &text, Engine engine)
     switch (engine) {
     case Google: {
         // Get API reply
-        const QByteArray reply = getGoogleTranslation(text.left(getSplitIndex(text, googleTranslateLimit)), "en");
+        const QByteArray reply = getGoogleTranslation(text.left(getSplitIndex(text, googleTranslateLimit)), "en", "auto", "en");
         if (reply.isNull())
             return;
 
@@ -464,7 +139,7 @@ void QOnlineTranslator::detectLanguage(const QString &text, Engine engine)
     }
     case Yandex: {
         // Get API reply
-        const QByteArray reply = getYandexTranslation(text.left(getSplitIndex(text, yandexTranslateLimit)), "en");
+        const QByteArray reply = getYandexTranslation(text.left(getSplitIndex(text, yandexTranslateLimit)), "en", "auto");
         if (reply.isNull())
             return;
 
@@ -1167,46 +842,292 @@ bool QOnlineTranslator::isSupportTranslation(Engine engine, Language lang)
     return isSupported;
 }
 
-// Returns engine-specific language code for translation
-QString QOnlineTranslator::translationLanguageCode(Engine engine, Language lang)
+void QOnlineTranslator::googleTranslate(const QString &sourceCode, const QString &translationCode, const QString &uiCode)
 {
-    if (!isSupportTranslation(engine, lang))
-        return QString();
+    QString unsendedText = m_source;
+    while (!unsendedText.isEmpty()) {
+        const int splitIndex = getSplitIndex(unsendedText, googleTranslateLimit);
 
-    // Engines have some language codes exceptions
-    switch (engine) {
-    case Google:
-        if (lang == SerbianCyrillic)
-            return "sr";
-        break;
-    case Yandex:
-        switch (lang) {
-        case SimplifiedChinese:
-            return "zn";
-        case Javanese:
-            return "jv";
-        case SerbianCyrillic:
-            return "sr";
-        default:
-            break;
+        // Do not translate the part if it looks like garbage
+        if (splitIndex == -1) {
+            m_translation.append(unsendedText.leftRef(googleTranslateLimit));
+            unsendedText = unsendedText.mid(googleTranslateLimit);
+            continue;
         }
-        break;
-    case Bing:
-        switch (lang) {
-        case SimplifiedChinese:
-            return "zh-Hans";
-        case TraditionalChinese:
-            return "zh-Hant";
-        case Hmong:
-            return "mww";
-        default:
-            break;
+
+        const QByteArray reply = getGoogleTranslation(unsendedText.left(splitIndex), translationCode, sourceCode, uiCode);
+        if (reply.isNull())
+            return;
+
+        // Convert to JsonArray
+        const QJsonDocument jsonResponse = QJsonDocument::fromJson(reply);
+        const QJsonArray jsonData = jsonResponse.array();
+
+        // Parse first sentense. If the answer contains more than one sentence, then at the end of the first one there will be a space
+        m_translation.append(jsonData.at(0).toArray().at(0).toArray().at(0).toString());
+        for (int i = 1; m_translation.endsWith(" ") || m_translation.endsWith("\n") || m_translation.endsWith(0x00a0); ++i)
+            m_translation.append(jsonData.at(0).toArray().at(i).toArray().at(0).toString());
+
+        // Parse transliterations and source language
+        if (m_translationTranslitEnabled)
+            m_translationTranslit.append(jsonData.at(0).toArray().last().toArray().at(2).toString());
+
+        if (m_sourceTranslitEnabled)
+            m_sourceTranslit.append(jsonData.at(0).toArray().last().toArray().at(3).toString());
+
+        if (m_sourceLang == Auto) {
+            // Parse language
+            m_sourceLang = language(Google, jsonData.at(2).toString());
+            if (m_sourceLang == NoLanguage)
+                return;
         }
-        break;
+
+        // Remove the parsed part from the next parsing
+        unsendedText = unsendedText.mid(splitIndex);
+
+        // Add a space between parts
+        if (!unsendedText.isEmpty() && !m_translation.endsWith("\n")) {
+            m_translation.append(" ");
+            m_translationTranslit.append(" ");
+            m_sourceTranslit.append(" ");
+        }
+
+        if (m_translationOptionsEnabled && m_source.size() < googleTranslateLimit) {
+            // Translation options
+            foreach (const QJsonValue &typeOfSpeechData, jsonData.at(1).toArray()) {
+                m_translationOptions << QOption(typeOfSpeechData.toArray().at(0).toString());
+                foreach (const QJsonValue &wordData, typeOfSpeechData.toArray().at(2).toArray()) {
+                    QString word = wordData.toArray().at(0).toString();
+                    QString gender = wordData.toArray().at(4).toString();
+                    QStringList translations;
+                    foreach (const QJsonValue &wordTranslation, wordData.toArray().at(1).toArray()) {
+                        translations.append(wordTranslation.toString());
+                    }
+                    m_translationOptions.last().addWord(word, gender, translations);
+                }
+            }
+
+            // Examples
+            if (m_translationOptionsEnabled) {
+                foreach (const QJsonValue &exampleData, jsonData.at(12).toArray()) {
+                    const QJsonArray example = exampleData.toArray().at(1).toArray().at(0).toArray();
+
+                    m_examples << QExample(exampleData.toArray().at(0).toString());
+                    m_examples.last().addExample(example.at(0).toString(), example.at(2).toString());
+                }
+            }
+        }
     }
+}
 
-    // General case
-    return m_languageCodes.at(lang);
+void QOnlineTranslator::yandexTranslate(QString &sourceCode, const QString &translationCode)
+{
+    // Get translation
+    QString unsendedText = m_source;
+    while (!unsendedText.isEmpty()) {
+        const int splitIndex = getSplitIndex(unsendedText, yandexTranslateLimit);
+
+        // Do not translate the part if it looks like garbage
+        if (splitIndex == -1) {
+            m_translation.append(unsendedText.leftRef(yandexTranslateLimit));
+            unsendedText = unsendedText.mid(yandexTranslateLimit);
+            continue;
+        }
+
+        // Get API reply
+        const QByteArray reply = getYandexTranslation(unsendedText.left(splitIndex), translationCode, sourceCode);
+        if (reply.isNull())
+            return;
+
+        // Parse translation data
+        const QJsonDocument jsonResponse = QJsonDocument::fromJson(reply);
+        const QJsonObject jsonData = jsonResponse.object();
+        m_translation += jsonData.value("text").toArray().at(0).toString();
+        if (m_sourceLang == Auto) {
+            // Parse language
+            sourceCode = jsonData.value("lang").toString();
+            sourceCode = sourceCode.left(sourceCode.indexOf("-"));
+            m_sourceLang = language(Yandex, sourceCode);
+            if (m_sourceLang == NoLanguage)
+                return;
+        }
+
+        // Remove the parsed part from the next parsing
+        unsendedText = unsendedText.mid(splitIndex);
+    }
+}
+
+void QOnlineTranslator::yandexTranslit(QString &translit, const QString &text, const QString &langCode)
+{
+    QString unsendedText = text;
+    while (!unsendedText.isEmpty()) {
+        const int splitIndex = getSplitIndex(unsendedText, yandexTranslitLimit);
+
+        // Do not translate the part if it looks like garbage
+        if (splitIndex == -1) {
+            translit.append(unsendedText.leftRef(yandexTranslitLimit));
+            unsendedText = unsendedText.mid(yandexTranslitLimit);
+            continue;
+        }
+
+        // Get API reply
+        const QByteArray reply = getYandexTranslit(unsendedText.left(splitIndex), langCode);
+        if (reply.isNull())
+            return;
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
+        translit += reply.mid(1).chopped(1);
+#else
+        translit += reply.mid(1);
+        translit.chop(1);
+#endif
+
+        // Remove the parsed part from the next parsing
+        unsendedText = unsendedText.mid(splitIndex);
+    }
+}
+
+void QOnlineTranslator::yandexDictionary(const QString &sourceCode, const QString &translationCode, const QString &uiCode)
+{
+    const QByteArray reply = getYandexDictionary(m_source, translationCode, sourceCode, uiCode);
+    if (reply.isNull())
+        return;
+
+    // Parse reply
+    const QJsonDocument jsonResponse = QJsonDocument::fromJson(reply);
+    const QJsonValue jsonData = jsonResponse.object().value(sourceCode + "-" + translationCode).toObject().value("regular");
+
+    if (m_sourceTranscriptionEnabled)
+        m_sourceTranscription = jsonData.toArray().at(0).toObject().value("ts").toString();
+
+    foreach (const QJsonValue &typeOfSpeechData, jsonData.toArray()) {
+        const QString typeOfSpeech = typeOfSpeechData.toObject().value("pos").toObject().value("text").toString();
+        m_translationOptions << QOption(typeOfSpeech);
+
+        foreach (const QJsonValue &wordData, typeOfSpeechData.toObject().value("tr").toArray()) {
+            // Parse translation options
+            const QString word = wordData.toObject().value("text").toString();
+            const QString gender = wordData.toObject().value("gen").toObject().value("text").toString();
+            QStringList translations;
+            foreach (const QJsonValue &wordTranslation, wordData.toObject().value("mean").toArray()) {
+                translations.append(wordTranslation.toObject().value("text").toString());
+            }
+
+            m_translationOptions.last().addWord(word, gender, translations);
+
+            // Parse examples
+            if (m_examplesEnabled && wordData.toObject().contains("ex")) {
+                // Check if no examples with this type of speech
+                if (m_examples.isEmpty() || m_examples.constLast().typeOfSpeech() != typeOfSpeech)
+                    m_examples << QExample(typeOfSpeech);
+
+                foreach (const QJsonValue exampleData, wordData.toObject().value("ex").toArray()) {
+                    const QString example = exampleData.toObject().value("text").toString();
+                    const QString description = exampleData.toObject().value("tr").toArray().at(0).toObject().value("text").toString();
+
+                    m_examples.last().addExample(description, example);
+                }
+            }
+        }
+    }
+}
+
+void QOnlineTranslator::bingTranslate(QString &sourceCode, const QString &translationCode)
+{
+    // Get translation
+    QString unsendedText = m_source;
+    while (!unsendedText.isEmpty()) {
+        const int splitIndex = getSplitIndex(unsendedText, bingTranslateLimit);
+
+        // Do not translate the part if it looks like garbage
+        if (splitIndex == -1) {
+            m_translation.append(unsendedText.leftRef(bingTranslateLimit));
+            unsendedText = unsendedText.mid(bingTranslateLimit);
+            continue;
+        }
+
+        // Detect language
+        if (m_sourceLang == Auto) {
+            sourceCode = getBingTextLanguage(unsendedText.left(splitIndex));
+            if (sourceCode.isNull())
+                return;
+
+            m_sourceLang = language(Bing, sourceCode);
+        }
+
+        // Get API reply
+        const QByteArray reply = getBingTranslation(unsendedText.left(splitIndex), translationCode, sourceCode);
+        if (reply.isNull())
+            return;
+
+        // Parse translation data
+        m_translation += QJsonDocument::fromJson(reply).object().value("translationResponse").toString();
+
+        // Remove the parsed part from the next parsing
+        unsendedText = unsendedText.mid(splitIndex);
+    }
+}
+
+void QOnlineTranslator::bingTranslit(QString &translit, const QString &text, const QString &langCode)
+{
+    QString unsendedText = text;
+    while (!unsendedText.isEmpty()) {
+        const int splitIndex = getSplitIndex(unsendedText, bingTranslitLimit);
+
+        // Do not translate the part if it looks like garbage
+        if (splitIndex == -1) {
+            translit.append(unsendedText.leftRef(bingTranslitLimit));
+            unsendedText = unsendedText.mid(bingTranslitLimit);
+            continue;
+        }
+
+        // Get API reply
+        const QByteArray reply = getBingTranslit(unsendedText.left(splitIndex), langCode);
+        if (reply.isNull())
+            return;
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
+        translit += reply.mid(1).chopped(1);
+#else
+        translit += reply.mid(1);
+        translit.chop(1);
+#endif
+
+        // Remove the parsed part from the next parsing
+        unsendedText = unsendedText.mid(splitIndex);
+    }
+}
+
+void QOnlineTranslator::bingDictionary(const QString &sourceCode, const QString &translationCode)
+{
+    const QByteArray reply = getBingDictionary(m_source, translationCode, sourceCode);
+    if (reply.isNull())
+        return;
+
+    // Parse reply
+    const QJsonDocument jsonResponse = QJsonDocument::fromJson(reply);
+    const QJsonValue jsonData = jsonResponse.object().value("translations");
+    foreach (const QJsonValue &typeOfSpeechData, jsonData.toArray()) {
+        const QString typeOfSpeech = typeOfSpeechData.toObject().value("posTag").toString().toLower();
+
+        // Search for this type of speech
+        int i;
+        for (i = 0; i < m_translationOptions.size(); ++i) {
+            if (m_translationOptions.at(i).typeOfSpeech() == typeOfSpeech)
+                break;
+        }
+
+        // Add a new if current type of speech not found
+        if (i == m_translationOptions.size())
+            m_translationOptions << QOption(typeOfSpeech);
+
+        const QString word = typeOfSpeechData.toObject().value("displayTarget").toString().toLower();
+        QStringList translations;
+        foreach (const QJsonValue &wordTranslation, typeOfSpeechData.toObject().value("backTranslations").toArray())
+            translations.append(wordTranslation.toObject().value("displayText").toString());
+
+        m_translationOptions[i].addWord(word, "", translations);
+    }
 }
 
 QByteArray QOnlineTranslator::getGoogleTranslation(const QString &text, const QString &translationCode, const QString &sourceCode, const QString &uiCode)
@@ -1912,6 +1833,48 @@ bool QOnlineTranslator::isSupportDictionary(Engine engine, Language sourceLang, 
     }
 
     return false;
+}
+
+// Returns engine-specific language code for translation
+QString QOnlineTranslator::translationLanguageCode(Engine engine, Language lang)
+{
+    if (!isSupportTranslation(engine, lang))
+        return QString();
+
+    // Engines have some language codes exceptions
+    switch (engine) {
+    case Google:
+        if (lang == SerbianCyrillic)
+            return "sr";
+        break;
+    case Yandex:
+        switch (lang) {
+        case SimplifiedChinese:
+            return "zn";
+        case Javanese:
+            return "jv";
+        case SerbianCyrillic:
+            return "sr";
+        default:
+            break;
+        }
+        break;
+    case Bing:
+        switch (lang) {
+        case SimplifiedChinese:
+            return "zh-Hans";
+        case TraditionalChinese:
+            return "zh-Hant";
+        case Hmong:
+            return "mww";
+        default:
+            break;
+        }
+        break;
+    }
+
+    // General case
+    return m_languageCodes.at(lang);
 }
 
 // Parse language from response language code
