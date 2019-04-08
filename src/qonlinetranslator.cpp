@@ -27,8 +27,8 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QNetworkReply>
-#include <QPointer>
 #include <QDebug>
+#include <QPointer>
 
 // Engines have a limit of characters per translation request.
 // If the query is larger, then it should be splited into several with getSplitIndex() helper function
@@ -485,6 +485,12 @@ void QOnlineTranslator::detectLanguage(const QString &text, Engine engine)
 
         m_sourceLang = language(Bing, langCode);
     }
+}
+
+void QOnlineTranslator::abort()
+{
+    if (m_currentReply != nullptr)
+        m_currentReply->abort();
 }
 
 QString QOnlineTranslator::source() const
@@ -1212,12 +1218,12 @@ QByteArray QOnlineTranslator::getGoogleTranslation(const QString &text, const QS
                  + "&hl=" + uiCode
                  + "&q=" + QUrl::toPercentEncoding(text));
 
-    QPointer<QNetworkReply> reply = getReply(url);
+    QScopedPointer<QNetworkReply> reply(getReply(url));
     if (reply->error() != QNetworkReply::NoError) {
         if (reply->error() == QNetworkReply::ServiceUnavailableError)
             resetData(ServiceError, tr("Error: Engine systems have detected suspicious traffic from your computer network. Please try your request again later."));
         else
-            resetData(NetworkError, m_currentReply->errorString());
+            resetData(NetworkError, reply->errorString());
         return QByteArray();
     }
 
@@ -1237,7 +1243,7 @@ QByteArray QOnlineTranslator::getYandexTranslation(const QString &text, const QS
     // Generate session ID to access API (Required for Yandex)
     if (m_yandexKey.isEmpty()) {
         // Download web-version
-        QPointer<QNetworkReply> reply = getReply(QUrl("https://translate.yandex.com/"));
+        QScopedPointer<QNetworkReply> reply(getReply(QUrl("https://translate.yandex.com/")));
         if (reply->error() != QNetworkReply::NoError) {
             resetData(NetworkError, reply->errorString());
             return QByteArray();
@@ -1276,7 +1282,7 @@ QByteArray QOnlineTranslator::getYandexTranslation(const QString &text, const QS
                  + (sourceCode == "auto" ? translationCode : sourceCode + "-" + translationCode));
 
     // Send request and wait for the response
-    QPointer<QNetworkReply> reply = getReply(url);
+    QScopedPointer<QNetworkReply> reply(getReply(url));
 
     // Check for errors
     if (reply->error() != QNetworkReply::NoError) {
@@ -1311,7 +1317,7 @@ QByteArray QOnlineTranslator::getYandexTranslit(const QString &text, const QStri
                  + "&lang=" + langCode);
 
     // Send request and wait for the response
-    QPointer<QNetworkReply> reply = getReply(url);
+    QScopedPointer<QNetworkReply> reply(getReply(url));
 
     if (reply->error() != QNetworkReply::NoError) {
         resetData(NetworkError, reply->errorString());
@@ -1330,7 +1336,7 @@ QByteArray QOnlineTranslator::getYandexDictionary(const QString &text, const QSt
                  + "&dict=" + sourceCode + "-" + translationCode);
 
     // Send request and wait for the response
-    QPointer<QNetworkReply> reply = getReply(url);
+    QScopedPointer<QNetworkReply> reply(getReply(url));
 
     if (reply->error() != QNetworkReply::NoError) {
         resetData(NetworkError, reply->errorString());
@@ -1347,7 +1353,7 @@ QByteArray QOnlineTranslator::getBingTextLanguage(const QString &text)
     const QUrl url("http://www.bing.com/tdetect");
 
     // Send request and wait for the response
-    QPointer<QNetworkReply> reply = postReply(url, postData);
+    QScopedPointer<QNetworkReply> reply(postReply(url, postData));
 
     // Check for errors
     if (reply->error() != QNetworkReply::NoError) {
@@ -1365,7 +1371,7 @@ QByteArray QOnlineTranslator::getBingTranslation(const QString &text, const QStr
     const QUrl url("http://www.bing.com/ttranslate");
 
     // Send request and wait for the response
-    QPointer<QNetworkReply> reply = postReply(url, postData);
+    QScopedPointer<QNetworkReply> reply(postReply(url, postData));
 
     // Check for errors
     if (reply->error() != QNetworkReply::NoError) {
@@ -1383,7 +1389,7 @@ QByteArray QOnlineTranslator::getBingTranslit(const QString &text, const QString
     const QUrl url("http://www.bing.com/ttransliterate");
 
     // Send request and wait for the response
-    QPointer<QNetworkReply> reply = postReply(url, postData);
+    QScopedPointer<QNetworkReply> reply(postReply(url, postData));
 
     // Check for errors
     if (reply->error() != QNetworkReply::NoError) {
@@ -1401,7 +1407,7 @@ QByteArray QOnlineTranslator::getBingDictionary(const QString &text, const QStri
     const QUrl url("http://www.bing.com/ttranslationlookup");
 
     // Send request and wait for the response
-    QPointer<QNetworkReply> reply = postReply(url, postData);
+    QScopedPointer<QNetworkReply> reply(postReply(url, postData));
 
     // Check for errors
     if (reply->error() != QNetworkReply::NoError) {

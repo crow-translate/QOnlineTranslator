@@ -25,6 +25,7 @@
 #include "qexample.h"
 
 #include <QObject>
+#include <QPointer>
 
 class QNetworkAccessManager;
 class QNetworkReply;
@@ -181,6 +182,8 @@ public:
     void translate(const QString &text, Engine engine = Google, Language translationLang = Auto, Language sourceLang = Auto, Language uiLang = Auto);
     void detectLanguage(const QString &text, Engine engine = Google);
 
+    void abort();
+
     QString source() const;
     QString sourceTranslit() const;
     QString sourceTranscription() const;
@@ -249,7 +252,7 @@ private:
     void resetData(TranslationError error = NoError, const QString &errorString = QString());
 
     QNetworkAccessManager *m_networkManager;
-    QNetworkReply *m_currentReply = nullptr;
+    QPointer<QNetworkReply> m_currentReply;
 
     Language m_sourceLang = NoLanguage;
     Language m_translationLang = NoLanguage;
