@@ -208,7 +208,7 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
         }
 
         // Get source transliteration
-        if (m_sourceTranslitEnabled && isSupportYandexTranslit(m_sourceLang)) {
+        if (m_sourceTranslitEnabled && isSupportTranslit(Yandex, m_sourceLang)) {
             unsendedText = m_source;
             while (!unsendedText.isEmpty()) {
                 const int splitIndex = getSplitIndex(unsendedText, yandexTranslitLimit);
@@ -238,7 +238,7 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
         }
 
         // Get translation transliteration
-        if (m_sourceTranslitEnabled && isSupportYandexTranslit(m_translationLang)) {
+        if (m_sourceTranslitEnabled && isSupportTranslit(Yandex, m_translationLang)) {
             unsendedText = m_translation;
             while (!unsendedText.isEmpty()) {
                 const int splitIndex = getSplitIndex(unsendedText, yandexTranslitLimit);
@@ -268,7 +268,7 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
         }
 
         // Request dictionary data if only one word is translated.
-        if (m_translationOptionsEnabled && isSupportYandexDictionary(m_sourceLang, m_translationLang) && !m_source.contains(" ")) {
+        if (m_translationOptionsEnabled && isSupportDictionary(Yandex, m_sourceLang, m_translationLang) && !m_source.contains(" ")) {
             const QByteArray reply = getYandexDictionary(m_source, translationCode, sourceCode, uiCode);
             if (reply.isEmpty())
                 return;
@@ -348,7 +348,7 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
         }
 
         // Get source transliteration
-        if (m_sourceTranslitEnabled && isSupportBingTranslit(m_sourceLang)) {
+        if (m_sourceTranslitEnabled && isSupportTranslit(Bing, m_sourceLang)) {
             unsendedText = m_source;
             while (!unsendedText.isEmpty()) {
                 const int splitIndex = getSplitIndex(unsendedText, bingTranslitLimit);
@@ -378,7 +378,7 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
         }
 
         // Get translation transliteration
-        if (m_translationTranslitEnabled && isSupportBingTranslit(m_translationLang)) {
+        if (m_translationTranslitEnabled && isSupportTranslit(Bing, m_translationLang)) {
             unsendedText = m_translation;
             while (!unsendedText.isEmpty()) {
                 const int splitIndex = getSplitIndex(unsendedText, bingTranslitLimit);
@@ -408,7 +408,7 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
         }
 
         // Request dictionary data if only one word is translated.
-        if (m_translationOptionsEnabled && isSupportBingDictionary(m_sourceLang, m_translationLang) && !m_source.contains(" ")) {
+        if (m_translationOptionsEnabled && isSupportDictionary(Bing, m_sourceLang, m_translationLang) && !m_source.contains(" ")) {
             const QByteArray reply = getBingDictionary(m_source, translationCode, sourceCode);
             if (reply.isEmpty())
                 return;
@@ -443,7 +443,7 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
     }
 }
 
-void QOnlineTranslator::detectLanguage(const QString &text, QOnlineTranslator::Engine engine)
+void QOnlineTranslator::detectLanguage(const QString &text, Engine engine)
 {
     resetData();
     m_source = text;
@@ -552,7 +552,7 @@ QOnlineTranslator::TranslationError QOnlineTranslator::error() const
     return m_error;
 }
 
-QString QOnlineTranslator::languageString(QOnlineTranslator::Language lang)
+QString QOnlineTranslator::languageString(Language lang)
 {
     switch (lang) {
     case Auto:
@@ -804,7 +804,7 @@ QString QOnlineTranslator::languageString(QOnlineTranslator::Language lang)
     }
 }
 
-QString QOnlineTranslator::languageCode(QOnlineTranslator::Language lang)
+QString QOnlineTranslator::languageCode(Language lang)
 {
     if (lang == NoLanguage)
         return QString();
@@ -1022,7 +1022,7 @@ QOnlineTranslator::Language QOnlineTranslator::language(const QString &langCode)
     return static_cast<Language>(m_languageCodes.indexOf(langCode));
 }
 
-bool QOnlineTranslator::isSupportTranslation(QOnlineTranslator::Engine engine, QOnlineTranslator::Language lang)
+bool QOnlineTranslator::isSupportTranslation(Engine engine, Language lang)
 {
     bool isSupported = false;
 
@@ -1162,7 +1162,7 @@ bool QOnlineTranslator::isSupportTranslation(QOnlineTranslator::Engine engine, Q
 }
 
 // Returns engine-specific language code for translation
-QString QOnlineTranslator::translationLanguageCode(Engine engine, QOnlineTranslator::Language lang)
+QString QOnlineTranslator::translationLanguageCode(Engine engine, Language lang)
 {
     if (!isSupportTranslation(engine, lang))
         return QString();
@@ -1439,594 +1439,473 @@ QNetworkReply *QOnlineTranslator::postReply(const QUrl &url, const QByteArray &p
     return m_currentReply;
 }
 
-bool QOnlineTranslator::isSupportGoogle(QOnlineTranslator::Language lang)
+bool QOnlineTranslator::isSupportTranslit(Engine engine, Language lang)
 {
-    switch (lang) {
-    case NoLanguage:
-    case Bashkir:
-    case HillMari:
-    case Mari:
-    case Papiamento:
-    case Tatar:
-    case Udmurt:
-    case Cantonese:
-    case Fijian:
-    case Filipino:
-    case Georgian:
-    case Klingon:
-    case KlingonPlqaD:
-    case LevantineArabic:
-    case QueretaroOtomi:
-    case SerbianLatin:
-    case Tahitian:
-    case Tongan:
-    case YucatecMaya:
-        return false;
-    default:
-        return true;
-    }
-}
-
-bool QOnlineTranslator::isSupportYandexTranslation(QOnlineTranslator::Language lang)
-{
-    switch (lang) {
-    case NoLanguage:
-    case LevantineArabic:
-    case Cantonese:
-    case Corsican:
-    case Fijian:
-    case Filipino:
-    case Frisian:
-    case Igbo:
-    case Hausa:
-    case Hawaiian:
-    case Klingon:
-    case KlingonPlqaD:
-    case Kurdish:
-    case Chichewa:
-    case Pashto:
-    case QueretaroOtomi:
-    case Samoan:
-    case SerbianLatin:
-    case Sesotho:
-    case Shona:
-    case Sindhi:
-    case Somali:
-    case Tahitian:
-    case Tongan:
-    case Yoruba:
-    case YucatecMaya:
-    case Zulu:
-        return false;
-    default:
-        return true;
-    }
-}
-
-bool QOnlineTranslator::isSupportYandexTranslit(QOnlineTranslator::Language lang)
-{
-    switch (lang) {
-    case Amharic:
-    case Armenian:
-    case Bengali:
-    case SimplifiedChinese:
-    case Georgian:
-    case Greek:
-    case Gujarati:
-    case Hebrew:
-    case Hindi:
-    case Japanese:
-    case Kannada:
-    case Korean:
-    case Malayalam:
-    case Marathi:
-    case Nepali:
-    case Punjabi:
-    case Russian:
-    case Sinhala:
-    case Tamil:
-    case Telugu:
-    case Thai:
-    case Yiddish:
-        return true;
-    default:
-        return false;
-    }
-}
-
-bool QOnlineTranslator::isSupportYandexDictionary(QOnlineTranslator::Language sourceLang, Language translationLang)
-{
-    switch (sourceLang) {
-    case Belarusian:
-        switch (translationLang) {
-        case Belarusian:
-            return true;
-        case Russian:
-            return true;
-        default:
-            return false;
-        }
-    case Bulgarian:
-        switch (translationLang) {
-        case Russian:
-            return true;
-        default:
-            return false;
-        }
-    case Czech:
-        switch (translationLang) {
-        case English:
-            return true;
-        case Russian:
-            return true;
-        default:
-            return false;
-        }
-    case Danish:
-        switch (translationLang) {
-        case English:
-            return true;
-        case Russian:
-            return true;
-        default:
-            return false;
-        }
-    case German:
-        switch (translationLang) {
-        case German:
-            return true;
-        case English:
-            return true;
-        case Russian:
-            return true;
-        case Turkish:
-            return true;
-        default:
-            return false;
-        }
-    case Greek:
-        switch (translationLang) {
-        case English:
-            return true;
-        case Russian:
-            return true;
-        default:
-            return false;
-        }
-    case English:
-        switch (translationLang) {
-        case Czech:
-            return true;
-        case Danish:
-            return true;
-        case German:
-            return true;
+    switch (engine) {
+    case Google:
+        isSupportTranslation(Google, lang); // Google supports transliteration for all supported languages
+        break;
+    case Yandex:
+        switch (lang) {
+        case Amharic:
+        case Armenian:
+        case Bengali:
+        case SimplifiedChinese:
+        case Georgian:
         case Greek:
-            return true;
-        case English:
-            return true;
-        case Spanish:
-            return true;
-        case Estonian:
-            return true;
-        case Finnish:
-            return true;
-        case French:
-            return true;
-        case Italian:
-            return true;
-        case Lithuanian:
-            return true;
-        case Latvian:
-            return true;
-        case Dutch:
-            return true;
-        case Norwegian:
-            return true;
-        case Portuguese:
-            return true;
+        case Gujarati:
+        case Hebrew:
+        case Hindi:
+        case Japanese:
+        case Kannada:
+        case Korean:
+        case Malayalam:
+        case Marathi:
+        case Nepali:
+        case Punjabi:
         case Russian:
-            return true;
-        case Slovak:
-            return true;
-        case Swedish:
-            return true;
-        case Turkish:
-            return true;
-        case Ukrainian:
+        case Sinhala:
+        case Tamil:
+        case Telugu:
+        case Thai:
+        case Yiddish:
             return true;
         default:
             return false;
         }
-    case Spanish:
-        switch (translationLang) {
-        case English:
-            return true;
-        case Spanish:
-            return true;
-        case Russian:
-            return true;
-        default:
-            return false;
-        }
-    case Estonian:
-        switch (translationLang) {
-        case English:
-            return true;
-        case Russian:
-            return true;
-        default:
-            return false;
-        }
-    case Finnish:
-        switch (translationLang) {
-        case English:
-            return true;
-        case Russian:
-            return true;
-        case Finnish:
+    case Bing:
+        switch (lang) {
+        case Arabic:
+        case Bengali:
+        case SimplifiedChinese:
+        case TraditionalChinese:
+        case Gujarati:
+        case Hebrew:
+        case Hindi:
+        case Japanese:
+        case Kannada:
+        case Malayalam:
+        case Marathi:
+        case Punjabi:
+        case SerbianCyrillic:
+        case Tamil:
+        case Telugu:
+        case Thai:
             return true;
         default:
             return false;
         }
-    case French:
-        switch (translationLang) {
-        case French:
-            return true;
-        case English:
-            return true;
-        case Russian:
-            return true;
-        default:
-            return false;
-        }
-    case Hungarian:
-        switch (translationLang) {
-        case Hungarian:
-            return true;
-        case Russian:
-            return true;
-        default:
-            return false;
-        }
-    case Italian:
-        switch (translationLang) {
-        case English:
-            return true;
-        case Italian:
-            return true;
-        case Russian:
-            return true;
-        default:
-            return false;
-        }
-    case Lithuanian:
-        switch (translationLang) {
-        case English:
-            return true;
-        case Lithuanian:
-            return true;
-        case Russian:
-            return true;
-        default:
-            return false;
-        }
-    case Latvian:
-        switch (translationLang) {
-        case English:
-            return true;
-        case Russian:
-            return true;
-        default:
-            return false;
-        }
-    case Mari:
-        switch (translationLang) {
-        case Russian:
-            return true;
-        default:
-            return false;
-        }
-    case HillMari:
-        switch (translationLang) {
-        case Russian:
-            return true;
-        default:
-            return false;
-        }
-    case Dutch:
-        switch (translationLang) {
-        case English:
-            return true;
-        case Russian:
-            return true;
-        default:
-            return false;
-        }
-    case Norwegian:
-        switch (translationLang) {
-        case English:
-            return true;
-        case Russian:
-            return true;
-        default:
-            return false;
-        }
-    case Polish:
-        switch (translationLang) {
-        case Russian:
-            return true;
-        default:
-            return false;
-        }
-    case Portuguese:
-        switch (translationLang) {
-        case English:
-            return true;
-        case Russian:
-            return true;
-        default:
-            return false;
-        }
-    case Russian:
-        switch (translationLang) {
+    }
+
+    return false;
+}
+
+bool QOnlineTranslator::isSupportDictionary(Engine engine, Language sourceLang, Language translationLang)
+{
+    switch (engine) {
+    case Google:
+        return isSupportTranslation(Google, sourceLang) && isSupportTranslation(Google, translationLang); // Google supports dictionary for all supported languages
+    case Yandex:
+        switch (sourceLang) {
         case Belarusian:
-            return true;
+            switch (translationLang) {
+            case Belarusian:
+                return true;
+            case Russian:
+                return true;
+            default:
+                return false;
+            }
         case Bulgarian:
-            return true;
+            switch (translationLang) {
+            case Russian:
+                return true;
+            default:
+                return false;
+            }
         case Czech:
-            return true;
+            switch (translationLang) {
+            case English:
+                return true;
+            case Russian:
+                return true;
+            default:
+                return false;
+            }
         case Danish:
-            return true;
+            switch (translationLang) {
+            case English:
+                return true;
+            case Russian:
+                return true;
+            default:
+                return false;
+            }
         case German:
-            return true;
+            switch (translationLang) {
+            case German:
+                return true;
+            case English:
+                return true;
+            case Russian:
+                return true;
+            case Turkish:
+                return true;
+            default:
+                return false;
+            }
         case Greek:
-            return true;
+            switch (translationLang) {
+            case English:
+                return true;
+            case Russian:
+                return true;
+            default:
+                return false;
+            }
         case English:
-            return true;
+            switch (translationLang) {
+            case Czech:
+                return true;
+            case Danish:
+                return true;
+            case German:
+                return true;
+            case Greek:
+                return true;
+            case English:
+                return true;
+            case Spanish:
+                return true;
+            case Estonian:
+                return true;
+            case Finnish:
+                return true;
+            case French:
+                return true;
+            case Italian:
+                return true;
+            case Lithuanian:
+                return true;
+            case Latvian:
+                return true;
+            case Dutch:
+                return true;
+            case Norwegian:
+                return true;
+            case Portuguese:
+                return true;
+            case Russian:
+                return true;
+            case Slovak:
+                return true;
+            case Swedish:
+                return true;
+            case Turkish:
+                return true;
+            case Ukrainian:
+                return true;
+            default:
+                return false;
+            }
         case Spanish:
-            return true;
+            switch (translationLang) {
+            case English:
+                return true;
+            case Spanish:
+                return true;
+            case Russian:
+                return true;
+            default:
+                return false;
+            }
         case Estonian:
-            return true;
+            switch (translationLang) {
+            case English:
+                return true;
+            case Russian:
+                return true;
+            default:
+                return false;
+            }
         case Finnish:
-            return true;
+            switch (translationLang) {
+            case English:
+                return true;
+            case Russian:
+                return true;
+            case Finnish:
+                return true;
+            default:
+                return false;
+            }
         case French:
-            return true;
+            switch (translationLang) {
+            case French:
+                return true;
+            case English:
+                return true;
+            case Russian:
+                return true;
+            default:
+                return false;
+            }
+        case Hungarian:
+            switch (translationLang) {
+            case Hungarian:
+                return true;
+            case Russian:
+                return true;
+            default:
+                return false;
+            }
         case Italian:
-            return true;
+            switch (translationLang) {
+            case English:
+                return true;
+            case Italian:
+                return true;
+            case Russian:
+                return true;
+            default:
+                return false;
+            }
         case Lithuanian:
-            return true;
+            switch (translationLang) {
+            case English:
+                return true;
+            case Lithuanian:
+                return true;
+            case Russian:
+                return true;
+            default:
+                return false;
+            }
         case Latvian:
-            return true;
+            switch (translationLang) {
+            case English:
+                return true;
+            case Russian:
+                return true;
+            default:
+                return false;
+            }
         case Mari:
-            return true;
+            switch (translationLang) {
+            case Russian:
+                return true;
+            default:
+                return false;
+            }
         case HillMari:
-            return true;
+            switch (translationLang) {
+            case Russian:
+                return true;
+            default:
+                return false;
+            }
         case Dutch:
-            return true;
+            switch (translationLang) {
+            case English:
+                return true;
+            case Russian:
+                return true;
+            default:
+                return false;
+            }
         case Norwegian:
-            return true;
+            switch (translationLang) {
+            case English:
+                return true;
+            case Russian:
+                return true;
+            default:
+                return false;
+            }
+        case Polish:
+            switch (translationLang) {
+            case Russian:
+                return true;
+            default:
+                return false;
+            }
         case Portuguese:
-            return true;
+            switch (translationLang) {
+            case English:
+                return true;
+            case Russian:
+                return true;
+            default:
+                return false;
+            }
         case Russian:
-            return true;
+            switch (translationLang) {
+            case Belarusian:
+                return true;
+            case Bulgarian:
+                return true;
+            case Czech:
+                return true;
+            case Danish:
+                return true;
+            case German:
+                return true;
+            case Greek:
+                return true;
+            case English:
+                return true;
+            case Spanish:
+                return true;
+            case Estonian:
+                return true;
+            case Finnish:
+                return true;
+            case French:
+                return true;
+            case Italian:
+                return true;
+            case Lithuanian:
+                return true;
+            case Latvian:
+                return true;
+            case Mari:
+                return true;
+            case HillMari:
+                return true;
+            case Dutch:
+                return true;
+            case Norwegian:
+                return true;
+            case Portuguese:
+                return true;
+            case Russian:
+                return true;
+            case Slovak:
+                return true;
+            case Swedish:
+                return true;
+            case Turkish:
+                return true;
+            case Tatar:
+                return true;
+            case Ukrainian:
+                return true;
+            default:
+                return false;
+            }
         case Slovak:
-            return true;
+            switch (translationLang) {
+            case English:
+                return true;
+            case Russian:
+                return true;
+            default:
+                return false;
+            }
         case Swedish:
-            return true;
+            switch (translationLang) {
+            case English:
+                return true;
+            case Russian:
+                return true;
+            default:
+                return false;
+            }
         case Turkish:
-            return true;
+            switch (translationLang) {
+            case German:
+                return true;
+            case English:
+                return true;
+            case Russian:
+                return true;
+            default:
+                return false;
+            }
         case Tatar:
-            return true;
+            switch (translationLang) {
+            case Russian:
+                return true;
+            default:
+                return false;
+            }
         case Ukrainian:
-            return true;
+            switch (translationLang) {
+            case English:
+                return true;
+            case Russian:
+                return true;
+            case Ukrainian:
+                return true;
+            default:
+                return false;
+            }
         default:
             return false;
         }
-    case Slovak:
-        switch (translationLang) {
-        case English:
-            return true;
-        case Russian:
-            return true;
-        default:
+    case Bing:
+        // Bing support dictionary only to or from English (we don't need a dictionary for translation)
+        if (sourceLang != English)
             return false;
-        }
-    case Swedish:
+
         switch (translationLang) {
-        case English:
-            return true;
-        case Russian:
-            return true;
-        default:
-            return false;
-        }
-    case Turkish:
-        switch (translationLang) {
+        case Afrikaans:
+        case Arabic:
+        case Bengali:
+        case Bosnian:
+        case Bulgarian:
+        case Catalan:
+        case SimplifiedChinese:
+        case Croatian:
+        case Czech:
+        case Danish:
+        case Dutch:
+        case Estonian:
+        case Finnish:
+        case French:
         case German:
-            return true;
-        case English:
-            return true;
+        case Greek:
+        case HaitianCreole:
+        case Hebrew:
+        case Hindi:
+        case Hmong:
+        case Hungarian:
+        case Icelandic:
+        case Indonesian:
+        case Italian:
+        case Japanese:
+        case Swahili:
+        case Klingon:
+        case Korean:
+        case Latvian:
+        case Lithuanian:
+        case Malay:
+        case Maltese:
+        case Norwegian:
+        case Persian:
+        case Polish:
+        case Portuguese:
+        case Romanian:
         case Russian:
-            return true;
-        default:
-            return false;
-        }
-    case Tatar:
-        switch (translationLang) {
-        case Russian:
-            return true;
-        default:
-            return false;
-        }
-    case Ukrainian:
-        switch (translationLang) {
-        case English:
-            return true;
-        case Russian:
-            return true;
+        case SerbianLatin:
+        case Slovak:
+        case Slovenian:
+        case Spanish:
+        case Swedish:
+        case Tamil:
+        case Thai:
+        case Turkish:
         case Ukrainian:
+        case Urdu:
+        case Vietnamese:
+        case Welsh:
             return true;
         default:
             return false;
         }
-    default:
-        return false;
     }
-}
 
-bool QOnlineTranslator::isSupportBingTranslation(QOnlineTranslator::Language lang)
-{
-    switch (lang) {
-    case NoLanguage:
-    case Albanian:
-    case Amharic:
-    case Armenian:
-    case Azerbaijani:
-    case Basque:
-    case Bashkir:
-    case Belarusian:
-    case Cebuano:
-    case Corsican:
-    case Esperanto:
-    case Frisian:
-    case Galician:
-    case Georgian:
-    case Gujarati:
-    case Hausa:
-    case Hawaiian:
-    case HillMari:
-    case Igbo:
-    case Irish:
-    case Javanese:
-    case Kannada:
-    case Kazakh:
-    case Khmer:
-    case Kurdish:
-    case Kyrgyz:
-    case Lao:
-    case Latin:
-    case Luxembourgish:
-    case Macedonian:
-    case Malayalam:
-    case Maori:
-    case Marathi:
-    case Mari:
-    case Mongolian:
-    case Myanmar:
-    case Nepali:
-    case Chichewa:
-    case Papiamento:
-    case Pashto:
-    case Punjabi:
-    case ScotsGaelic:
-    case Sesotho:
-    case Shona:
-    case Sindhi:
-    case Sinhala:
-    case Somali:
-    case Sundanese:
-    case Tagalog:
-    case Tajik:
-    case Tatar:
-    case Udmurt:
-    case Uzbek:
-    case Xhosa:
-    case Yiddish:
-    case Yoruba:
-    case Zulu:
-        return false;
-    default:
-        return true;
-    }
-}
-
-bool QOnlineTranslator::isSupportBingTranslit(QOnlineTranslator::Language lang)
-{
-    switch (lang) {
-    case Arabic:
-    case Bengali:
-    case SimplifiedChinese:
-    case TraditionalChinese:
-    case Gujarati:
-    case Hebrew:
-    case Hindi:
-    case Japanese:
-    case Kannada:
-    case Malayalam:
-    case Marathi:
-    case Punjabi:
-    case SerbianCyrillic:
-    case Tamil:
-    case Telugu:
-    case Thai:
-        return true;
-    default:
-        return false;
-    }
-}
-
-bool QOnlineTranslator::isSupportBingDictionary(QOnlineTranslator::Language sourceLang, QOnlineTranslator::Language translationLang)
-{
-    // Bing support dictionary only to or from English (we don't need a dictionary for translation)
-    if (sourceLang != English)
-        return false;
-
-    switch (translationLang) {
-    case Afrikaans:
-    case Arabic:
-    case Bengali:
-    case Bosnian:
-    case Bulgarian:
-    case Catalan:
-    case SimplifiedChinese:
-    case Croatian:
-    case Czech:
-    case Danish:
-    case Dutch:
-    case Estonian:
-    case Finnish:
-    case French:
-    case German:
-    case Greek:
-    case HaitianCreole:
-    case Hebrew:
-    case Hindi:
-    case Hmong:
-    case Hungarian:
-    case Icelandic:
-    case Indonesian:
-    case Italian:
-    case Japanese:
-    case Swahili:
-    case Klingon:
-    case Korean:
-    case Latvian:
-    case Lithuanian:
-    case Malay:
-    case Maltese:
-    case Norwegian:
-    case Persian:
-    case Polish:
-    case Portuguese:
-    case Romanian:
-    case Russian:
-    case SerbianLatin:
-    case Slovak:
-    case Slovenian:
-    case Spanish:
-    case Swedish:
-    case Tamil:
-    case Thai:
-    case Turkish:
-    case Ukrainian:
-    case Urdu:
-    case Vietnamese:
-    case Welsh:
-        return true;
-    default:
-        return false;
-    }
+    return false;
 }
 
 // Parse language from response language code

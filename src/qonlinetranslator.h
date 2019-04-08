@@ -240,13 +240,8 @@ private:
     QNetworkReply *postReply(const QUrl &url, const QByteArray &postData);
 
     // Check for service support
-    static bool isSupportGoogle(Language lang);
-    static bool isSupportYandexTranslation(Language lang);
-    static bool isSupportYandexTranslit(Language lang);
-    static bool isSupportYandexDictionary(Language sourceLang, Language translationLang);
-    static bool isSupportBingTranslation(Language lang);
-    static bool isSupportBingTranslit(Language lang);
-    static bool isSupportBingDictionary(Language sourceLang, Language translationLang);
+    static bool isSupportTranslit(Engine engine, Language lang);
+    static bool isSupportDictionary(Engine engine, Language sourceLang, Language translationLang);
 
     // Other
     static Language language(Engine engine, const QString &langCode);
