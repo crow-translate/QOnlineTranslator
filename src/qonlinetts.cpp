@@ -6,6 +6,9 @@ constexpr int googleTtsLimit = 200;
 constexpr int yandexTtsLimit = 1400;
 constexpr int bingTtsLimit = 2001;
 
+const QStringList QOnlineTts::m_emotionCodes = { "default", "neutral", "good", "evil" };
+const QStringList QOnlineTts::m_voiceCodes = { "default", "zahar", "ermil", "jane", "oksana", "alyss", "omazh", "male", "female" };
+
 QOnlineTts::QOnlineTts(QObject *parent) :
     QObject(parent)
 {
@@ -109,6 +112,26 @@ void QOnlineTts::generateUrls(const QString &text, QOnlineTranslator::Engine eng
 QList<QMediaContent> QOnlineTts::media() const
 {
     return m_media;
+}
+
+QString QOnlineTts::voiceCode(QOnlineTts::Voice voice)
+{
+    return m_voiceCodes.value(voice);
+}
+
+QString QOnlineTts::emotionCode(QOnlineTts::Emotion emotion)
+{
+    return m_emotionCodes.value(emotion);
+}
+
+QOnlineTts::Emotion QOnlineTts::emotion(const QString &emotionCode)
+{
+    return static_cast<Emotion>(m_emotionCodes.indexOf(emotionCode));
+}
+
+QOnlineTts::Voice QOnlineTts::voice(const QString &voiceCode)
+{
+    return static_cast<Voice>(m_emotionCodes.indexOf(voiceCode));
 }
 
 bool QOnlineTts::isSupportTts(QOnlineTranslator::Engine engine, QOnlineTranslator::Language lang)
@@ -248,23 +271,19 @@ QString QOnlineTts::voiceCode(QOnlineTranslator::Engine engine, Voice voice)
     switch (engine) {
     case QOnlineTranslator::Google:
         if (voice == DefaultVoice)
-            return "default";
+            return m_voiceCodes.at(voice);
         break;
     case QOnlineTranslator::Yandex:
         switch (voice) {
         case DefaultVoice:
+            return m_voiceCodes.at(Zahar);
         case Zahar:
-            return "zahar";
         case Ermil:
-            return "ermil";
         case Jane:
-            return "jane";
         case Oksana:
-            return "oksana";
         case Alyss:
-            return "alyss";
         case Omazh:
-            return "omazh";
+            return m_voiceCodes.at(voice);
         default:
             break;
         }
@@ -272,10 +291,10 @@ QString QOnlineTts::voiceCode(QOnlineTranslator::Engine engine, Voice voice)
     case QOnlineTranslator::Bing:
         switch (voice) {
         case DefaultVoice:
+            return m_voiceCodes.at(Male);
         case Male:
-            return "male";
         case Female:
-            return "female";
+            return m_voiceCodes.at(voice);
         default:
             break;
         }
@@ -291,18 +310,10 @@ QString QOnlineTts::emotionCode(QOnlineTranslator::Engine engine, Emotion emotio
     case QOnlineTranslator::Google:
     case QOnlineTranslator::Bing:
         if (emotion == DefaultEmotion)
-            return "default";
+            return m_emotionCodes.at(emotion);
         break;
     case QOnlineTranslator::Yandex:
-        switch (emotion) {
-        case DefaultEmotion:
-        case Neutral:
-            return "neutral";
-        case Good:
-            return "good";
-        case Evil:
-            return "evil";
-        }
+        return m_emotionCodes.at(emotion); // Only Yandex supports voice emotions
     }
 
     return QString();

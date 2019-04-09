@@ -487,10 +487,7 @@ QString QOnlineTranslator::languageString(Language lang)
 
 QString QOnlineTranslator::languageCode(Language lang)
 {
-    if (lang == NoLanguage)
-        return QString();
-
-    return m_languageCodes.at(lang);
+    return m_languageCodes.value(lang);
 }
 
 QOnlineTranslator::Language QOnlineTranslator::language(const QLocale &locale)

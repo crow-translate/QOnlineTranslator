@@ -12,6 +12,7 @@ class QOnlineTts : public QObject
 public:
     enum Voice {
         // All
+        NoVoice = -1,
         DefaultVoice,
 
         // Yandex
@@ -30,6 +31,7 @@ public:
 
     enum Emotion {
         // All
+        NoEmotion = -1,
         DefaultEmotion,
 
         // Yandex
@@ -51,6 +53,10 @@ public:
     void generateUrls(const QString &text, QOnlineTranslator::Engine engine, QOnlineTranslator::Language lang, Voice voice = DefaultVoice, Emotion emotion = DefaultEmotion);
     QList<QMediaContent> media() const;
 
+    static QString voiceCode(Voice voice);
+    static QString emotionCode(Emotion emotion);
+    static Emotion emotion(const QString &emotionCode);
+    static Voice voice(const QString &voiceCode);
     static bool isSupportTts(QOnlineTranslator::Engine engine, QOnlineTranslator::Language lang);
 
 private:
@@ -63,6 +69,9 @@ private:
     QList<QMediaContent> m_media;
     QString m_errorString;
     TtsError m_error = NoError;
+
+    const static QStringList m_emotionCodes;
+    const static QStringList m_voiceCodes;
 };
 
 #endif // QONLINETTS_H
