@@ -114,6 +114,16 @@ QList<QMediaContent> QOnlineTts::media() const
     return m_media;
 }
 
+QString QOnlineTts::errorString() const
+{
+    return m_errorString;
+}
+
+QOnlineTts::TtsError QOnlineTts::error() const
+{
+    return m_error;
+}
+
 QString QOnlineTts::voiceCode(QOnlineTts::Voice voice)
 {
     return m_voiceCodes.value(voice);

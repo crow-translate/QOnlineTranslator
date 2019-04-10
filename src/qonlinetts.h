@@ -53,6 +53,9 @@ public:
     void generateUrls(const QString &text, QOnlineTranslator::Engine engine, QOnlineTranslator::Language lang, Voice voice = DefaultVoice, Emotion emotion = DefaultEmotion);
     QList<QMediaContent> media() const;
 
+    TtsError error() const;
+    QString errorString() const;
+
     static QString voiceCode(Voice voice);
     static QString emotionCode(Emotion emotion);
     static Emotion emotion(const QString &emotionCode);
