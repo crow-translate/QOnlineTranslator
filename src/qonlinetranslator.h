@@ -226,13 +226,13 @@ private:
     friend class QOnlineTts;
 
     // Get data from online services
-    void googleTranslate(const QString &sourceCode, const QString &translationCode, const QString &uiCode);
-    void yandexTranslate(QString &sourceCode, const QString &translationCode);
-    void yandexTranslit(QString &translit, const QString &text, const QString &langCode);
-    void yandexDictionary(const QString &sourceCode, const QString &translationCode, const QString &uiCode);
-    void bingTranslate(QString &sourceCode, const QString &translationCode);
-    void bingTranslit(QString &translit, const QString &text, const QString &langCode);
-    void bingDictionary(const QString &sourceCode, const QString &translationCode);
+    bool googleTranslate(const QString &sourceCode, const QString &translationCode, const QString &uiCode);
+    bool yandexTranslate(QString &sourceCode, const QString &translationCode);
+    bool yandexTranslit(QString &translit, const QString &text, const QString &langCode);
+    bool yandexDictionary(const QString &sourceCode, const QString &translationCode, const QString &uiCode);
+    bool bingTranslate(QString &sourceCode, const QString &translationCode);
+    bool bingTranslit(QString &translit, const QString &text, const QString &langCode);
+    bool bingDictionary(const QString &sourceCode, const QString &translationCode);
 
     // Get API reply as JSON
     QByteArray getGoogleTranslation(const QString &text, const QString &translationCode, const QString &sourceCode, const QString &uiCode);

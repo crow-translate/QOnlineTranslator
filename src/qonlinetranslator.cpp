@@ -99,20 +99,30 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
         googleTranslate(sourceCode, translationCode, uiCode);
         return;
     case Yandex:
-        yandexTranslate(sourceCode, translationCode);
-        if (m_sourceTranslitEnabled && isSupportTranslit(Yandex, m_sourceLang))
-            yandexTranslit(m_sourceTranslit, m_source, sourceCode);
-        if (m_translationTranslitEnabled && isSupportTranslit(Yandex, m_translationLang))
-            yandexTranslit(m_translationTranslit, m_translation, translationCode);
+        if (!yandexTranslate(sourceCode, translationCode))
+            return;
+        if (m_sourceTranslitEnabled && isSupportTranslit(Yandex, m_sourceLang)) {
+            if (!yandexTranslit(m_sourceTranslit, m_source, sourceCode))
+                return;
+        }
+        if (m_translationTranslitEnabled && isSupportTranslit(Yandex, m_translationLang)) {
+            if (!yandexTranslit(m_translationTranslit, m_translation, translationCode))
+                return;
+        }
         if (m_translationOptionsEnabled && isSupportDictionary(Yandex, m_sourceLang, m_translationLang) && !m_source.contains(" "))
             yandexDictionary(sourceCode, translationCode, uiCode);
         return;
     case Bing:
-        bingTranslate(sourceCode, translationCode);
-        if (m_sourceTranslitEnabled && isSupportTranslit(Bing, m_sourceLang))
-            bingTranslit(m_sourceTranslit, m_source, sourceCode);
-        if (m_translationTranslitEnabled && isSupportTranslit(Bing, m_translationLang))
-            bingTranslit(m_translationTranslit, m_translation, translationCode);
+        if (!bingTranslate(sourceCode, translationCode))
+            return;
+        if (m_sourceTranslitEnabled && isSupportTranslit(Bing, m_sourceLang)) {
+            if (!bingTranslit(m_sourceTranslit, m_source, sourceCode))
+                return;
+        }
+        if (m_translationTranslitEnabled && isSupportTranslit(Bing, m_translationLang)) {
+            if (!bingTranslit(m_translationTranslit, m_translation, translationCode))
+                return;
+        }
         if (m_translationOptionsEnabled && isSupportDictionary(Bing, m_sourceLang, m_translationLang) && !m_source.contains(" "))
             bingDictionary(sourceCode, translationCode);
         return;
@@ -841,7 +851,7 @@ bool QOnlineTranslator::isSupportTranslation(Engine engine, Language lang)
     return isSupported;
 }
 
-void QOnlineTranslator::googleTranslate(const QString &sourceCode, const QString &translationCode, const QString &uiCode)
+bool QOnlineTranslator::googleTranslate(const QString &sourceCode, const QString &translationCode, const QString &uiCode)
 {
     QString unsendedText = m_source;
     while (!unsendedText.isEmpty()) {
@@ -856,7 +866,7 @@ void QOnlineTranslator::googleTranslate(const QString &sourceCode, const QString
 
         const QByteArray reply = getGoogleTranslation(unsendedText.left(splitIndex), translationCode, sourceCode, uiCode);
         if (reply.isNull())
-            return;
+            return false;
 
         // Convert to JsonArray
         const QJsonDocument jsonResponse = QJsonDocument::fromJson(reply);
@@ -878,7 +888,7 @@ void QOnlineTranslator::googleTranslate(const QString &sourceCode, const QString
             // Parse language
             m_sourceLang = language(Google, jsonData.at(2).toString());
             if (m_sourceLang == NoLanguage)
-                return;
+                return false;
         }
 
         // Remove the parsed part from the next parsing
@@ -917,9 +927,11 @@ void QOnlineTranslator::googleTranslate(const QString &sourceCode, const QString
             }
         }
     }
+
+    return true;
 }
 
-void QOnlineTranslator::yandexTranslate(QString &sourceCode, const QString &translationCode)
+bool QOnlineTranslator::yandexTranslate(QString &sourceCode, const QString &translationCode)
 {
     // Get translation
     QString unsendedText = m_source;
@@ -936,7 +948,7 @@ void QOnlineTranslator::yandexTranslate(QString &sourceCode, const QString &tran
         // Get API reply
         const QByteArray reply = getYandexTranslation(unsendedText.left(splitIndex), translationCode, sourceCode);
         if (reply.isNull())
-            return;
+            return false;
 
         // Parse translation data
         const QJsonDocument jsonResponse = QJsonDocument::fromJson(reply);
@@ -948,15 +960,17 @@ void QOnlineTranslator::yandexTranslate(QString &sourceCode, const QString &tran
             sourceCode = sourceCode.left(sourceCode.indexOf("-"));
             m_sourceLang = language(Yandex, sourceCode);
             if (m_sourceLang == NoLanguage)
-                return;
+                return false;
         }
 
         // Remove the parsed part from the next parsing
         unsendedText = unsendedText.mid(splitIndex);
     }
+
+    return true;
 }
 
-void QOnlineTranslator::yandexTranslit(QString &translit, const QString &text, const QString &langCode)
+bool QOnlineTranslator::yandexTranslit(QString &translit, const QString &text, const QString &langCode)
 {
     QString unsendedText = text;
     while (!unsendedText.isEmpty()) {
@@ -972,7 +986,7 @@ void QOnlineTranslator::yandexTranslit(QString &translit, const QString &text, c
         // Get API reply
         const QByteArray reply = getYandexTranslit(unsendedText.left(splitIndex), langCode);
         if (reply.isNull())
-            return;
+            return false;
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
         translit += reply.mid(1).chopped(1);
@@ -984,13 +998,15 @@ void QOnlineTranslator::yandexTranslit(QString &translit, const QString &text, c
         // Remove the parsed part from the next parsing
         unsendedText = unsendedText.mid(splitIndex);
     }
+
+    return true;
 }
 
-void QOnlineTranslator::yandexDictionary(const QString &sourceCode, const QString &translationCode, const QString &uiCode)
+bool QOnlineTranslator::yandexDictionary(const QString &sourceCode, const QString &translationCode, const QString &uiCode)
 {
     const QByteArray reply = getYandexDictionary(m_source, translationCode, sourceCode, uiCode);
     if (reply.isNull())
-        return;
+        return false;
 
     // Parse reply
     const QJsonDocument jsonResponse = QJsonDocument::fromJson(reply);
@@ -1029,9 +1045,11 @@ void QOnlineTranslator::yandexDictionary(const QString &sourceCode, const QStrin
             }
         }
     }
+
+    return true;
 }
 
-void QOnlineTranslator::bingTranslate(QString &sourceCode, const QString &translationCode)
+bool QOnlineTranslator::bingTranslate(QString &sourceCode, const QString &translationCode)
 {
     // Get translation
     QString unsendedText = m_source;
@@ -1049,7 +1067,7 @@ void QOnlineTranslator::bingTranslate(QString &sourceCode, const QString &transl
         if (m_sourceLang == Auto) {
             sourceCode = getBingTextLanguage(unsendedText.left(splitIndex));
             if (sourceCode.isNull())
-                return;
+                return false;
 
             m_sourceLang = language(Bing, sourceCode);
         }
@@ -1057,7 +1075,7 @@ void QOnlineTranslator::bingTranslate(QString &sourceCode, const QString &transl
         // Get API reply
         const QByteArray reply = getBingTranslation(unsendedText.left(splitIndex), translationCode, sourceCode);
         if (reply.isNull())
-            return;
+            return false;
 
         // Parse translation data
         m_translation += QJsonDocument::fromJson(reply).object().value("translationResponse").toString();
@@ -1065,9 +1083,11 @@ void QOnlineTranslator::bingTranslate(QString &sourceCode, const QString &transl
         // Remove the parsed part from the next parsing
         unsendedText = unsendedText.mid(splitIndex);
     }
+
+    return true;
 }
 
-void QOnlineTranslator::bingTranslit(QString &translit, const QString &text, const QString &langCode)
+bool QOnlineTranslator::bingTranslit(QString &translit, const QString &text, const QString &langCode)
 {
     QString unsendedText = text;
     while (!unsendedText.isEmpty()) {
@@ -1083,7 +1103,7 @@ void QOnlineTranslator::bingTranslit(QString &translit, const QString &text, con
         // Get API reply
         const QByteArray reply = getBingTranslit(unsendedText.left(splitIndex), langCode);
         if (reply.isNull())
-            return;
+            return false;
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
         translit += reply.mid(1).chopped(1);
@@ -1095,13 +1115,15 @@ void QOnlineTranslator::bingTranslit(QString &translit, const QString &text, con
         // Remove the parsed part from the next parsing
         unsendedText = unsendedText.mid(splitIndex);
     }
+
+    return true;
 }
 
-void QOnlineTranslator::bingDictionary(const QString &sourceCode, const QString &translationCode)
+bool QOnlineTranslator::bingDictionary(const QString &sourceCode, const QString &translationCode)
 {
     const QByteArray reply = getBingDictionary(m_source, translationCode, sourceCode);
     if (reply.isNull())
-        return;
+        return false;
 
     // Parse reply
     const QJsonDocument jsonResponse = QJsonDocument::fromJson(reply);
@@ -1127,6 +1149,8 @@ void QOnlineTranslator::bingDictionary(const QString &sourceCode, const QString 
 
         m_translationOptions[i].addWord(word, "", translations);
     }
+
+    return true;
 }
 
 QByteArray QOnlineTranslator::getGoogleTranslation(const QString &text, const QString &translationCode, const QString &sourceCode, const QString &uiCode)
