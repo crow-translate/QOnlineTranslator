@@ -14,6 +14,7 @@ All notable changes to this project will be documented in this file. This projec
 -   Move TTS functions to QOnlineTts class.
 -   Add the ability to abort the translation request.
 -   Add function to detect language.
+-   Cancel the current request if a new one has been added.
 
 ## [1.1.2](https://github.com/crow-translate/QOnlineTranslator/tree/1.1.2) (2018-12-08)
 

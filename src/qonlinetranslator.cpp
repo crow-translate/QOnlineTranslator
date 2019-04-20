@@ -58,6 +58,7 @@ QOnlineTranslator::QOnlineTranslator(QObject *parent) :
 
 void QOnlineTranslator::translate(const QString &text, Engine engine, Language translationLang, Language sourceLang, Language uiLang)
 {
+    abort();
     resetData();
 
     // Set new data
@@ -120,6 +121,7 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
 
 void QOnlineTranslator::detectLanguage(const QString &text, Engine engine)
 {
+    abort();
     resetData();
     m_source = text;
 
