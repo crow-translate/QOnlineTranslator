@@ -49,7 +49,7 @@ void QOnlineTts::generateUrls(const QString &text, QOnlineTranslator::Engine eng
             apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + langString
                             + "&q=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)));
 #elif defined(Q_OS_WIN)
-            apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + langCode
+            apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + langString
                             + "&q=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)), QUrl::DecodedMode);
 #endif
             m_media.append(apiUrl);
@@ -73,9 +73,9 @@ void QOnlineTts::generateUrls(const QString &text, QOnlineTranslator::Engine eng
                             + "&format=mp3");
 #elif defined(Q_OS_WIN)
             apiUrl.setQuery("text=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex))
-                            + "&lang=" + langCode
-                            + "&speaker=" + voiceCode
-                            + "&emotion=" + emotionCode
+                            + "&lang=" + langString
+                            + "&speaker=" + voiceString
+                            + "&emotion=" + emotionString
                             + "&format=mp3", QUrl::DecodedMode);
 #endif
             m_media.append(apiUrl);
@@ -96,9 +96,9 @@ void QOnlineTts::generateUrls(const QString &text, QOnlineTranslator::Engine eng
                             + "&options=" + voiceString
                             + "&format=audio/mp3");
 #elif defined(Q_OS_WIN)
-            apiUrl.setQuery("&language=" + langCode
+            apiUrl.setQuery("&language=" + langString
                             + "&text=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex))
-                            + "&options=" + voiceCode
+                            + "&options=" + voiceString
                             + "&format=audio/mp3", QUrl::DecodedMode);
 #endif
             m_media.append(apiUrl);
