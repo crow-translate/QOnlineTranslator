@@ -26,6 +26,7 @@ The **QOnlineTranslator** class provides translation data.
 |                  void | [**translate**(const QString &text, Engine engine = Google, Language translationLang = Auto, Language sourceLang = Auto, Language uiLang = Auto)](#translate) |
 |                  void | [**detectLanguage**(const QString &text, Engine engine = Google)](#detect-language)                                                                           |
 |                  void | [**abort**()](#abort)                                                                                                                                         |
+|                  bool | [**isRunning()](#is-running)                                                                                                                                  |
 |               QString | [**source**()](#source)                                                                                                                                       |
 |               QString | [**sourceTranslit**()](#source-translit)                                                                                                                      |
 |               QString | [**sourceTranscription**()](source-transcription)                                                                                                             |
@@ -49,6 +50,12 @@ The **QOnlineTranslator** class provides translation data.
 |                  void | [**setDictionaryEnabled**(bool enable)](#set-dictionary-enabled)                                                                                              |
 |                  bool | [**isDefinitionsEnabled**()](#is-definitions-enabled)                                                                                                         |
 |                  void | [**setDefinitionsEnabled**(bool enable)](#set-definitions-enabled)                                                                                            |
+
+## Signals
+
+| Return type | Data member                                                                       |
+| ----------: | :-------------------------------------------------------------------------------- |
+|     void    | [**finished**()](#finished)                                                       |
 
 ## Static Public Members
 
@@ -240,6 +247,12 @@ Cancel translation operation (if any).
 
 * * *
 
+### <a id='is-running'/> bool QOnlineTranslator::isRunning()
+
+Returns `true` when the translation is still processing and has not finished or was aborted yet.
+
+* * *
+
 ### <a id='source'/> [QString](https://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::source()
 
 Returns the source text.
@@ -249,6 +262,12 @@ Returns the source text.
 ### <a id='source-transliteration'/> [QString](https://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::sourceTranslit()
 
 Returns the transliteration of the source text.
+
+* * *
+
+### <a id='finished'/> void QOnlineTranslator::finished()
+
+This signal is emitted when the translation has finished processing. After this signal is emitted, there will be no more updates to the translations's data.
 
 * * *
 

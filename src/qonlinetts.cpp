@@ -212,7 +212,7 @@ QString QOnlineTts::ttsLanguageCode(QOnlineTranslator::Engine engine, QOnlineTra
     switch (engine) {
     case QOnlineTranslator::Google:
         if (lang != QOnlineTranslator::Auto)
-            return QOnlineTranslator::translationLanguageCode(engine, lang); // Google use the same codes for tts (except 'auto')
+            return QOnlineTranslator::apiLanguageCode(engine, lang); // Google use the same codes for tts (except 'auto')
         break;
     case QOnlineTranslator::Yandex:
         switch (lang) {

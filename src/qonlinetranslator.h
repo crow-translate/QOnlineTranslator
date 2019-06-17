@@ -27,12 +27,17 @@
 #include <QObject>
 #include <QPointer>
 
+class QStateMachine;
+class QState;
 class QNetworkAccessManager;
 class QNetworkReply;
 
 class QOnlineTranslator : public QObject
 {
     Q_OBJECT
+    Q_DISABLE_COPY(QOnlineTranslator)
+
+    friend class QOnlineTts;
 
 public:
     enum Language {
@@ -183,6 +188,7 @@ public:
     void detectLanguage(const QString &text, Engine engine = Google);
 
     void abort();
+    bool isRunning();
 
     QString source() const;
     QString sourceTranslit() const;
@@ -222,42 +228,85 @@ public:
     static Language language(const QString &langCode);
     static bool isSupportTranslation(Engine engine, Language lang);
 
+signals:
+    void finished();
+
+private slots:
+    void skipGarbageText();
+
+    // Google
+    void requestGoogleTranslate();
+    void parseGoogleTranslate();
+    void parseGoogleLanguage();
+
+    // Yandex
+    void requestYandexKey();
+    void parseYandexKey();
+
+    void requestYandexTranslate();
+    void parseYandexTranslate();
+    void parseYandexLanguage();
+
+    void requestYandexSourceTranslit();
+    void parseYandexSourceTranslit();
+
+    void requestYandexTranslationTranslit();
+    void parseYandexTranslationTranslit();
+
+    void requestYandexDictionary();
+    void parseYandexDictionary();
+
+    // Bing
+    void requestBingLanguage();
+    void parseBingLanguage();
+
+    void requestBingTranslate();
+    void parseBingTranslate();
+
+    void requestBingSourceTranslit();
+    void parseBingSourceTranslit();
+
+    void requestBingTranslationTranslit();
+    void parseBingTranslationTranslit();
+
+    void requestBingDictionary();
+    void parseBingDictionary();
+
 private:
-    friend class QOnlineTts;
+    /*
+     * Engines have translation limit, so need to split all text into parts and make request sequentially.
+     * Also Yandex and Bing requires several requests to get dictionary, transliteration etc.
+     * We use state machine to rely async computation with signals and slots.
+     */
+    void buildGoogleStateMachine(bool onlyDetectLanguage = false);
+    void buildYandexStateMachine(bool onlyDetectLanguage = false);
+    void buildBingStateMachine(bool onlyDetectLanguage = false);
 
-    // Get data from online services
-    bool googleTranslate(const QString &sourceCode, const QString &translationCode, const QString &uiCode);
-    bool yandexTranslate(QString &sourceCode, const QString &translationCode);
-    bool yandexTranslit(QString &translit, const QString &text, const QString &langCode);
-    bool yandexDictionary(const QString &sourceCode, const QString &translationCode, const QString &uiCode);
-    bool bingTranslate(QString &sourceCode, const QString &translationCode);
-    bool bingTranslit(QString &translit, const QString &text, const QString &langCode);
-    bool bingDictionary(const QString &sourceCode, const QString &translationCode);
+    void buildYandexLanguageStateMachine();
 
-    // Get API reply as JSON
-    QByteArray getGoogleTranslation(const QString &text, const QString &translationCode, const QString &sourceCode, const QString &uiCode);
-    QByteArray getYandexTranslation(const QString &text, const QString &translationCode, const QString &sourceCode);
-    QByteArray getYandexTranslit(const QString &text, const QString &langCode);
-    QByteArray getYandexDictionary(const QString &text, const QString &translationCode, const QString &sourceCode, const QString &uiCode);
-    QByteArray getBingTextLanguage(const QString &text);
-    QByteArray getBingTranslation(const QString &text, const QString &translationCode, const QString &sourceCode);
-    QByteArray getBingTranslit(const QString &text, const QString &langCode);
-    QByteArray getBingDictionary(const QString &text, const QString &translationCode, const QString &sourceCode);
+    // Helper functions to build nested states
+    void buildSplitNetworkRequest(QState *parent, void (QOnlineTranslator::*requestMethod)(), void (QOnlineTranslator::*parseMethod)(), const QString &text, int textLimit);
+    void buildNetworkRequestState(QState *parent, void (QOnlineTranslator::*requestMethod)(), void (QOnlineTranslator::*parseMethod)(), const QString &text = {});
 
-    // Network requests
-    QNetworkReply *getReply(const QUrl &url);
-    QNetworkReply *postReply(const QUrl &url, const QByteArray &postData);
+    // Helper functions for translation
+    void parseGoogleTranslation(bool onlyDetectLanguage = false);
+    void parseYandexTranslation(bool onlyDetectLanguage = false);
+    void requestYandexTranslit(QOnlineTranslator::Language language);
+    void parseYandexTranslit(QString &text);
+    void requestBingTranslit(QOnlineTranslator::Language language);
+    void parseBingTranslit(QString &text);
 
     // Check for service support
     static bool isSupportTranslit(Engine engine, Language lang);
     static bool isSupportDictionary(Engine engine, Language sourceLang, Language translationLang);
 
     // Other
-    static QString translationLanguageCode(Engine engine, Language lang); // Generate engine-specific codes for API
+    static QString apiLanguageCode(Engine engine, Language lang); // Generate engine-specific codes for API
     static Language language(Engine engine, const QString &langCode);
     static int getSplitIndex(const QString &untranslatedText, int limit);
     void resetData(TranslationError error = NoError, const QString &errorString = QString());
 
+    QStateMachine *m_stateMachine;
     QNetworkAccessManager *m_networkManager;
     QPointer<QNetworkReply> m_currentReply;
 
@@ -284,7 +333,6 @@ private:
 
     static const QStringList m_languageCodes;
     static QString m_yandexKey;
-    static bool m_secondYandexKeyRequest;
 };
 
 #endif // QONLINETRANSLATOR_H

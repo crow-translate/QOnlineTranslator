@@ -8,6 +8,7 @@
 class QOnlineTts : public QObject
 {
     Q_OBJECT
+    Q_DISABLE_COPY(QOnlineTts)
 
 public:
     enum Voice {
