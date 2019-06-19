@@ -230,6 +230,7 @@ public:
 
 signals:
     void finished();
+    void error(QOnlineTranslator::TranslationError error);
 
 private slots:
     void skipGarbageText();

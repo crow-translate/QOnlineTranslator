@@ -53,9 +53,10 @@ The **QOnlineTranslator** class provides translation data.
 
 ## Signals
 
-| Return type | Data member                                                                       |
-| ----------: | :-------------------------------------------------------------------------------- |
-|     void    | [**finished**()](#finished)                                                       |
+| Return type | Data member                                                          |
+| ----------: | :------------------------------------------------------------------- |
+|     void    | [**finished**()](#finished-signal)                                   |
+|     void    | [**error**(QOnlineTranslator::TranslationError erro)](#error-signal) |
 
 ## Static Public Members
 
@@ -265,9 +266,15 @@ Returns the transliteration of the source text.
 
 * * *
 
-### <a id='finished'/> void QOnlineTranslator::finished()
+### <a id='finished-signal'/> void QOnlineTranslator::finished()
 
 This signal is emitted when the translation has finished processing. After this signal is emitted, there will be no more updates to the translations's data.
+
+* * *
+
+### <a id='error-signal'/> void QOnlineTranslator::error(QOnlineTranslator::TranslationError error)
+
+This signal is emitted when the reply detects an error in processing. The [finished()](#finished-signal) signal will also be emitted.
 
 * * *
 
