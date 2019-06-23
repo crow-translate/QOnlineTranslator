@@ -1149,31 +1149,47 @@ void QOnlineTranslator::parseBingDictionary()
 
 void QOnlineTranslator::buildGoogleStateMachine(bool onlyDetectLanguage)
 {
-    // Translation state (Google sends all data in one request)
+    // States (Google sends translation, translit and dictionary in one request, that will be splitted into several by the translation limit)
     auto *translationState = new QState(m_stateMachine);
+
     m_stateMachine->setInitialState(translationState);
+
+    translationState->addTransition(translationState, &QState::finished, new QFinalState(m_stateMachine));
+
+    // Setup translation state
     if (onlyDetectLanguage) {
         const QString text = m_source.left(getSplitIndex(m_source, googleTranslateLimit));
         buildNetworkRequestState(translationState, &QOnlineTranslator::requestGoogleTranslate, &QOnlineTranslator::parseGoogleLanguage, text);
     } else {
         buildSplitNetworkRequest(translationState, &QOnlineTranslator::requestGoogleTranslate, &QOnlineTranslator::parseGoogleTranslate, m_source, googleTranslateLimit);
     }
-    translationState->addTransition(translationState, &QState::finished, new QFinalState(m_stateMachine));
 }
 
 void QOnlineTranslator::buildYandexStateMachine(bool onlyDetectLanguage)
 {
-    // Key state
+    // States
     auto *keyState = new QState(m_stateMachine); // Generate session ID first to access API (Required for Yandex)
+    auto *translationState = new QState(m_stateMachine);
+    auto *sourceTranslitState = new QState(m_stateMachine);
+    auto *translationTranslitState = new QState(m_stateMachine);
+    auto *dictionaryState = new QState(m_stateMachine);
+
     m_stateMachine->setInitialState(keyState);
+
+    // Transitions
+    keyState->addTransition(keyState, &QState::finished, translationState);
+    translationState->addTransition(translationState, &QState::finished, sourceTranslitState);
+    sourceTranslitState->addTransition(sourceTranslitState, &QState::finished, translationTranslitState);
+    translationTranslitState->addTransition(translationTranslitState, &QState::finished, dictionaryState);
+    dictionaryState->addTransition(dictionaryState, &QState::finished, new QFinalState(m_stateMachine));
+
+    // Setup key state
     if (m_yandexKey.isEmpty())
         buildNetworkRequestState(keyState, &QOnlineTranslator::requestYandexKey, &QOnlineTranslator::parseYandexKey);
     else
         keyState->setInitialState(new QFinalState(keyState));
 
-    // Translation state
-    auto *translationState = new QState(m_stateMachine);
-    keyState->addTransition(keyState, &QState::finished, translationState);
+    // Setup detect language state
     if (onlyDetectLanguage) {
         const QString text = m_source.left(getSplitIndex(m_source, yandexTranslateLimit));
         buildNetworkRequestState(translationState, &QOnlineTranslator::requestYandexTranslate, &QOnlineTranslator::parseYandexLanguage, text);
@@ -1183,37 +1199,43 @@ void QOnlineTranslator::buildYandexStateMachine(bool onlyDetectLanguage)
         buildSplitNetworkRequest(translationState, &QOnlineTranslator::requestYandexTranslate, &QOnlineTranslator::parseYandexTranslate, m_source, yandexTranslateLimit);
     }
 
-    // Source translit state
-    auto *sourceTranslitState = new QState(m_stateMachine);
-    translationState->addTransition(translationState, &QState::finished, sourceTranslitState);
+    // Setup source translit state
     if (m_sourceTranslitEnabled && isSupportTranslit(Yandex, m_sourceLang))
         buildSplitNetworkRequest(sourceTranslitState, &QOnlineTranslator::requestYandexSourceTranslit, &QOnlineTranslator::parseYandexSourceTranslit, m_source, yandexTranslitLimit);
     else
         sourceTranslitState->setInitialState(new QFinalState(sourceTranslitState));
 
-    // Translation translit state
-    auto *translationTranslitState = new QState(m_stateMachine);
-    sourceTranslitState->addTransition(sourceTranslitState, &QState::finished, translationTranslitState);
+    // Setup translation translit state
     if (m_translationTranslitEnabled && isSupportTranslit(Yandex, m_translationLang))
         buildSplitNetworkRequest(translationTranslitState, &QOnlineTranslator::requestYandexTranslationTranslit, &QOnlineTranslator::parseYandexTranslationTranslit, m_translation, yandexTranslitLimit);
     else
         translationTranslitState->setInitialState(new QFinalState(translationTranslitState));
 
-    // Dictionary state
-    auto *dictionaryState = new QState(m_stateMachine);
-    translationTranslitState->addTransition(translationTranslitState, &QState::finished, dictionaryState);
+    // Setup dictionary state
     if (m_translationOptionsEnabled && isSupportDictionary(Yandex, m_sourceLang, m_translationLang) && !m_source.contains(' '))
         buildNetworkRequestState(dictionaryState, &QOnlineTranslator::requestYandexDictionary, &QOnlineTranslator::parseYandexDictionary);
     else
         dictionaryState->setInitialState(new QFinalState(dictionaryState));
-    dictionaryState->addTransition(dictionaryState, &QState::finished, new QFinalState(m_stateMachine));
 }
 
 void QOnlineTranslator::buildBingStateMachine(bool onlyDetectLanguage)
 {
-    // Detect language state
+    // States
     auto *detectLangState = new QState(m_stateMachine); // For Bing need to detect language first
+    auto *translationState = new QState(m_stateMachine);
+    auto *sourceTranslitState = new QState(m_stateMachine);
+    auto *translationTranslitState = new QState(m_stateMachine);
+    auto *dictionaryState = new QState(m_stateMachine);
+
+    // Transitions
+    detectLangState->addTransition(detectLangState, &QState::finished, translationState);
+    sourceTranslitState->addTransition(sourceTranslitState, &QState::finished, translationTranslitState);
+    translationTranslitState->addTransition(translationTranslitState, &QState::finished, dictionaryState);
+    dictionaryState->addTransition(dictionaryState, &QState::finished, new QFinalState(m_stateMachine));
+
     m_stateMachine->setInitialState(detectLangState);
+
+    // Setup detect language state
     if (m_sourceLang == Auto) {
         const QString text = m_source.left(getSplitIndex(m_source, bingTranslateLimit));
         buildNetworkRequestState(detectLangState, &QOnlineTranslator::requestBingLanguage, &QOnlineTranslator::parseBingLanguage, text);
@@ -1225,35 +1247,27 @@ void QOnlineTranslator::buildBingStateMachine(bool onlyDetectLanguage)
         detectLangState->setInitialState(new QFinalState(detectLangState));
     }
 
-    // Translation state
-    auto *translationState = new QState(m_stateMachine);
-    detectLangState->addTransition(detectLangState, &QState::finished, translationState);
+    // Setup translation state
     buildSplitNetworkRequest(translationState, &QOnlineTranslator::requestBingTranslate, &QOnlineTranslator::parseBingTranslate, m_source, bingTranslateLimit);
 
-    // Source translit state
-    auto *sourceTranslitState = new QState(m_stateMachine);
+    // Setup source translit state
     translationState->addTransition(translationState, &QState::finished, sourceTranslitState);
     if (m_sourceTranslitEnabled && isSupportTranslit(Bing, m_sourceLang))
         buildSplitNetworkRequest(sourceTranslitState, &QOnlineTranslator::requestBingSourceTranslit, &QOnlineTranslator::parseBingSourceTranslit, m_source, bingTranslitLimit);
     else
         sourceTranslitState->setInitialState(new QFinalState(sourceTranslitState));
 
-    // Translation translit state
-    auto *translationTranslitState = new QState(m_stateMachine);
-    sourceTranslitState->addTransition(sourceTranslitState, &QState::finished, translationTranslitState);
+    // Setup translation translit state
     if (m_translationTranslitEnabled && isSupportTranslit(Bing, m_translationLang))
         buildSplitNetworkRequest(translationTranslitState, &QOnlineTranslator::requestBingTranslationTranslit, &QOnlineTranslator::parseBingTranslationTranslit, m_translation, bingTranslitLimit);
     else
         translationTranslitState->setInitialState(new QFinalState(translationTranslitState));
 
-    // Dictionary state
-    auto *dictionaryState = new QState(m_stateMachine);
-    translationTranslitState->addTransition(translationTranslitState, &QState::finished, dictionaryState);
+    // Setup dictionary state
     if (m_translationOptionsEnabled && isSupportDictionary(Bing, m_sourceLang, m_translationLang) && !m_source.contains(' '))
         buildNetworkRequestState(dictionaryState, &QOnlineTranslator::requestBingDictionary, &QOnlineTranslator::parseBingDictionary);
     else
         dictionaryState->setInitialState(new QFinalState(dictionaryState));
-    dictionaryState->addTransition(dictionaryState, &QState::finished, new QFinalState(m_stateMachine));
 }
 
 void QOnlineTranslator::buildSplitNetworkRequest(QState *parent, void (QOnlineTranslator::*requestMethod)(), void (QOnlineTranslator::*parseMethod)(), const QString &text, int textLimit)
@@ -1284,27 +1298,27 @@ void QOnlineTranslator::buildSplitNetworkRequest(QState *parent, void (QOnlineTr
         }
     }
 
-    auto *finalTranslationState = new QFinalState(parent);
-    nextTranslationState->addTransition(finalTranslationState);
+    nextTranslationState->addTransition(new QFinalState(parent));
 }
 
 void QOnlineTranslator::buildNetworkRequestState(QState *parent, void (QOnlineTranslator::*requestMethod)(), void (QOnlineTranslator::*parseMethod)(), const QString &text)
 {
-    // Setup network substates
+    // Network substates
     auto *requestingState = new QState(parent);
+    auto *parsingState = new QState(parent);
+
+    parent->setInitialState(requestingState);
+
+    // Substates transitions
+    requestingState->addTransition(m_networkManager, &QNetworkAccessManager::finished, parsingState);
+    parsingState->addTransition(new QFinalState(parent));
+
+    // Setup requesting state
     requestingState->setProperty(textProperty, text);
     connect(requestingState, &QState::entered, this, requestMethod);
 
-    auto *parsingState = new QState(parent);
+    // Setup parsing state
     connect(parsingState, &QState::entered, this, parseMethod);
-
-    auto *finalState = new QFinalState(parent);
-
-    // Specify network substates transitions
-    requestingState->addTransition(m_networkManager, &QNetworkAccessManager::finished, parsingState);
-    parsingState->addTransition(finalState);
-
-    parent->setInitialState(requestingState);
 }
 
 void QOnlineTranslator::parseGoogleTranslation(bool onlyDetectLanguage)
