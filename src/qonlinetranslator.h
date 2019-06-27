@@ -283,8 +283,6 @@ private:
     void buildYandexStateMachine(bool onlyDetectLanguage = false);
     void buildBingStateMachine(bool onlyDetectLanguage = false);
 
-    void buildYandexLanguageStateMachine();
-
     // Helper functions to build nested states
     void buildSplitNetworkRequest(QState *parent, void (QOnlineTranslator::*requestMethod)(), void (QOnlineTranslator::*parseMethod)(), const QString &text, int textLimit);
     void buildNetworkRequestState(QState *parent, void (QOnlineTranslator::*requestMethod)(), void (QOnlineTranslator::*parseMethod)(), const QString &text = {});
