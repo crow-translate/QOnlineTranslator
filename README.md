@@ -13,10 +13,12 @@ QCoreApplication app(argc, argv);
 QOnlineTranslator translator;
 translator.translate("Hello world", QOnlineTranslator::Google);
 
-if (translator.error() == QOnlineTranslator::NoError)
-    qInfo() << translator.translation();
-else
-    qCritical() << translator.errorString();
+QObject::connect(&translator, &QOnlineTranslator::finished, [&] {
+    if (translator.error() == QOnlineTranslator::NoError)
+        qInfo() << translator.translation();
+    else
+        qCritical() << translator.errorString();
+});
 ```
 
 For real example of usage you can look into my other project: [Crow Translate](https://github.com/Shatur95/CrowTranslate "A simple and lightweight translator that allows to translate and say the selected text using the Google Translate API").
