@@ -23,14 +23,11 @@
 
 #include <QStateMachine>
 #include <QFinalState>
-#include <QEventLoop>
 #include <QMediaPlayer>
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QNetworkReply>
-#include <QDebug>
-#include <QPointer>
 
 // This properties used to store unseful information in states
 constexpr char textProperty[] = "Text";
