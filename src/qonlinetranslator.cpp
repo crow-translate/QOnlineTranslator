@@ -1210,7 +1210,7 @@ void QOnlineTranslator::buildYandexStateMachine(bool onlyDetectLanguage)
 
     // Setup dictionary state
     if (m_translationOptionsEnabled && isSupportDictionary(Yandex, m_sourceLang, m_translationLang) && !m_source.contains(' '))
-        buildNetworkRequestState(dictionaryState, &QOnlineTranslator::requestYandexDictionary, &QOnlineTranslator::parseYandexDictionary);
+        buildNetworkRequestState(dictionaryState, &QOnlineTranslator::requestYandexDictionary, &QOnlineTranslator::parseYandexDictionary, m_source);
     else
         dictionaryState->setInitialState(new QFinalState(dictionaryState));
 }
