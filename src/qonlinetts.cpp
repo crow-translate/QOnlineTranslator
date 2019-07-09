@@ -45,10 +45,10 @@ void QOnlineTts::generateUrls(const QString &text, QOnlineTranslator::Engine eng
 
             // Generate URL API for add it to the playlist
             QUrl apiUrl("http://translate.googleapis.com/translate_tts");
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_LINUX)
             apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + langString
                             + "&q=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)));
-#elif Q_OS_WIN
+#elif defined(Q_OS_WIN)
             apiUrl.setQuery("ie=UTF-8&client=gtx&tl=" + langString
                             + "&q=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex)), QUrl::DecodedMode);
 #endif
@@ -65,13 +65,13 @@ void QOnlineTts::generateUrls(const QString &text, QOnlineTranslator::Engine eng
 
             // Generate URL API for add it to the playlist
             QUrl apiUrl("https://tts.voicetech.yandex.net/tts");
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_LINUX)
             apiUrl.setQuery("text=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex))
                             + "&lang=" + langString
                             + "&speaker=" + voiceString
                             + "&emotion=" + emotionString
                             + "&format=mp3");
-#elif Q_OS_WIN
+#elif defined(Q_OS_WIN)
             apiUrl.setQuery("text=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex))
                             + "&lang=" + langString
                             + "&speaker=" + voiceString
@@ -90,12 +90,12 @@ void QOnlineTts::generateUrls(const QString &text, QOnlineTranslator::Engine eng
 
             // Generate URL API for add it to the playlist
             QUrl apiUrl("https://www.bing.com/tspeak");
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_LINUX)
             apiUrl.setQuery("&language=" + langString
                             + "&text=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex))
                             + "&options=" + voiceString
                             + "&format=audio/mp3");
-#elif Q_OS_WIN
+#elif defined(Q_OS_WIN)
             apiUrl.setQuery("&language=" + langString
                             + "&text=" + QUrl::toPercentEncoding(unparsedText.left(splitIndex))
                             + "&options=" + voiceString
