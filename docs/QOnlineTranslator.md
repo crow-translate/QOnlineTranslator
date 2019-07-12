@@ -26,7 +26,7 @@ The **QOnlineTranslator** class provides translation data.
 |                  void | [**translate**(const QString &text, Engine engine = Google, Language translationLang = Auto, Language sourceLang = Auto, Language uiLang = Auto)](#translate) |
 |                  void | [**detectLanguage**(const QString &text, Engine engine = Google)](#detect-language)                                                                           |
 |                  void | [**abort**()](#abort)                                                                                                                                         |
-|                  bool | [**isRunning()](#is-running)                                                                                                                                  |
+|                  bool | [**isRunning**()](#is-running)                                                                                                                                  |
 |               QString | [**source**()](#source)                                                                                                                                       |
 |               QString | [**sourceTranslit**()](#source-translit)                                                                                                                      |
 |               QString | [**sourceTranscription**()](source-transcription)                                                                                                             |
