@@ -35,12 +35,9 @@ constexpr char textProperty[] = "Text";
 // Engines have a limit of characters per translation request.
 // If the query is larger, then it should be splited into several with getSplitIndex() helper function
 constexpr int googleTranslateLimit = 5000;
-
 constexpr int yandexTranslateLimit = 150;
 constexpr int yandexTranslitLimit = 180;
-
 constexpr int bingTranslateLimit = 5001;
-constexpr int bingTranslitLimit = 5000;
 
 QString QOnlineTranslator::m_yandexKey; // The key that is parsed from the web version to get the translation using the API
 
@@ -127,13 +124,13 @@ void QOnlineTranslator::detectLanguage(const QString &text, Engine engine)
 
     switch (engine) {
     case Google:
-        buildGoogleStateMachine(true);
+        buildGoogleDetectStateMachine();
         break;
     case Yandex:
-        buildYandexStateMachine(true);
+        buildYandexDetectStateMachine();
         break;
     case Bing:
-        buildBingStateMachine(true);
+        buildBingDetectStateMachine();
     }
 
     m_stateMachine->start();
@@ -823,14 +820,12 @@ bool QOnlineTranslator::isSupportTranslation(Engine engine, Language lang)
 
 void QOnlineTranslator::skipGarbageText()
 {
-    auto *state = qobject_cast<QState *>(sender());
-    m_translation.append(state->property(textProperty).toString());
+    m_translation.append(sender()->property(textProperty).toString());
 }
 
 void QOnlineTranslator::requestGoogleTranslate()
 {
-    const auto *requestingState = qobject_cast<QState *>(sender());
-    const QString sourceText = requestingState->property(textProperty).toString();
+    const QString sourceText = sender()->property(textProperty).toString();
 
     // Generate API url
     QUrl url("https://translate.googleapis.com/translate_a/single");
@@ -967,8 +962,7 @@ void QOnlineTranslator::parseYandexKey()
 
 void QOnlineTranslator::requestYandexTranslate()
 {
-    const auto *requestingState = qobject_cast<QState *>(sender());
-    const QString sourceText = requestingState->property(textProperty).toString();
+    const QString sourceText = sender()->property(textProperty).toString();
 
     QString lang;
     if (m_sourceLang == Auto)
@@ -1050,8 +1044,7 @@ void QOnlineTranslator::parseYandexTranslationTranslit()
 
 void QOnlineTranslator::requestYandexDictionary()
 {
-    const auto *requestingState = qobject_cast<QState *>(sender());
-    const QString text = requestingState->property(textProperty).toString();
+    const QString text = sender()->property(textProperty).toString();
 
     // Generate API url
     QUrl url("http://dictionary.yandex.net/dicservice.json/lookupMultiple");
@@ -1110,48 +1103,15 @@ void QOnlineTranslator::parseYandexDictionary()
     }
 }
 
-void QOnlineTranslator::requestBingLanguage()
-{
-    const auto *requestingState = qobject_cast<QState *>(sender());
-    const QString sourceText = requestingState->property(textProperty).toString();
-
-    // Generate POST data
-    const QByteArray postData = "&text=" + sourceText.toLocal8Bit();
-    const QUrl url("http://www.bing.com/tdetect");
-
-    // Setup request
-    QNetworkRequest request;
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-    request.setHeader(QNetworkRequest::ContentLengthHeader, postData.size());
-    request.setUrl(url);
-
-    // Make reply
-    m_currentReply = m_networkManager->post(request, postData);
-}
-
-void QOnlineTranslator::parseBingLanguage()
-{
-    m_currentReply->deleteLater();
-
-    // Check for errors
-    if (m_currentReply->error() != QNetworkReply::NoError) {
-        resetData(NetworkError, m_currentReply->errorString());
-        return;
-    }
-
-    m_sourceLang = language(Bing, m_currentReply->readAll());
-}
-
 void QOnlineTranslator::requestBingTranslate()
 {
-    const auto *requestingState = qobject_cast<QState *>(sender());
-    const QString sourceText = requestingState->property(textProperty).toString();
+    const QString sourceText = sender()->property(textProperty).toString();
 
     // Generate POST data
     const QByteArray postData = "&text=" + sourceText.toLocal8Bit()
-            + "&from=" + apiLanguageCode(Bing, m_sourceLang).toLocal8Bit()
+            + "&fromLang=" + apiLanguageCode(Bing, m_sourceLang).toLocal8Bit()
             + "&to=" + apiLanguageCode(Bing, m_translationLang).toLocal8Bit();
-    const QUrl url("http://www.bing.com/ttranslate");
+    const QUrl url("http://www.bing.com/ttranslatev3");
 
     // Setup request
     QNetworkRequest request;
@@ -1175,37 +1135,33 @@ void QOnlineTranslator::parseBingTranslate()
 
     // Parse translation data
     const QJsonDocument jsonResponse = QJsonDocument::fromJson(m_currentReply->readAll());
-    m_translation += jsonResponse.object().value("translationResponse").toString();
-}
+    const QJsonObject responseObject = jsonResponse.array().first().toObject();
 
-void QOnlineTranslator::requestBingSourceTranslit()
-{
-    requestBingTranslit(m_sourceLang);
-}
+    if (m_sourceLang == QOnlineTranslator::Auto) {
+        const QString langCode = responseObject.value("detectedLanguage").toObject().value("language").toString();
+        m_sourceLang = language(QOnlineTranslator::Bing, langCode);
+        if (m_sourceLang == NoLanguage) {
+            resetData(ParsingError, tr("Error: Unable to parse autodetected language"));
+            return;
+        }
+        if (m_onlyDetectLanguage)
+            return;
+    }
 
-void QOnlineTranslator::parseBingSourceTranslit()
-{
-    parseBingTranslit(m_sourceTranslit);
-}
-
-void QOnlineTranslator::requestBingTranslationTranslit()
-{
-    requestBingTranslit(m_translationLang);
-}
-
-void QOnlineTranslator::parseBingTranslationTranslit()
-{
-    parseBingTranslit(m_translationTranslit);
+    const QJsonObject translationsObject = responseObject.value("translations").toArray().first().toObject();
+    m_translation += translationsObject.value("text").toString();
+    m_translationTranslit += translationsObject.value("transliteration").toObject().value("text").toString();
 }
 
 void QOnlineTranslator::requestBingDictionary()
 {
-    const auto *requestingState = qobject_cast<QState *>(sender());
-    const QString text = requestingState->property(textProperty).toString();
+    const QString text = sender()->property(textProperty).toString();
 
     // Generate POST data
-    const QByteArray postData = "&text=" + text.toLocal8Bit() + "&from=" + apiLanguageCode(Bing, m_sourceLang).toLocal8Bit() + "&to=" + apiLanguageCode(Bing, m_translationLang).toLocal8Bit();
-    const QUrl url("http://www.bing.com/ttranslationlookup");
+    const QByteArray postData = "&text=" + text.toLocal8Bit()
+            + "&from=" + apiLanguageCode(Bing, m_sourceLang).toLocal8Bit()
+            + "&to=" + apiLanguageCode(Bing, m_translationLang).toLocal8Bit();
+    const QUrl url("http://www.bing.com/tlookupv3");
 
     QNetworkRequest request;
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
@@ -1226,9 +1182,11 @@ void QOnlineTranslator::parseBingDictionary()
     }
 
     const QJsonDocument jsonResponse = QJsonDocument::fromJson(m_currentReply->readAll());
-    const QJsonValue jsonData = jsonResponse.object().value("translations");
-    foreach (const QJsonValue &typeOfSpeechData, jsonData.toArray()) {
-        const QString typeOfSpeech = typeOfSpeechData.toObject().value("posTag").toString().toLower();
+    const QJsonObject responseObject = jsonResponse.array().first().toObject();
+
+    foreach (const QJsonValue &value, responseObject.value("translations").toArray()) {
+        const QJsonObject object = value.toObject();
+        const QString typeOfSpeech = object.value("posTag").toString().toLower();
 
         // Search for this type of speech
         int i;
@@ -1241,34 +1199,43 @@ void QOnlineTranslator::parseBingDictionary()
         if (i == m_translationOptions.size())
             m_translationOptions << QOption(typeOfSpeech);
 
-        const QString word = typeOfSpeechData.toObject().value("displayTarget").toString().toLower();
+        const QString word = object.value("displayTarget").toString().toLower();
         QStringList translations;
-        foreach (const QJsonValue &wordTranslation, typeOfSpeechData.toObject().value("backTranslations").toArray())
+        foreach (const QJsonValue &wordTranslation, object.value("backTranslations").toArray())
             translations.append(wordTranslation.toObject().value("displayText").toString());
 
         m_translationOptions[i].addWord(word, "", translations);
     }
 }
 
-void QOnlineTranslator::buildGoogleStateMachine(bool onlyDetectLanguage)
+void QOnlineTranslator::buildGoogleStateMachine()
 {
     // States (Google sends translation, translit and dictionary in one request, that will be splitted into several by the translation limit)
     auto *translationState = new QState(m_stateMachine);
-
+    auto *finalState = new QFinalState(m_stateMachine);
     m_stateMachine->setInitialState(translationState);
 
-    translationState->addTransition(translationState, &QState::finished, new QFinalState(m_stateMachine));
+    translationState->addTransition(translationState, &QState::finished, finalState);
 
     // Setup translation state
-    if (onlyDetectLanguage) {
-        const QString text = m_source.left(getSplitIndex(m_source, googleTranslateLimit));
-        buildNetworkRequestState(translationState, &QOnlineTranslator::requestGoogleTranslate, &QOnlineTranslator::parseGoogleTranslate, text);
-    } else {
-        buildSplitNetworkRequest(translationState, &QOnlineTranslator::requestGoogleTranslate, &QOnlineTranslator::parseGoogleTranslate, m_source, googleTranslateLimit);
-    }
+    buildSplitNetworkRequest(translationState, &QOnlineTranslator::requestGoogleTranslate, &QOnlineTranslator::parseGoogleTranslate, m_source, googleTranslateLimit);
 }
 
-void QOnlineTranslator::buildYandexStateMachine(bool onlyDetectLanguage)
+void QOnlineTranslator::buildGoogleDetectStateMachine()
+{
+    // States
+    auto *detectState = new QState(m_stateMachine);
+    auto *finalState = new QFinalState(m_stateMachine);
+    m_stateMachine->setInitialState(detectState);
+
+    detectState->addTransition(detectState, &QState::finished, finalState);
+
+    // Setup detect state
+    const QString text = m_source.left(getSplitIndex(m_source, googleTranslateLimit));
+    buildNetworkRequestState(detectState, &QOnlineTranslator::requestGoogleTranslate, &QOnlineTranslator::parseGoogleTranslate, text);
+}
+
+void QOnlineTranslator::buildYandexStateMachine()
 {
     // States
     auto *keyState = new QState(m_stateMachine); // Generate session ID first to access API (Required for Yandex)
@@ -1276,14 +1243,15 @@ void QOnlineTranslator::buildYandexStateMachine(bool onlyDetectLanguage)
     auto *sourceTranslitState = new QState(m_stateMachine);
     auto *translationTranslitState = new QState(m_stateMachine);
     auto *dictionaryState = new QState(m_stateMachine);
-
+    auto *finalState = new QFinalState(m_stateMachine);
     m_stateMachine->setInitialState(keyState);
 
     // Transitions
     keyState->addTransition(keyState, &QState::finished, translationState);
+    translationState->addTransition(translationState, &QState::finished, sourceTranslitState);
     sourceTranslitState->addTransition(sourceTranslitState, &QState::finished, translationTranslitState);
     translationTranslitState->addTransition(translationTranslitState, &QState::finished, dictionaryState);
-    dictionaryState->addTransition(dictionaryState, &QState::finished, new QFinalState(m_stateMachine));
+    dictionaryState->addTransition(dictionaryState, &QState::finished, finalState);
 
     // Setup key state
     if (m_yandexKey.isEmpty())
@@ -1292,15 +1260,7 @@ void QOnlineTranslator::buildYandexStateMachine(bool onlyDetectLanguage)
         keyState->setInitialState(new QFinalState(keyState));
 
     // Setup translation state
-    if (onlyDetectLanguage) {
-        const QString text = m_source.left(getSplitIndex(m_source, yandexTranslateLimit));
-        buildNetworkRequestState(translationState, &QOnlineTranslator::requestYandexTranslate, &QOnlineTranslator::parseYandexTranslate, text);
-        translationState->addTransition(translationState, &QState::finished, new QFinalState(m_stateMachine));
-        return;
-    } else {
-        translationState->addTransition(translationState, &QState::finished, sourceTranslitState);
-        buildSplitNetworkRequest(translationState, &QOnlineTranslator::requestYandexTranslate, &QOnlineTranslator::parseYandexTranslate, m_source, yandexTranslateLimit);
-    }
+    buildSplitNetworkRequest(translationState, &QOnlineTranslator::requestYandexTranslate, &QOnlineTranslator::parseYandexTranslate, m_source, yandexTranslateLimit);
 
     // Setup source translit state
     if (m_sourceTranslitEnabled && isSupportTranslit(Yandex, m_sourceLang))
@@ -1321,57 +1281,63 @@ void QOnlineTranslator::buildYandexStateMachine(bool onlyDetectLanguage)
         dictionaryState->setInitialState(new QFinalState(dictionaryState));
 }
 
-void QOnlineTranslator::buildBingStateMachine(bool onlyDetectLanguage)
+void QOnlineTranslator::buildYandexDetectStateMachine()
 {
     // States
-    auto *detectLangState = new QState(m_stateMachine); // For Bing need to detect language first
-    auto *translationState = new QState(m_stateMachine);
-    auto *sourceTranslitState = new QState(m_stateMachine);
-    auto *translationTranslitState = new QState(m_stateMachine);
-    auto *dictionaryState = new QState(m_stateMachine);
+    auto *keyState = new QState(m_stateMachine); // Generate session ID first to access API (Required for Yandex)
+    auto *detectState = new QState(m_stateMachine);
+    auto *finalState = new QFinalState(m_stateMachine);
+    m_stateMachine->setInitialState(keyState);
 
     // Transitions
-    sourceTranslitState->addTransition(sourceTranslitState, &QState::finished, translationTranslitState);
-    translationTranslitState->addTransition(translationTranslitState, &QState::finished, dictionaryState);
-    dictionaryState->addTransition(dictionaryState, &QState::finished, new QFinalState(m_stateMachine));
+    keyState->addTransition(keyState, &QState::finished, detectState);
+    detectState->addTransition(detectState, &QState::finished, finalState);
 
-    m_stateMachine->setInitialState(detectLangState);
+    // Setup key state
+    if (m_yandexKey.isEmpty())
+        buildNetworkRequestState(keyState, &QOnlineTranslator::requestYandexKey, &QOnlineTranslator::parseYandexKey);
+    else
+        keyState->setInitialState(new QFinalState(keyState));
 
-    // Setup detect language state
-    if (m_sourceLang == Auto) {
-        const QString text = m_source.left(getSplitIndex(m_source, bingTranslateLimit));
-        buildNetworkRequestState(detectLangState, &QOnlineTranslator::requestBingLanguage, &QOnlineTranslator::parseBingLanguage, text);
-    } else {
-        detectLangState->setInitialState(new QFinalState(detectLangState));
-    }
-    if (onlyDetectLanguage) {
-        detectLangState->addTransition(detectLangState, &QState::finished, new QFinalState(m_stateMachine));
-        return;
-    } else {
-        detectLangState->addTransition(detectLangState, &QState::finished, translationState);
-    }
+    // Setup detect state
+    const QString text = m_source.left(getSplitIndex(m_source, yandexTranslateLimit));
+    buildNetworkRequestState(detectState, &QOnlineTranslator::requestYandexTranslate, &QOnlineTranslator::parseYandexTranslate, text);
+}
+
+void QOnlineTranslator::buildBingStateMachine()
+{
+    // States
+    auto *translationState = new QState(m_stateMachine);
+    auto *dictionaryState = new QState(m_stateMachine);
+    auto *finalState = new QFinalState(m_stateMachine);
+    m_stateMachine->setInitialState(translationState);
+
+    // Transitions
+    translationState->addTransition(translationState, &QState::finished, dictionaryState);
+    dictionaryState->addTransition(dictionaryState, &QState::finished, finalState);
 
     // Setup translation state
     buildSplitNetworkRequest(translationState, &QOnlineTranslator::requestBingTranslate, &QOnlineTranslator::parseBingTranslate, m_source, bingTranslateLimit);
 
-    // Setup source translit state
-    translationState->addTransition(translationState, &QState::finished, sourceTranslitState);
-    if (m_sourceTranslitEnabled && isSupportTranslit(Bing, m_sourceLang))
-        buildSplitNetworkRequest(sourceTranslitState, &QOnlineTranslator::requestBingSourceTranslit, &QOnlineTranslator::parseBingSourceTranslit, m_source, bingTranslitLimit);
-    else
-        sourceTranslitState->setInitialState(new QFinalState(sourceTranslitState));
-
-    // Setup translation translit state
-    if (m_translationTranslitEnabled && isSupportTranslit(Bing, m_translationLang))
-        buildSplitNetworkRequest(translationTranslitState, &QOnlineTranslator::requestBingTranslationTranslit, &QOnlineTranslator::parseBingTranslationTranslit, m_translation, bingTranslitLimit);
-    else
-        translationTranslitState->setInitialState(new QFinalState(translationTranslitState));
-
     // Setup dictionary state
     if (m_translationOptionsEnabled && isSupportDictionary(Bing, m_sourceLang, m_translationLang) && !m_source.contains(' '))
-        buildNetworkRequestState(dictionaryState, &QOnlineTranslator::requestBingDictionary, &QOnlineTranslator::parseBingDictionary);
+        buildNetworkRequestState(dictionaryState, &QOnlineTranslator::requestBingDictionary, &QOnlineTranslator::parseBingDictionary, m_source);
     else
         dictionaryState->setInitialState(new QFinalState(dictionaryState));
+}
+
+void QOnlineTranslator::buildBingDetectStateMachine()
+{
+    // States
+    auto *detectState = new QState(m_stateMachine);
+    auto *finalState = new QFinalState(m_stateMachine);
+    m_stateMachine->setInitialState(detectState);
+
+    detectState->addTransition(detectState, &QState::finished, finalState);
+
+    // Setup translation state
+    const QString text = m_source.left(getSplitIndex(m_source, bingTranslateLimit));
+    buildNetworkRequestState(detectState, &QOnlineTranslator::requestBingTranslate, &QOnlineTranslator::parseBingTranslate, text);
 }
 
 void QOnlineTranslator::buildSplitNetworkRequest(QState *parent, void (QOnlineTranslator::*requestMethod)(), void (QOnlineTranslator::*parseMethod)(), const QString &text, int textLimit)
@@ -1427,8 +1393,7 @@ void QOnlineTranslator::buildNetworkRequestState(QState *parent, void (QOnlineTr
 
 void QOnlineTranslator::requestYandexTranslit(Language language)
 {
-    const auto *requestingState = qobject_cast<QState *>(sender());
-    const QString text = requestingState->property(textProperty).toString();
+    const QString text = sender()->property(textProperty).toString();
 
     // Generate API url
     QUrl url("https://translate.yandex.net/translit/translit");
@@ -1453,45 +1418,6 @@ void QOnlineTranslator::parseYandexTranslit(QString &text)
         text += reply.mid(1).chopped(1);
 #else
         text += reply.mid(1);
-        text.chop(1);
-#endif
-}
-
-void QOnlineTranslator::requestBingTranslit(QOnlineTranslator::Language language)
-{
-    const auto *requestingState = qobject_cast<QState *>(sender());
-    const QString text = requestingState->property(textProperty).toString();
-
-    // Generate POST data
-    const QByteArray postData = "&text=" + text.toLocal8Bit()
-            + "&language=" + apiLanguageCode(Bing, language).toLocal8Bit()
-            + "&toScript=latn";
-    const QUrl url("http://www.bing.com/ttransliterate");
-
-    // Setup request
-    QNetworkRequest request;
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-    request.setHeader(QNetworkRequest::ContentLengthHeader, postData.size());
-    request.setUrl(url);
-
-    // Make reply
-    m_currentReply = m_networkManager->post(request, postData);
-}
-
-void QOnlineTranslator::parseBingTranslit(QString &text)
-{
-    m_currentReply->deleteLater();
-
-    // Check for errors
-    if (m_currentReply->error() != QNetworkReply::NoError) {
-        resetData(NetworkError, m_currentReply->errorString());
-        return;
-    }
-
-#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
-        text += m_currentReply->readAll().mid(1).chopped(1);
-#else
-        text += m_currentReply->readAll().mid(1);
         text.chop(1);
 #endif
 }
@@ -1534,8 +1460,6 @@ bool QOnlineTranslator::isSupportTranslit(Engine engine, Language lang)
         switch (lang) {
         case Arabic:
         case Bengali:
-        case SimplifiedChinese:
-        case TraditionalChinese:
         case Gujarati:
         case Hebrew:
         case Hindi:
@@ -1545,9 +1469,12 @@ bool QOnlineTranslator::isSupportTranslit(Engine engine, Language lang)
         case Marathi:
         case Punjabi:
         case SerbianCyrillic:
+        case SerbianLatin:
         case Tamil:
         case Telugu:
         case Thai:
+        case SimplifiedChinese:
+        case TraditionalChinese:
             return true;
         default:
             return false;
@@ -1901,11 +1828,16 @@ bool QOnlineTranslator::isSupportDictionary(Engine engine, Language sourceLang, 
             return false;
         }
     case Bing:
-        // Bing support dictionary only to or from English (we don't need a dictionary for translation)
-        if (sourceLang != English)
+        // Bing support dictionary only to or from English
+        Language secondLang;
+        if (sourceLang == English)
+            secondLang = translationLang;
+        else if (translationLang == English)
+            secondLang = sourceLang;
+        else
             return false;
 
-        switch (translationLang) {
+        switch (secondLang) {
         case Afrikaans:
         case Arabic:
         case Bengali:
@@ -1991,6 +1923,10 @@ QString QOnlineTranslator::apiLanguageCode(Engine engine, Language lang)
         break;
     case Bing:
         switch (lang) {
+        case Auto:
+            return "auto-detect";
+        case Bosnian:
+            return "bs-Latn";
         case SimplifiedChinese:
             return "zh-Hans";
         case TraditionalChinese:

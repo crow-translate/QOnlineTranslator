@@ -256,17 +256,8 @@ private slots:
     void parseYandexDictionary();
 
     // Bing
-    void requestBingLanguage();
-    void parseBingLanguage();
-
     void requestBingTranslate();
     void parseBingTranslate();
-
-    void requestBingSourceTranslit();
-    void parseBingSourceTranslit();
-
-    void requestBingTranslationTranslit();
-    void parseBingTranslationTranslit();
 
     void requestBingDictionary();
     void parseBingDictionary();
@@ -277,19 +268,22 @@ private:
      * Also Yandex and Bing requires several requests to get dictionary, transliteration etc.
      * We use state machine to rely async computation with signals and slots.
      */
-    void buildGoogleStateMachine(bool onlyDetectLanguage = false);
-    void buildYandexStateMachine(bool onlyDetectLanguage = false);
-    void buildBingStateMachine(bool onlyDetectLanguage = false);
+    void buildGoogleStateMachine();
+    void buildGoogleDetectStateMachine();
+
+    void buildYandexStateMachine();
+    void buildYandexDetectStateMachine();
+
+    void buildBingStateMachine();
+    void buildBingDetectStateMachine();
 
     // Helper functions to build nested states
     void buildSplitNetworkRequest(QState *parent, void (QOnlineTranslator::*requestMethod)(), void (QOnlineTranslator::*parseMethod)(), const QString &text, int textLimit);
     void buildNetworkRequestState(QState *parent, void (QOnlineTranslator::*requestMethod)(), void (QOnlineTranslator::*parseMethod)(), const QString &text = {});
 
-    // Helper functions for translation
+    // Helper functions for transliteration
     void requestYandexTranslit(QOnlineTranslator::Language language);
     void parseYandexTranslit(QString &text);
-    void requestBingTranslit(QOnlineTranslator::Language language);
-    void parseBingTranslit(QString &text);
 
     // Check for service support
     static bool isSupportTranslit(Engine engine, Language lang);
