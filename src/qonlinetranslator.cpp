@@ -65,7 +65,7 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
     abort();
     resetData();
 
-    // Set new data
+    m_onlyDetectLanguage = false;
     m_source = text;
     m_sourceLang = sourceLang;
 
@@ -119,6 +119,7 @@ void QOnlineTranslator::detectLanguage(const QString &text, Engine engine)
     abort();
     resetData();
 
+    m_onlyDetectLanguage = true;
     m_source = text;
     m_sourceLang = Auto;
     m_translationLang = English;
@@ -844,12 +845,87 @@ void QOnlineTranslator::requestGoogleTranslate()
 
 void QOnlineTranslator::parseGoogleTranslate()
 {
-    parseGoogleTranslation();
-}
+    m_currentReply->deleteLater();
 
-void QOnlineTranslator::parseGoogleLanguage()
-{
-    parseGoogleTranslation(true);
+    // Check for error
+    if (m_currentReply->error() != QNetworkReply::NoError) {
+        if (m_currentReply->error() == QNetworkReply::ServiceUnavailableError)
+            resetData(ServiceError, tr("Error: Engine systems have detected suspicious traffic from your computer network. Please try your request again later."));
+        else
+            resetData(NetworkError, m_currentReply->errorString());
+        return;
+    }
+
+    // Check availability of service
+    const QByteArray data = m_currentReply->readAll();
+    if (data.startsWith('<')) {
+        resetData(ServiceError, tr("Error: Engine systems have detected suspicious traffic from your computer network. Please try your request again later."));
+        return;
+    }
+
+    // Read Json
+    const QJsonDocument jsonResponse = QJsonDocument::fromJson(data);
+    const QJsonArray jsonData = jsonResponse.array();
+
+    if (m_sourceLang == Auto) {
+        // Parse language
+        m_sourceLang = language(Google, jsonData.at(2).toString());
+        if (m_sourceLang == NoLanguage) {
+            resetData(ParsingError, tr("Error: Unable to parse autodetected language"));
+            return;
+        }
+        if (m_onlyDetectLanguage)
+            return;
+    }
+
+    // Add a space between parts
+    if (!m_translation.isEmpty() && !m_translation.endsWith('\n'))
+        m_translation.append(' ');
+
+    // Parse first sentense. If the answer contains more than one sentence, then at the end of the first one there will be a space
+    m_translation.append(jsonData.at(0).toArray().at(0).toArray().at(0).toString());
+    for (int i = 1; m_translation.endsWith(' ') || m_translation.endsWith('\n') || m_translation.endsWith(0x00a0); ++i)
+        m_translation.append(jsonData.at(0).toArray().at(i).toArray().at(0).toString());
+
+    // Parse transliterations and source language
+    if (m_translationTranslitEnabled) {
+        if (!m_translationTranslit.isEmpty() && !m_translationTranslit.endsWith('\n'))
+            m_translationTranslit.append(' ');
+        m_translationTranslit.append(jsonData.at(0).toArray().last().toArray().at(2).toString());
+    }
+
+    if (m_sourceTranslitEnabled) {
+        if (!m_sourceTranslit.isEmpty() && !m_sourceTranslit.endsWith('\n'))
+            m_sourceTranslit.append(' ');
+        m_sourceTranslit.append(jsonData.at(0).toArray().last().toArray().at(3).toString());
+    }
+
+    if (!m_translationOptionsEnabled || m_source.size() >= googleTranslateLimit)
+        return;
+
+    // Translation options
+    foreach (const QJsonValue &typeOfSpeechData, jsonData.at(1).toArray()) {
+        m_translationOptions << QOption(typeOfSpeechData.toArray().at(0).toString());
+        foreach (const QJsonValue &wordData, typeOfSpeechData.toArray().at(2).toArray()) {
+            const QString word = wordData.toArray().at(0).toString();
+            const QString gender = wordData.toArray().at(4).toString();
+            QStringList translations;
+            foreach (const QJsonValue &wordTranslation, wordData.toArray().at(1).toArray()) {
+                translations.append(wordTranslation.toString());
+            }
+            m_translationOptions.last().addWord(word, gender, translations);
+        }
+    }
+
+    // Examples
+    if (m_translationOptionsEnabled) {
+        foreach (const QJsonValue &exampleData, jsonData.at(12).toArray()) {
+            const QJsonArray example = exampleData.toArray().at(1).toArray().at(0).toArray();
+
+            m_examples << QExample(exampleData.toArray().at(0).toString());
+            m_examples.last().addExample(example.at(0).toString(), example.at(2).toString());
+        }
+    }
 }
 
 void QOnlineTranslator::requestYandexKey()
@@ -914,12 +990,42 @@ void QOnlineTranslator::requestYandexTranslate()
 
 void QOnlineTranslator::parseYandexTranslate()
 {
-    parseYandexTranslation();
-}
+    m_currentReply->deleteLater();
 
-void QOnlineTranslator::parseYandexLanguage()
-{
-    parseYandexTranslation(true);
+    // Check for errors
+    if (m_currentReply->error() != QNetworkReply::NoError) {
+        // Network errors
+        if (m_currentReply->error() < QNetworkReply::ContentAccessDenied) {
+            resetData(NetworkError, m_currentReply->errorString());
+            return;
+        }
+
+        // Parse data to get request error type
+        m_yandexKey.clear();
+        const QJsonDocument jsonResponse = QJsonDocument::fromJson(m_currentReply->readAll());
+        resetData(ServiceError, jsonResponse.object().value("message").toString());
+        return;
+    }
+
+    // Read Json
+    const QJsonDocument jsonResponse = QJsonDocument::fromJson(m_currentReply->readAll());
+    const QJsonObject jsonData = jsonResponse.object();
+
+    // Parse language
+    if (m_sourceLang == Auto) {
+        QString sourceCode = jsonData.value("lang").toString();
+        sourceCode = sourceCode.left(sourceCode.indexOf('-'));
+        m_sourceLang = language(Yandex, sourceCode);
+        if (m_sourceLang == NoLanguage) {
+            resetData(ParsingError, tr("Error: Unable to parse autodetected language"));
+            return;
+        }
+        if (m_onlyDetectLanguage)
+            return;
+    }
+
+    // Parse translation data
+    m_translation += jsonData.value("text").toArray().at(0).toString();
 }
 
 void QOnlineTranslator::requestYandexSourceTranslit()
@@ -1156,7 +1262,7 @@ void QOnlineTranslator::buildGoogleStateMachine(bool onlyDetectLanguage)
     // Setup translation state
     if (onlyDetectLanguage) {
         const QString text = m_source.left(getSplitIndex(m_source, googleTranslateLimit));
-        buildNetworkRequestState(translationState, &QOnlineTranslator::requestGoogleTranslate, &QOnlineTranslator::parseGoogleLanguage, text);
+        buildNetworkRequestState(translationState, &QOnlineTranslator::requestGoogleTranslate, &QOnlineTranslator::parseGoogleTranslate, text);
     } else {
         buildSplitNetworkRequest(translationState, &QOnlineTranslator::requestGoogleTranslate, &QOnlineTranslator::parseGoogleTranslate, m_source, googleTranslateLimit);
     }
@@ -1188,7 +1294,7 @@ void QOnlineTranslator::buildYandexStateMachine(bool onlyDetectLanguage)
     // Setup translation state
     if (onlyDetectLanguage) {
         const QString text = m_source.left(getSplitIndex(m_source, yandexTranslateLimit));
-        buildNetworkRequestState(translationState, &QOnlineTranslator::requestYandexTranslate, &QOnlineTranslator::parseYandexLanguage, text);
+        buildNetworkRequestState(translationState, &QOnlineTranslator::requestYandexTranslate, &QOnlineTranslator::parseYandexTranslate, text);
         translationState->addTransition(translationState, &QState::finished, new QFinalState(m_stateMachine));
         return;
     } else {
@@ -1317,131 +1423,6 @@ void QOnlineTranslator::buildNetworkRequestState(QState *parent, void (QOnlineTr
 
     // Setup parsing state
     connect(parsingState, &QState::entered, this, parseMethod);
-}
-
-void QOnlineTranslator::parseGoogleTranslation(bool onlyDetectLanguage)
-{
-    m_currentReply->deleteLater();
-
-    // Check for error
-    if (m_currentReply->error() != QNetworkReply::NoError) {
-        if (m_currentReply->error() == QNetworkReply::ServiceUnavailableError)
-            resetData(ServiceError, tr("Error: Engine systems have detected suspicious traffic from your computer network. Please try your request again later."));
-        else
-            resetData(NetworkError, m_currentReply->errorString());
-        return;
-    }
-
-    // Check availability of service
-    const QByteArray data = m_currentReply->readAll();
-    if (data.startsWith('<')) {
-        resetData(ServiceError, tr("Error: Engine systems have detected suspicious traffic from your computer network. Please try your request again later."));
-        return;
-    }
-
-    // Read Json
-    const QJsonDocument jsonResponse = QJsonDocument::fromJson(data);
-    const QJsonArray jsonData = jsonResponse.array();
-
-    if (m_sourceLang == Auto) {
-        // Parse language
-        m_sourceLang = language(Google, jsonData.at(2).toString());
-        if (m_sourceLang == NoLanguage) {
-            resetData(ParsingError, tr("Error: Unable to parse autodetected language"));
-            return;
-        }
-        if (onlyDetectLanguage)
-            return;
-    }
-
-    // Add a space between parts
-    if (!m_translation.isEmpty() && !m_translation.endsWith('\n'))
-        m_translation.append(' ');
-
-    // Parse first sentense. If the answer contains more than one sentence, then at the end of the first one there will be a space
-    m_translation.append(jsonData.at(0).toArray().at(0).toArray().at(0).toString());
-    for (int i = 1; m_translation.endsWith(' ') || m_translation.endsWith('\n') || m_translation.endsWith(0x00a0); ++i)
-        m_translation.append(jsonData.at(0).toArray().at(i).toArray().at(0).toString());
-
-    // Parse transliterations and source language
-    if (m_translationTranslitEnabled) {
-        if (!m_translationTranslit.isEmpty() && !m_translationTranslit.endsWith('\n'))
-            m_translationTranslit.append(' ');
-        m_translationTranslit.append(jsonData.at(0).toArray().last().toArray().at(2).toString());
-    }
-
-    if (m_sourceTranslitEnabled) {
-        if (!m_sourceTranslit.isEmpty() && !m_sourceTranslit.endsWith('\n'))
-            m_sourceTranslit.append(' ');
-        m_sourceTranslit.append(jsonData.at(0).toArray().last().toArray().at(3).toString());
-    }
-
-    if (!m_translationOptionsEnabled || m_source.size() >= googleTranslateLimit)
-        return;
-
-    // Translation options
-    foreach (const QJsonValue &typeOfSpeechData, jsonData.at(1).toArray()) {
-        m_translationOptions << QOption(typeOfSpeechData.toArray().at(0).toString());
-        foreach (const QJsonValue &wordData, typeOfSpeechData.toArray().at(2).toArray()) {
-            const QString word = wordData.toArray().at(0).toString();
-            const QString gender = wordData.toArray().at(4).toString();
-            QStringList translations;
-            foreach (const QJsonValue &wordTranslation, wordData.toArray().at(1).toArray()) {
-                translations.append(wordTranslation.toString());
-            }
-            m_translationOptions.last().addWord(word, gender, translations);
-        }
-    }
-
-    // Examples
-    if (m_translationOptionsEnabled) {
-        foreach (const QJsonValue &exampleData, jsonData.at(12).toArray()) {
-            const QJsonArray example = exampleData.toArray().at(1).toArray().at(0).toArray();
-
-            m_examples << QExample(exampleData.toArray().at(0).toString());
-            m_examples.last().addExample(example.at(0).toString(), example.at(2).toString());
-        }
-    }
-}
-
-void QOnlineTranslator::parseYandexTranslation(bool onlyDetectLanguage)
-{
-    m_currentReply->deleteLater();
-
-    // Check for errors
-    if (m_currentReply->error() != QNetworkReply::NoError) {
-        // Network errors
-        if (m_currentReply->error() < QNetworkReply::ContentAccessDenied) {
-            resetData(NetworkError, m_currentReply->errorString());
-            return;
-        }
-
-        // Parse data to get request error type
-        m_yandexKey.clear();
-        const QJsonDocument jsonResponse = QJsonDocument::fromJson(m_currentReply->readAll());
-        resetData(ServiceError, jsonResponse.object().value("message").toString());
-        return;
-    }
-
-    // Read Json
-    const QJsonDocument jsonResponse = QJsonDocument::fromJson(m_currentReply->readAll());
-    const QJsonObject jsonData = jsonResponse.object();
-
-    // Parse language
-    if (m_sourceLang == Auto) {
-        QString sourceCode = jsonData.value("lang").toString();
-        sourceCode = sourceCode.left(sourceCode.indexOf('-'));
-        m_sourceLang = language(Yandex, sourceCode);
-        if (m_sourceLang == NoLanguage) {
-            resetData(ParsingError, tr("Error: Unable to parse autodetected language"));
-            return;
-        }
-        if (onlyDetectLanguage)
-            return;
-    }
-
-    // Parse translation data
-    m_translation += jsonData.value("text").toArray().at(0).toString();
 }
 
 void QOnlineTranslator::requestYandexTranslit(Language language)

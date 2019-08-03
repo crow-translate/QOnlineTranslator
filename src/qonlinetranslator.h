@@ -238,7 +238,6 @@ private slots:
     // Google
     void requestGoogleTranslate();
     void parseGoogleTranslate();
-    void parseGoogleLanguage();
 
     // Yandex
     void requestYandexKey();
@@ -246,7 +245,6 @@ private slots:
 
     void requestYandexTranslate();
     void parseYandexTranslate();
-    void parseYandexLanguage();
 
     void requestYandexSourceTranslit();
     void parseYandexSourceTranslit();
@@ -288,8 +286,6 @@ private:
     void buildNetworkRequestState(QState *parent, void (QOnlineTranslator::*requestMethod)(), void (QOnlineTranslator::*parseMethod)(), const QString &text = {});
 
     // Helper functions for translation
-    void parseGoogleTranslation(bool onlyDetectLanguage = false);
-    void parseYandexTranslation(bool onlyDetectLanguage = false);
     void requestYandexTranslit(QOnlineTranslator::Language language);
     void parseYandexTranslit(QString &text);
     void requestBingTranslit(QOnlineTranslator::Language language);
@@ -329,6 +325,8 @@ private:
     bool m_sourceTranscriptionEnabled = true;
     bool m_translationOptionsEnabled = true;
     bool m_examplesEnabled = true;
+
+    bool m_onlyDetectLanguage = false;
 
     static const QStringList m_languageCodes;
     static QString m_yandexKey;
