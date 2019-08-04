@@ -12,11 +12,11 @@ The **QOnlineTts** class provides TTS URLs generator.
 
 ## Public Types
 
-| Type | Name                                                                                                              |
-| ---: | :---------------------------------------------------------------------------------------------------------------- |
-| enum | [**Voice**](#voice) { NoVoice, DefaultVoice, Zahar, Ermil, ..., Female }                                          |
-| enum | [**Emotion**](#emotion) { NoEmotion, DefaultEmotion, Good, Evil, Neutral }                                        |
-| enum | [**TtsError**](tts-error) { NoError, UnsupportedLanguage, UnsupportedVoice, UnsupportedEmotion }                  |
+| Type | Name                                                                                                                |
+| ---: | :------------------------------------------------------------------------------------------------------------------ |
+| enum | [**Voice**](#voice) { NoVoice, Zahar, Ermil, ..., Omazh }                                                           |
+| enum | [**Emotion**](#emotion) { NoEmotion, Good, Evil, Neutral }                                                          |
+| enum | [**TtsError**](tts-error) { NoError, UnsupportedEngine, UnsupportedLanguage, UnsupportedVoice, UnsupportedEmotion } |
 
 ## Public Functions
 
@@ -36,7 +36,6 @@ The **QOnlineTts** class provides TTS URLs generator.
 |     QString | [**emotionCode**(Emotion emotion)](#emotion-code)                 |
 |     Emotion | [**emotion**(const QString &emotionCode)](#emotion)               |
 |       Voice | [**voice**(const QString &voiceCode)](#voice)                     |
-|        bool | [**isSupportTts**(Engine engine, Language lang)](#is-support-tts) |
 
 ## Member Type Documentation
 
@@ -46,15 +45,13 @@ This enum has the following values:
 
 |                 Constant | Value | Engine               |   Code  |
 | -----------------------: | :---: | :------------------- | :------ |
-| QOnlineTts::DefaultVoice |   0   | Google, Yandex, Bing | default |
-|        QOnlineTts::Zahar |   1   | Yandex               | zahar   |
-|        QOnlineTts::Ermil |   2   | Yandex               | ermil   |
-|         QOnlineTts::Jane |   3   | Yandex               | jane    |
-|       QOnlineTts::Oksana |   4   | Yandex               | oksana  |
-|        QOnlineTts::Alyss |   5   | Yandex               | alyss   |
-|        QOnlineTts::Omazh |   6   | Yandex               | omazh   |
-|         QOnlineTts::Male |   7   | Bing                 | male    |
-|       QOnlineTts::Female |   8   | Bing                 | female  |
+|      QOnlineTts::NoVoice |  -1   | Yandex               | -       |
+|        QOnlineTts::Zahar |   0   | Yandex               | zahar   |
+|        QOnlineTts::Ermil |   1   | Yandex               | ermil   |
+|         QOnlineTts::Jane |   2   | Yandex               | jane    |
+|       QOnlineTts::Oksana |   3   | Yandex               | oksana  |
+|        QOnlineTts::Alyss |   4   | Yandex               | alyss   |
+|        QOnlineTts::Omazh |   5   | Yandex               | omazh   |
 
 ### <a id='emotion'/> enum QOnlineTts::Emotion
 
@@ -62,21 +59,22 @@ This enum has the following values:
 
 |                   Constant | Value | Engine                   |   Code  |
 | -------------------------: | :---: | :----------------------- | :------ |
-| QOnlineTts::DefaultEmotion |   0   | Google, Yandex, Bing     | default |
-|        QOnlineTts::Neutral |   1   | Yandex                   | neutral |
-|           QOnlineTts::Good |   2   | Yandex                   | good    |
-|           QOnlineTts::Evil |   3   | Yandex                   | evil    |
+|      QOnlineTts::NoEmotion |  -1   | Yandex                   | -       |
+|        QOnlineTts::Neutral |   0   | Yandex                   | neutral |
+|           QOnlineTts::Good |   1   | Yandex                   | good    |
+|           QOnlineTts::Evil |   2   | Yandex                   | evil    |
 
 ### <a id='tts-error'/> enum QOnlineTts::TtsError
 
 Indicates all possible error conditions found during the processing of the URLs generation.
 
-|                          Constant | Value | Description                         |
-| --------------------------------: | :---: | :---------------------------------- |
-|               QOnlineTts::NoError |   0   | No error condition                  |
-|   QOnlineTts::UnsupportedLanguage |   1   | Unsupported language by this engine |
-|      QOnlineTts::UnsupportedVoice |   2   | Unsupported voice by this engine    |
-|    QOnlineTts::UnsupportedEmotion |   3   | Unsupported emotion by this engine  |
+|                          Constant | Value | Description                              |
+| --------------------------------: | :---: | :--------------------------------------- |
+|               QOnlineTts::NoError |   0   | No error condition                       |
+|   QOnlineTts::UnsupportedEngine   |   1   | Specified engine does not support TTS    |
+|   QOnlineTts::UnsupportedLanguage |   2   | Unsupported language by specified engine |
+|      QOnlineTts::UnsupportedVoice |   3   | Unsupported voice by specified engine    |
+|    QOnlineTts::UnsupportedEmotion |   4   | Unsupported emotion by specified engine  |
 
 ## Member Function Documentation
 
@@ -139,9 +137,3 @@ Returns the [emotion](#emotion) from the _emotionCode_. Useful for CLI interface
 ### <a id='voice'/> static Voice QOnlineTts::voice(_const QString &voiceCode_)
 
 Returns the [voice](#voice) from the _voiceCode_. Useful for CLI interface.
-
-* * *
-
-### <a id='is-support-tts'/> static bool QOnlineTts::isSupportTts(_Engine engine, Language lang_)
-
-Returns true if the _lang_ is supported by the _engine_ for tts.

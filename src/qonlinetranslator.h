@@ -290,7 +290,7 @@ private:
     static bool isSupportDictionary(Engine engine, Language sourceLang, Language translationLang);
 
     // Other
-    static QString apiLanguageCode(Engine engine, Language lang); // Generate engine-specific codes for API
+    static QString languageApiCode(Engine engine, Language lang);
     static Language language(Engine engine, const QString &langCode);
     static int getSplitIndex(const QString &untranslatedText, int limit);
     void resetData(TranslationError error = NoError, const QString &errorString = QString());

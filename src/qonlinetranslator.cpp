@@ -830,9 +830,9 @@ void QOnlineTranslator::requestGoogleTranslate()
     // Generate API url
     QUrl url("https://translate.googleapis.com/translate_a/single");
     url.setQuery("client=gtx&ie=UTF-8&oe=UTF-8&dt=bd&dt=ex&dt=ld&dt=md&dt=rw&dt=rm&dt=ss&dt=t&dt=at&dt=qc"
-                 "&sl=" + apiLanguageCode(Google, m_sourceLang)
-                 + "&tl=" + apiLanguageCode(Google, m_translationLang)
-                 + "&hl=" + apiLanguageCode(Google, m_uiLang)
+                 "&sl=" + languageApiCode(Google, m_sourceLang)
+                 + "&tl=" + languageApiCode(Google, m_translationLang)
+                 + "&hl=" + languageApiCode(Google, m_uiLang)
                  + "&q=" + QUrl::toPercentEncoding(sourceText));
 
     m_currentReply = m_networkManager->get(QNetworkRequest(url));
@@ -966,9 +966,9 @@ void QOnlineTranslator::requestYandexTranslate()
 
     QString lang;
     if (m_sourceLang == Auto)
-        lang = apiLanguageCode(Yandex, m_translationLang);
+        lang = languageApiCode(Yandex, m_translationLang);
     else
-        lang = apiLanguageCode(Yandex, m_sourceLang) + '-' + apiLanguageCode(Yandex, m_translationLang);
+        lang = languageApiCode(Yandex, m_sourceLang) + '-' + languageApiCode(Yandex, m_translationLang);
 
     // Generate API url
     QUrl url("https://translate.yandex.net/api/v1/tr.json/translate");
@@ -1049,8 +1049,8 @@ void QOnlineTranslator::requestYandexDictionary()
     // Generate API url
     QUrl url("http://dictionary.yandex.net/dicservice.json/lookupMultiple");
     url.setQuery("text=" + QUrl::toPercentEncoding(text)
-                 + "&ui=" + apiLanguageCode(Yandex, m_uiLang)
-                 + "&dict=" + apiLanguageCode(Yandex, m_sourceLang) + '-' + apiLanguageCode(Yandex, m_translationLang));
+                 + "&ui=" + languageApiCode(Yandex, m_uiLang)
+                 + "&dict=" + languageApiCode(Yandex, m_sourceLang) + '-' + languageApiCode(Yandex, m_translationLang));
 
     m_currentReply = m_networkManager->get(QNetworkRequest(url));
 }
@@ -1066,7 +1066,7 @@ void QOnlineTranslator::parseYandexDictionary()
 
     // Parse reply
     const QJsonDocument jsonResponse = QJsonDocument::fromJson(m_currentReply->readAll());
-    const QJsonValue jsonData = jsonResponse.object().value(apiLanguageCode(Yandex, m_sourceLang) + '-' + apiLanguageCode(Yandex, m_translationLang)).toObject().value("regular");
+    const QJsonValue jsonData = jsonResponse.object().value(languageApiCode(Yandex, m_sourceLang) + '-' + languageApiCode(Yandex, m_translationLang)).toObject().value("regular");
 
     if (m_sourceTranscriptionEnabled)
         m_sourceTranscription = jsonData.toArray().at(0).toObject().value("ts").toString();
@@ -1109,8 +1109,8 @@ void QOnlineTranslator::requestBingTranslate()
 
     // Generate POST data
     const QByteArray postData = "&text=" + sourceText.toLocal8Bit()
-            + "&fromLang=" + apiLanguageCode(Bing, m_sourceLang).toLocal8Bit()
-            + "&to=" + apiLanguageCode(Bing, m_translationLang).toLocal8Bit();
+            + "&fromLang=" + languageApiCode(Bing, m_sourceLang).toLocal8Bit()
+            + "&to=" + languageApiCode(Bing, m_translationLang).toLocal8Bit();
     const QUrl url("http://www.bing.com/ttranslatev3");
 
     // Setup request
@@ -1159,8 +1159,8 @@ void QOnlineTranslator::requestBingDictionary()
 
     // Generate POST data
     const QByteArray postData = "&text=" + text.toLocal8Bit()
-            + "&from=" + apiLanguageCode(Bing, m_sourceLang).toLocal8Bit()
-            + "&to=" + apiLanguageCode(Bing, m_translationLang).toLocal8Bit();
+            + "&from=" + languageApiCode(Bing, m_sourceLang).toLocal8Bit()
+            + "&to=" + languageApiCode(Bing, m_translationLang).toLocal8Bit();
     const QUrl url("http://www.bing.com/tlookupv3");
 
     QNetworkRequest request;
@@ -1398,7 +1398,7 @@ void QOnlineTranslator::requestYandexTranslit(Language language)
     // Generate API url
     QUrl url("https://translate.yandex.net/translit/translit");
     url.setQuery("text=" + QUrl::toPercentEncoding(text)
-                 + "&lang=" + apiLanguageCode(Yandex, language));
+                 + "&lang=" + languageApiCode(Yandex, language));
 
     m_currentReply = m_networkManager->get(QNetworkRequest(url));
 }
@@ -1898,7 +1898,7 @@ bool QOnlineTranslator::isSupportDictionary(Engine engine, Language sourceLang, 
 }
 
 // Returns engine-specific language code for translation
-QString QOnlineTranslator::apiLanguageCode(Engine engine, Language lang)
+QString QOnlineTranslator::languageApiCode(Engine engine, Language lang)
 {
     if (!isSupportTranslation(engine, lang))
         return QString();

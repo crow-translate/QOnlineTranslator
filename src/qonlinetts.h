@@ -14,7 +14,6 @@ public:
     enum Voice {
         // All
         NoVoice = -1,
-        DefaultVoice,
 
         // Yandex
         Zahar,
@@ -22,18 +21,13 @@ public:
         Jane,
         Oksana,
         Alyss,
-        Omazh,
-
-        // Bing
-        Female,
-        Male
+        Omazh
     };
     Q_ENUM(Voice)
 
     enum Emotion {
         // All
         NoEmotion = -1,
-        DefaultEmotion,
 
         // Yandex
         Neutral,
@@ -44,14 +38,15 @@ public:
 
     enum TtsError {
         NoError,
+        UnsupportedEngine,
         UnsupportedLanguage,
         UnsupportedVoice,
         UnsupportedEmotion,
     };
 
-    QOnlineTts(QObject *parent = nullptr);
+    explicit QOnlineTts(QObject *parent = nullptr);
 
-    void generateUrls(const QString &text, QOnlineTranslator::Engine engine, QOnlineTranslator::Language lang, Voice voice = DefaultVoice, Emotion emotion = DefaultEmotion);
+    void generateUrls(const QString &text, QOnlineTranslator::Engine engine, QOnlineTranslator::Language lang, Voice voice = NoVoice, Emotion emotion = NoEmotion);
     QList<QMediaContent> media() const;
 
     TtsError error() const;
@@ -61,14 +56,13 @@ public:
     static QString emotionCode(Emotion emotion);
     static Emotion emotion(const QString &emotionCode);
     static Voice voice(const QString &voiceCode);
-    static bool isSupportTts(QOnlineTranslator::Engine engine, QOnlineTranslator::Language lang);
 
 private:
     void setError(TtsError error, const QString &errorString);
 
-    static QString ttsLanguageCode(QOnlineTranslator::Engine engine, QOnlineTranslator::Language lang);
-    static QString voiceCode(QOnlineTranslator::Engine engine, Voice voice);
-    static QString emotionCode(QOnlineTranslator::Engine engine, Emotion emotion);
+    QString languageApiCode(QOnlineTranslator::Engine engine, QOnlineTranslator::Language lang);
+    QString voiceApiCode(QOnlineTranslator::Engine engine, Voice voice);
+    QString emotionApiCode(QOnlineTranslator::Engine engine, Emotion emotion);
 
     QList<QMediaContent> m_media;
     QString m_errorString;
