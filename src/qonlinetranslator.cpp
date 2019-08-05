@@ -899,13 +899,13 @@ void QOnlineTranslator::parseGoogleTranslate()
         return;
 
     // Translation options
-    foreach (const QJsonValue &typeOfSpeechData, jsonData.at(1).toArray()) {
+    for (const QJsonValue typeOfSpeechData : jsonData.at(1).toArray()) {
         const QString typeOfSpeech = typeOfSpeechData.toArray().at(0).toString();
-        foreach (const QJsonValue &wordData, typeOfSpeechData.toArray().at(2).toArray()) {
+        for (const QJsonValue wordData : typeOfSpeechData.toArray().at(2).toArray()) {
             const QString word = wordData.toArray().at(0).toString();
             const QString gender = wordData.toArray().at(4).toString();
             QStringList translations;
-            foreach (const QJsonValue &wordTranslation, wordData.toArray().at(1).toArray())
+            for (const QJsonValue wordTranslation : wordData.toArray().at(1).toArray())
                 translations.append(wordTranslation.toString());
             m_translationOptions[typeOfSpeech] << QOption(word, translations, gender);
         }
@@ -913,7 +913,7 @@ void QOnlineTranslator::parseGoogleTranslate()
 
     // Examples
     if (m_translationOptionsEnabled) {
-        foreach (const QJsonValue &exampleData, jsonData.at(12).toArray()) {
+        for (const QJsonValue exampleData : jsonData.at(12).toArray()) {
             const QString typeOfSpeech = exampleData.toArray().at(0).toString();
             const QJsonArray example = exampleData.toArray().at(1).toArray().at(0).toArray();
 
@@ -1070,21 +1070,21 @@ void QOnlineTranslator::parseYandexDictionary()
     if (m_sourceTranscriptionEnabled)
         m_sourceTranscription = jsonData.toArray().at(0).toObject().value("ts").toString();
 
-    foreach (const QJsonValue &typeOfSpeechData, jsonData.toArray()) {
+    for (const QJsonValue typeOfSpeechData : jsonData.toArray()) {
         const QString typeOfSpeech = typeOfSpeechData.toObject().value("pos").toObject().value("text").toString();
-        foreach (const QJsonValue &wordData, typeOfSpeechData.toObject().value("tr").toArray()) {
+        for (const QJsonValue wordData : typeOfSpeechData.toObject().value("tr").toArray()) {
             // Parse translation options
             const QString word = wordData.toObject().value("text").toString();
             const QString gender = wordData.toObject().value("gen").toObject().value("text").toString();
             QStringList translations;
-            foreach (const QJsonValue &wordTranslation, wordData.toObject().value("mean").toArray())
+            for (const QJsonValue wordTranslation : wordData.toObject().value("mean").toArray())
                 translations.append(wordTranslation.toObject().value("text").toString());
 
             m_translationOptions[typeOfSpeech] << QOption(word, translations, gender);
 
             // Parse examples
             if (m_examplesEnabled && wordData.toObject().contains("ex")) {
-                foreach (const QJsonValue exampleData, wordData.toObject().value("ex").toArray()) {
+                for (const QJsonValue exampleData : wordData.toObject().value("ex").toArray()) {
                     const QString example = exampleData.toObject().value("text").toString();
                     const QString description = exampleData.toObject().value("tr").toArray().at(0).toObject().value("text").toString();
 
@@ -1176,12 +1176,12 @@ void QOnlineTranslator::parseBingDictionary()
     const QJsonDocument jsonResponse = QJsonDocument::fromJson(m_currentReply->readAll());
     const QJsonObject responseObject = jsonResponse.array().first().toObject();
 
-    foreach (const QJsonValue &value, responseObject.value("translations").toArray()) {
+    for (const QJsonValue &value : responseObject.value("translations").toArray()) {
         const QJsonObject object = value.toObject();
         const QString typeOfSpeech = object.value("posTag").toString().toLower();
         const QString word = object.value("displayTarget").toString().toLower();
         QStringList translations;
-        foreach (const QJsonValue &wordTranslation, object.value("backTranslations").toArray())
+        for (const QJsonValue wordTranslation : object.value("backTranslations").toArray())
             translations.append(wordTranslation.toObject().value("displayText").toString());
 
         m_translationOptions[typeOfSpeech] << QOption(word, translations);
@@ -1996,7 +1996,7 @@ void QOnlineTranslator::resetData(TranslationError error, const QString &errorSt
         emit this->error(m_error);
 
     m_stateMachine->stop();
-    foreach (QAbstractState *state, m_stateMachine->findChildren<QAbstractState *>()) {
+    for (QAbstractState *state : m_stateMachine->findChildren<QAbstractState *>()) {
         if (!m_stateMachine->configuration().contains(state))
             state->deleteLater();
     }
