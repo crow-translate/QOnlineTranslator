@@ -10,46 +10,44 @@ The **QExample** class provides storage for example usage examples for a single 
 
 ## Public Functions
 
-| Return type | Data member                                                                     |
-| ----------: | :------------------------------------------------------------------------------ |
-|             | [**QExample**(const QString &typeOfSpeech = "")](#constructor)                  |
-|     QString | [**typeOfSpeech**()](#type-of-speech)                                           |
-|     QString | [**example**(int index)](#example)                                              |
-|     QString | [**description**(int index)](#description)                                      |
-|        void | [**setTypeOfSpeech**(const QString &typeOfSpeech)](#set-type-of-speech)         |
-|        void | [**addWord**(const QString &description, const QString &example)](#add-example) |
-|         int | [**count**()](#count)                                                           |
+| Return type | Data member                                                                      |
+| ----------: | :------------------------------------------------------------------------------- |
+|             | [**QExample**(const QString &description, const QString &example)](#constructor) |
+|     QString | [**example**()](#example)                                               |
+|     QString | [**description**()](#description)                                       |
 
 ## Detailed Description
 
-A **QExample** object can be obtained from the [QOnlineTranslator](docs/QOnlineTranslator.md "Class documentation") object, which contains examples for a single type of speech.
+A **QExample** object can be obtained from the [QOnlineTranslator](docs/QOnlineTranslator.md "Class documentation") object, which contains translation example.
 
 **Example:**
 
 ```cpp
 QOnlineTranslator translator;
-translator.translate("say", QOnlineTranslator::Google, QOnlineTranslator::German, QOnlineTranslator::English, QOnlineTranslator::English);
-    
+...
+
+
 QTextStream out(stdout);
-foreach (const QExample &example, translator.examples()) {
-    out << example.typeOfSpeech() << endl;
-    for (int i = 0; i < example.count(); ++i) {
-        out << "   " << example.description(i) << endl;
-        out << "   " << example.example(i) << endl;
+foreach (const QString &typeOfSpeech, translator.examples().keys()) {
+    out << typeOfSpeech << ":" << endl; // Output the type of speech with a colon
+    for (const QExample &example : translator->examples().value(typeOfSpeech)) {
+        out << "   " << example.description() << endl;
+        out << "   " << example.example() << endl;
         out << endl;
     }
+    out << endl;
 }
 
 /* Returns:
-noun
+noun:
    an opportunity for stating one's opinion or feelings.
    the voters are entitled to have their say on the treaty
 
-verb
+verb:
    utter words so as to convey information, an opinion, a feeling or intention, or an instruction.
    “Thank you,” he said
 
-exclamation
+exclamation:
    used to express surprise or to draw attention to a remark or question.
    say, did you notice any blood?
 */
@@ -59,42 +57,18 @@ exclamation
 
 ## Member Function Documentation
 
-### <a id='constructor'/> QExample::QExample(_const QString &typeOfSpeech = ""_)
+### <a id='constructor'/> QExample::QExample(_const QString &description, const QString &example_)
 
-Constructs an empty object with the type of speech _typeOfSpeech_ of examples.
-
-* * *
-
-### <a id='type-of-speech'/> [QString](https://doc.qt.io/qt-5/qstring.html "Qt Documentation") QExample::typeOfSpeech()
-
-Returns the type of speech of examples.
+Constructs translation example with specified _description_ and _example_ sentense.
 
 * * *
 
-### <a id='set-type-of-speech'/> void QExample::setTypeOfSpeech(_const QString &typeOfSpeech_)
+### <a id='example'/> [QString](https://doc.qt.io/qt-5/qstring.html "Qt Documentation") QExample::example()
 
-Sets the type of speech of examples to _typeOfSpeech_.
-
-* * *
-
-### <a id='example'/> [QString](https://doc.qt.io/qt-5/qstring.html "Qt Documentation") QExample::example(_int index_)
-
-Returns the example of the _index_.
+Returns the example sentense.
 
 * * *
 
-### <a id='description'/> [QString](https://doc.qt.io/qt-5/qstring.html "Qt Documentation") QExample::description(_int index_)
+### <a id='description'/> [QString](https://doc.qt.io/qt-5/qstring.html "Qt Documentation") QExample::description()
 
-Returns the description for the example with the _index_.
-
-* * *
-
-### <a id='add-example'/> void QExample::addWord(_const QString &description, const QString &example_)
-
-Appends the _example_ with the _description_ onto the end of examples.
-
-* * *
-
-### <a id='count'/> void QExample::count()
-
-Returns the number of examples.
+Returns the description for the example.

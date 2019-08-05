@@ -24,8 +24,8 @@
 #include "qoption.h"
 #include "qexample.h"
 
-#include <QObject>
 #include <QPointer>
+#include <QMap>
 
 class QStateMachine;
 class QState;
@@ -201,8 +201,8 @@ public:
     QString translationLanguageString() const;
     Language translationLanguage() const;
 
-    QList<QOption> translationOptions() const;
-    QList<QExample> examples() const;
+    QMap<QString, QVector<QOption>> translationOptions() const;
+    QMap<QString, QVector<QExample>> examples() const;
 
     TranslationError error() const;
     QString errorString() const;
@@ -311,8 +311,8 @@ private:
     QString m_translationTranslit;
     QString m_errorString;
 
-    QList<QOption> m_translationOptions;
-    QList<QExample> m_examples;
+    QMap<QString, QVector<QOption>> m_translationOptions;
+    QMap<QString, QVector<QExample>> m_examples;
 
     bool m_sourceTranslitEnabled = true;
     bool m_translationTranslitEnabled = true;

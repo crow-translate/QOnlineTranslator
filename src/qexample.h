@@ -26,21 +26,14 @@
 class QExample
 {
 public:
-    explicit QExample(const QString &typeOfSpeech = "");
+    QExample(const QString &description, const QString &example);
 
-    QString typeOfSpeech() const;
-    void setTypeOfSpeech(const QString &typeOfSpeech);
-
-    QString description(int index) const;
-    QString example(int index) const;
-
-    void addExample(const QString &description, const QString &example);
-    int count() const;
+    QString descriptions() const;
+    QString examples() const;
 
 private:
-    QString m_typeOfSpeech;
-    QStringList m_descriptions;
-    QStringList m_examples;
+    QString m_descriptions;
+    QString m_examples;
 };
 
 #endif // QEXAMPLE_H

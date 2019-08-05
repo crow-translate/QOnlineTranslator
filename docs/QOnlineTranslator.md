@@ -20,36 +20,36 @@ The **QOnlineTranslator** class provides translation data.
 
 ## Public Functions
 
-|           Return type | Data member                                                                                                                                                   |
-| --------------------: | :------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-|                       | [**QOnlineTranslator**(QWidget \*parent = nullptr)](#constructor)                                                                                             |
-|                  void | [**translate**(const QString &text, Engine engine = Google, Language translationLang = Auto, Language sourceLang = Auto, Language uiLang = Auto)](#translate) |
-|                  void | [**detectLanguage**(const QString &text, Engine engine = Google)](#detect-language)                                                                           |
-|                  void | [**abort**()](#abort)                                                                                                                                         |
-|                  bool | [**isRunning**()](#is-running)                                                                                                                                  |
-|               QString | [**source**()](#source)                                                                                                                                       |
-|               QString | [**sourceTranslit**()](#source-translit)                                                                                                                      |
-|               QString | [**sourceTranscription**()](source-transcription)                                                                                                             |
-|               QString | [**sourceLanguageString**()](#source-language-string)                                                                                                         |
-|              Language | [**sourceLanguage**()](#source-language)                                                                                                                      |
-|               QString | [**translation**()](#translation)                                                                                                                             |
-|               QString | [**translationTranslit**()](translation-translit)                                                                                                             |
-|               QString | [**translationLanguageString**()](#translation-language-string)                                                                                               |
-|              Language | [**translationLanguage**()](#translation-language)                                                                                                            |
-|   QList\<QDictionary> | [**dictionaryList**()](#dictionary-list)                                                                                                                      |
-|   QList\<QDefinition> | [**definitionsList**()](#definitions-list)                                                                                                                    |
-|      TranslationError | [**error**()](#error)                                                                                                                                         |
-|               QString | [**errorString**()](#error-string)                                                                                                                            |
-|                  bool | [**isSourceTranslitEnabled**()](#is-source-translit-enabled)                                                                                                  |
-|                  void | [**setSourceTranslitEnabled**(bool enable)](#set-source-translit-enabled)                                                                                     |
-|                  bool | [**isTranslationTranslitEnabled**()](#is-translation-translit-enabled)                                                                                        |
-|                  void | [**setTranslationTranslitEnabled**(bool enable)](#set-translation-translit-enabled)                                                                           |
-|                  bool | [**isSourceTranscriptionEnabled**()](#is-source-transcription-enabled)                                                                                        |
-|                  void | [**setSourceTranscriptionEnabled**(bool enable)](#set-source-transcription-enabled)                                                                           |
-|                  bool | [**isDictionaryEnabled**()](#is-dictionary-enabled)                                                                                                           |
-|                  void | [**setDictionaryEnabled**(bool enable)](#set-dictionary-enabled)                                                                                              |
-|                  bool | [**isDefinitionsEnabled**()](#is-definitions-enabled)                                                                                                         |
-|                  void | [**setDefinitionsEnabled**(bool enable)](#set-definitions-enabled)                                                                                            |
+| Return type                        | Data member                                                                                                                                                   |
+| ---------------------------------: | :------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+|                                    | [**QOnlineTranslator**(QWidget \*parent = nullptr)](#constructor)                                                                                             |
+|                               void | [**translate**(const QString &text, Engine engine = Google, Language translationLang = Auto, Language sourceLang = Auto, Language uiLang = Auto)](#translate) |
+|                               void | [**detectLanguage**(const QString &text, Engine engine = Google)](#detect-language)                                                                           |
+|                               void | [**abort**()](#abort)                                                                                                                                         |
+|                               bool | [**isRunning**()](#is-running)                                                                                                                                |
+|                            QString | [**source**()](#source)                                                                                                                                       |
+|                            QString | [**sourceTranslit**()](#source-translit)                                                                                                                      |
+|                            QString | [**sourceTranscription**()](source-transcription)                                                                                                             |
+|                            QString | [**sourceLanguageString**()](#source-language-string)                                                                                                         |
+|                           Language | [**sourceLanguage**()](#source-language)                                                                                                                      |
+|                            QString | [**translation**()](#translation)                                                                                                                             |
+|                            QString | [**translationTranslit**()](translation-translit)                                                                                                             |
+|                            QString | [**translationLanguageString**()](#translation-language-string)                                                                                               |
+|                           Language | [**translationLanguage**()](#translation-language)                                                                                                            |
+|  QMap\<QString, QVector\<QOption>> | [**translationOptions**()](#translation-options)                                                                                                              |
+| QMap\<QString, QVector\<QExample>> | [**examples**()](#examples)                                                                                                                                   |
+|                   TranslationError | [**error**()](#error)                                                                                                                                         |
+|                            QString | [**errorString**()](#error-string)                                                                                                                            |
+|                               bool | [**isSourceTranslitEnabled**()](#is-source-translit-enabled)                                                                                                  |
+|                               void | [**setSourceTranslitEnabled**(bool enable)](#set-source-translit-enabled)                                                                                     |
+|                               bool | [**isTranslationTranslitEnabled**()](#is-translation-translit-enabled)                                                                                        |
+|                               void | [**setTranslationTranslitEnabled**(bool enable)](#set-translation-translit-enabled)                                                                           |
+|                               bool | [**isSourceTranscriptionEnabled**()](#is-source-transcription-enabled)                                                                                        |
+|                               void | [**setSourceTranscriptionEnabled**(bool enable)](#set-source-transcription-enabled)                                                                           |
+|                               bool | [**isDictionaryEnabled**()](#is-dictionary-enabled)                                                                                                           |
+|                               void | [**setDictionaryEnabled**(bool enable)](#set-dictionary-enabled)                                                                                              |
+|                               bool | [**isDefinitionsEnabled**()](#is-definitions-enabled)                                                                                                         |
+|                               void | [**setDefinitionsEnabled**(bool enable)](#set-definitions-enabled)                                                                                            |
 
 ## Signals
 
@@ -320,15 +320,15 @@ Returns the translation language.
 
 * * *
 
-### <a id='dictionary-list'/> [QList](https://doc.qt.io/qt-5/qlist.html "Qt Documentation")\<[QDictionary](QDictionary.md "Class documentation")>  QOnlineTranslator::dictionaryList()
+### <a id='translation-options'/> [QMap](https://doc.qt.io/qt-5/qmap.html "Qt Documentation")\<[QString](https://doc.qt.io/qt-5/qstring.html "Qt Documentation"), [QVector](https://doc.qt.io/qt-5/qvector.html "Qt Documentation")\<[QOption](QOption.md "Class documentation")>>  QOnlineTranslator::translationOptions()
 
-Returns a list of [QDictionary](QDictionary.md "Class documentation"). Read the class documentation for details.
+Returns a [QMap](https://doc.qt.io/qt-5/qmap.html "Qt Documentation") whose key represents the type of speech, and the value is a [QVector](https://doc.qt.io/qt-5/qvector.html "Qt Documentation") of translation options. Read the [QOption](QOption.md "Class documentation") for details.
 
 * * *
 
-### <a id='definitions-list'/> [QList](https://doc.qt.io/qt-5/qlist.html "Qt Documentation")\<[QDefinition](QDefinition.md "Class documentation")>  QOnlineTranslator::definitionsList()
+### <a id='examples'/> [QMap](https://doc.qt.io/qt-5/qmap.html "Qt Documentation")\<[QString](https://doc.qt.io/qt-5/qstring.html "Qt Documentation"), [QVector](https://doc.qt.io/qt-5/qvector.html "Qt Documentation")\<[QExample](QExample.md "Class documentation")>>  QOnlineTranslator::examples()
 
-Returns a list of [QDefinition](QDefinition.md "Class documentation"). Read the class documentation for details.
+Returns a [QMap](https://doc.qt.io/qt-5/qmap.html "Qt Documentation") whose key represents the type of speech, and the value is a [QVector](https://doc.qt.io/qt-5/qvector.html "Qt Documentation") of translation examples. Read the [QExample](QExample.md "Class documentation") for details.
 
 * * *
 

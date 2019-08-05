@@ -20,50 +20,24 @@
 
 #include "qoption.h"
 
-QOption::QOption(const QString &typeOfSpeech) :
-    m_typeOfSpeech(typeOfSpeech)
+QOption::QOption(const QString &word, const QStringList &translations, const QString &gender) :
+    m_word(word),
+    m_translations(translations),
+    m_gender(gender)
 {
 }
 
-QString QOption::typeOfSpeech() const
+QString QOption::word() const
 {
-    return m_typeOfSpeech;
+    return m_word;
 }
 
-void QOption::setTypeOfSpeech(const QString &typeOfSpeech)
+QString QOption::gender() const
 {
-    m_typeOfSpeech = typeOfSpeech;
+    return m_gender;
 }
 
-QString QOption::word(int index) const
+QStringList QOption::translations() const
 {
-    return m_words.at(index);
-}
-
-QString QOption::gender(int index) const
-{
-    return m_genders.at(index);
-}
-
-QString QOption::translations(int index) const
-{
-    return m_translations.at(index);
-}
-
-void QOption::addWord(const QString &word, const QString &gender, const QStringList &translations)
-{
-    m_words.append(word);
-    m_genders.append(gender);
-    if (!translations.isEmpty()) {
-        m_translations.append(translations.at(0));
-        for (int i = 1; i < translations.size(); ++i)
-            m_translations.last().append(", " + translations.at(i));
-    }
-    else
-        m_translations.append("");
-}
-
-int QOption::count() const
-{
-    return m_words.size();
+    return m_translations;
 }

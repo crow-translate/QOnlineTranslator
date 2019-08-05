@@ -192,12 +192,12 @@ QOnlineTranslator::Language QOnlineTranslator::translationLanguage() const
     return m_translationLang;
 }
 
-QList<QOption> QOnlineTranslator::translationOptions() const
+QMap<QString, QVector<QOption>> QOnlineTranslator::translationOptions() const
 {
     return m_translationOptions;
 }
 
-QList<QExample> QOnlineTranslator::examples() const
+QMap<QString, QVector<QExample>> QOnlineTranslator::examples() const
 {
     return m_examples;
 }
@@ -900,25 +900,24 @@ void QOnlineTranslator::parseGoogleTranslate()
 
     // Translation options
     foreach (const QJsonValue &typeOfSpeechData, jsonData.at(1).toArray()) {
-        m_translationOptions << QOption(typeOfSpeechData.toArray().at(0).toString());
+        const QString typeOfSpeech = typeOfSpeechData.toArray().at(0).toString();
         foreach (const QJsonValue &wordData, typeOfSpeechData.toArray().at(2).toArray()) {
             const QString word = wordData.toArray().at(0).toString();
             const QString gender = wordData.toArray().at(4).toString();
             QStringList translations;
-            foreach (const QJsonValue &wordTranslation, wordData.toArray().at(1).toArray()) {
+            foreach (const QJsonValue &wordTranslation, wordData.toArray().at(1).toArray())
                 translations.append(wordTranslation.toString());
-            }
-            m_translationOptions.last().addWord(word, gender, translations);
+            m_translationOptions[typeOfSpeech] << QOption(word, translations, gender);
         }
     }
 
     // Examples
     if (m_translationOptionsEnabled) {
         foreach (const QJsonValue &exampleData, jsonData.at(12).toArray()) {
+            const QString typeOfSpeech = exampleData.toArray().at(0).toString();
             const QJsonArray example = exampleData.toArray().at(1).toArray().at(0).toArray();
 
-            m_examples << QExample(exampleData.toArray().at(0).toString());
-            m_examples.last().addExample(example.at(0).toString(), example.at(2).toString());
+            m_examples[typeOfSpeech] << QExample(example.at(0).toString(), example.at(2).toString());
         }
     }
 }
@@ -1073,30 +1072,23 @@ void QOnlineTranslator::parseYandexDictionary()
 
     foreach (const QJsonValue &typeOfSpeechData, jsonData.toArray()) {
         const QString typeOfSpeech = typeOfSpeechData.toObject().value("pos").toObject().value("text").toString();
-        m_translationOptions << QOption(typeOfSpeech);
-
         foreach (const QJsonValue &wordData, typeOfSpeechData.toObject().value("tr").toArray()) {
             // Parse translation options
             const QString word = wordData.toObject().value("text").toString();
             const QString gender = wordData.toObject().value("gen").toObject().value("text").toString();
             QStringList translations;
-            foreach (const QJsonValue &wordTranslation, wordData.toObject().value("mean").toArray()) {
+            foreach (const QJsonValue &wordTranslation, wordData.toObject().value("mean").toArray())
                 translations.append(wordTranslation.toObject().value("text").toString());
-            }
 
-            m_translationOptions.last().addWord(word, gender, translations);
+            m_translationOptions[typeOfSpeech] << QOption(word, translations, gender);
 
             // Parse examples
             if (m_examplesEnabled && wordData.toObject().contains("ex")) {
-                // Check if no examples with this type of speech
-                if (m_examples.isEmpty() || m_examples.constLast().typeOfSpeech() != typeOfSpeech)
-                    m_examples << QExample(typeOfSpeech);
-
                 foreach (const QJsonValue exampleData, wordData.toObject().value("ex").toArray()) {
                     const QString example = exampleData.toObject().value("text").toString();
                     const QString description = exampleData.toObject().value("tr").toArray().at(0).toObject().value("text").toString();
 
-                    m_examples.last().addExample(description, example);
+                    m_examples[typeOfSpeech] << QExample(description, example);
                 }
             }
         }
@@ -1187,24 +1179,12 @@ void QOnlineTranslator::parseBingDictionary()
     foreach (const QJsonValue &value, responseObject.value("translations").toArray()) {
         const QJsonObject object = value.toObject();
         const QString typeOfSpeech = object.value("posTag").toString().toLower();
-
-        // Search for this type of speech
-        int i;
-        for (i = 0; i < m_translationOptions.size(); ++i) {
-            if (m_translationOptions.at(i).typeOfSpeech() == typeOfSpeech)
-                break;
-        }
-
-        // Add a new if current type of speech not found
-        if (i == m_translationOptions.size())
-            m_translationOptions << QOption(typeOfSpeech);
-
         const QString word = object.value("displayTarget").toString().toLower();
         QStringList translations;
         foreach (const QJsonValue &wordTranslation, object.value("backTranslations").toArray())
             translations.append(wordTranslation.toObject().value("displayText").toString());
 
-        m_translationOptions[i].addWord(word, "", translations);
+        m_translationOptions[typeOfSpeech] << QOption(word, translations);
     }
 }
 

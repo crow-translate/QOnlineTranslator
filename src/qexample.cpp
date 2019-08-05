@@ -20,38 +20,18 @@
 
 #include "qexample.h"
 
-QExample::QExample(const QString &typeOfSpeech) :
-    m_typeOfSpeech(typeOfSpeech)
+QExample::QExample(const QString &description, const QString &example) :
+    m_descriptions(description),
+    m_examples(example)
 {
 }
 
-QString QExample::typeOfSpeech() const
+QString QExample::descriptions() const
 {
-    return m_typeOfSpeech;
+    return m_descriptions;
 }
 
-void QExample::setTypeOfSpeech(const QString &typeOfSpeech)
+QString QExample::examples() const
 {
-    m_typeOfSpeech = typeOfSpeech;
-}
-
-QString QExample::description(int index) const
-{
-    return m_descriptions.at(index);
-}
-
-QString QExample::example(int index) const
-{
-    return m_examples.at(index);
-}
-
-void QExample::addExample(const QString &description, const QString &example)
-{
-    m_descriptions.append(description);
-    m_examples.append(example);
-}
-
-int QExample::count() const
-{
-    return m_descriptions.size();
+    return m_examples;
 }

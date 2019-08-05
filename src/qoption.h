@@ -26,23 +26,16 @@
 class QOption
 {
 public:
-    explicit QOption(const QString &typeOfSpeech = "");
+    explicit QOption(const QString &word, const QStringList &translations = {}, const QString &gender = {});
 
-    QString typeOfSpeech() const;
-    void setTypeOfSpeech(const QString &typeOfSpeech);
-
-    QString word(int index) const;
-    QString gender(int index) const;
-    QString translations(int index) const;
-
-    void addWord(const QString &word, const QString &gender = "", const QStringList &translations = QStringList());
-    int count() const;
+    QString word() const;
+    QString gender() const;
+    QStringList translations() const;
 
 private:
-    QString m_typeOfSpeech;
-    QStringList m_words;
-    QStringList m_genders;
+    QString m_word;
     QStringList m_translations;
+    QString m_gender;
 };
 
 #endif // QOPTION_H

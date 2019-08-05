@@ -10,42 +10,34 @@ The **QOption** class provides storage for translation options data for a single
 
 ## Public Functions
 
-| Return type | Data member                                                                                                                |
-| ----------: | :------------------------------------------------------------------------------------------------------------------------- |
-|             | [**QOption**(const QString &typeOfSpeech = "")](#constructor)                                                              |
-|     QString | [**typeOfSpeech**()](#type-of-speech)                                                                                      |
-|     QString | [**word**(int index)](#word)                                                                                               |
-|     QString | [**gender**(int index)](#gender)                                                                                           |
-| QStringList | [**translations**(int index)](#translations)                                                                               |
-|        void | [**setTypeOfSpeech**(const QString &typeOfSpeech)](#set-type-of-speech)                                                    |
-|        void | [**addWord**(const QString &word, const QString &gender = "", const QStringList &translations = QStringList())](#add-word) |
-|         int | [**count**()](#count)                                                                                                      |
+| Return type | Data member                                                                                                        |
+| ----------: | :----------------------------------------------------------------------------------------------------------------- |
+|             | [**QOption**(const QString &word, const QStringList &translations = {}, const QString &gender = {})](#constructor) |
+|     QString | [**word**()](#word)                                                                                                |
+|     QString | [**gender**()](#gender)                                                                                            |
+| QStringList | [**translations**()](#translations)                                                                                |
 
 ## Detailed Description
 
-A **QOption** object can be obtained from the [QOnlineTranslator](docs/QOnlineTranslator.md "Class documentation") object, which contains translation options for a single type of speech.
+A **QOption** object can be obtained from the [QOnlineTranslator](docs/QOnlineTranslator.md "Class documentation") object, which contains translation options for a single word.
 
 **Example:**
 
 ```cpp
 QOnlineTranslator translator;
-translator.translate("say", QOnlineTranslator::Google, QOnlineTranslator::German, QOnlineTranslator::English, QOnlineTranslator::English);
+...
 
 QTextStream out(stdout);
-if (translator.error() != QOnlineTranslator::NoError) {
-    out << translator.errorString() << endl; // Print the text of the network error
-} else {
-    foreach (const QOption &option, translator.translationOptions()) {
-        out << option.typeOfSpeech() << ":" << endl; // Output the type of speech with a colon
-        for (auto i = 0; i <  option.count(); i++) {
-            if (!option.gender(i).isEmpty())
-                out << " " << option.gender(i); // Print the gender of the word
-            out << " " << option.word(i) << ": "; // Print the word
-            out << option.translations(i); // Print translations
-            out << endl;
-        }
+foreach (const QString &typeOfSpeech, translator.translationOptions().keys()) {
+    out << typeOfSpeech << ":" << endl; // Output the type of speech with a colon
+    for (const QOption &option : translator->translationOptions().value(typeOfSpeech)) {
+        if (!option.gender().isEmpty())
+            out << " " << option.gender(); // Print the gender of the word
+        out << " " << option.word() << ": "; // Print the word
+        out << option.translations(); // Print translations
         out << endl;
     }
+    out << endl;
 }
 
 /* Returns:
@@ -69,48 +61,24 @@ noun:
 
 ## Member Function Documentation
 
-### <a id='constructor'/> QOption::QOption(_const QString &typeOfSpeech = ""_)
+### <a id='constructor'/> QOption::QOption(_const QString &word, const QStringList &translations = {}, const QString &gender = {}_)
 
-Constructs an empty object with the type of speech _typeOfSpeech_ for translation options.
-
-* * *
-
-### <a id='type-of-speech'/> [QString](https://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOption::typeOfSpeech()
-
-Returns the type of speech of translation options.
+Constructs an translation option with specified _word_, it _gender_ and it possible _translations_.
 
 * * *
 
-### <a id='set-type-of-speech'/> void QOption::setTypeOfSpeech(_const QString &typeOfSpeech_)
+### <a id='word'/> [QString](https://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOption::word()
 
-Sets the type of speech of translation options to _typeOfSpeech_.
-
-* * *
-
-### <a id='word'/> [QString](https://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOption::word(_int index_)
-
-Returns the word of the _index_.
+Returns word, that specified for translation options.
 
 * * *
 
-### <a id='gender'/> [QString](https://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOption::gender(_int index_)
+### <a id='gender'/> [QString](https://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOption::gender()
 
-Returns the gender of the word with _index_.
-
-* * *
-
-### <a id='translations'/> [QStringList](https://doc.qt.io/qt-5/qstringlist.html "Qt Documentation") QOption::translations(_int index_)
-
-Returns translations for the word with the _index_.
+Returns the gender of the word above.
 
 * * *
 
-### <a id='add-word'/> void QOption::addWord(_const QString &word, const QString &gender = "", const QStringList &translations = QStringList()_)
+### <a id='translations'/> [QStringList](https://doc.qt.io/qt-5/qstringlist.html "Qt Documentation") QOption::translations()
 
-Appends the translation option _word_ with _gender_ and _translations_ onto the end of translation options.
-
-* * *
-
-### <a id='count'/> void QOption::count()
-
-Returns the number of words.
+Returns associated translations for the word.
