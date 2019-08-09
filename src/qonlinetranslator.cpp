@@ -1047,9 +1047,15 @@ void QOnlineTranslator::parseYandexTranslationTranslit()
 
 void QOnlineTranslator::requestYandexDictionary()
 {
-    const QString text = sender()->property(textProperty).toString();
+    // Check if language is supported (need to check here because language may be autodetected)
+    if (!isSupportDictionary(Yandex, m_sourceLang, m_translationLang) && !m_source.contains(' ')) {
+        auto *state = qobject_cast<QState *>(sender());
+        state->addTransition(new QFinalState(state->parentState()));
+        return;
+    }
 
     // Generate API url
+    const QString text = sender()->property(textProperty).toString();
     QUrl url("http://dictionary.yandex.net/dicservice.json/lookupMultiple");
     url.setQuery("text=" + QUrl::toPercentEncoding(text)
                  + "&ui=" + languageApiCode(Yandex, m_uiLang)
@@ -1154,9 +1160,15 @@ void QOnlineTranslator::parseBingTranslate()
 
 void QOnlineTranslator::requestBingDictionary()
 {
-    const QString text = sender()->property(textProperty).toString();
+    // Check if language is supported (need to check here because language may be autodetected)
+    if (!isSupportDictionary(Bing, m_sourceLang, m_translationLang) && !m_source.contains(' ')) {
+        auto *state = qobject_cast<QState *>(sender());
+        state->addTransition(new QFinalState(state->parentState()));
+        return;
+    }
 
     // Generate POST data
+    const QString text = sender()->property(textProperty).toString();
     const QByteArray postData = "&text=" + text.toLocal8Bit()
             + "&from=" + languageApiCode(Bing, m_sourceLang).toLocal8Bit()
             + "&to=" + languageApiCode(Bing, m_translationLang).toLocal8Bit();
@@ -1250,19 +1262,19 @@ void QOnlineTranslator::buildYandexStateMachine()
     buildSplitNetworkRequest(translationState, &QOnlineTranslator::requestYandexTranslate, &QOnlineTranslator::parseYandexTranslate, m_source, yandexTranslateLimit);
 
     // Setup source translit state
-    if (m_sourceTranslitEnabled && isSupportTranslit(Yandex, m_sourceLang))
+    if (m_sourceTranslitEnabled)
         buildSplitNetworkRequest(sourceTranslitState, &QOnlineTranslator::requestYandexSourceTranslit, &QOnlineTranslator::parseYandexSourceTranslit, m_source, yandexTranslitLimit);
     else
         sourceTranslitState->setInitialState(new QFinalState(sourceTranslitState));
 
     // Setup translation translit state
-    if (m_translationTranslitEnabled && isSupportTranslit(Yandex, m_translationLang))
+    if (m_translationTranslitEnabled)
         buildSplitNetworkRequest(translationTranslitState, &QOnlineTranslator::requestYandexTranslationTranslit, &QOnlineTranslator::parseYandexTranslationTranslit, m_translation, yandexTranslitLimit);
     else
         translationTranslitState->setInitialState(new QFinalState(translationTranslitState));
 
     // Setup dictionary state
-    if (m_translationOptionsEnabled && isSupportDictionary(Yandex, m_sourceLang, m_translationLang) && !m_source.contains(' '))
+    if (m_translationOptionsEnabled)
         buildNetworkRequestState(dictionaryState, &QOnlineTranslator::requestYandexDictionary, &QOnlineTranslator::parseYandexDictionary, m_source);
     else
         dictionaryState->setInitialState(new QFinalState(dictionaryState));
@@ -1307,7 +1319,7 @@ void QOnlineTranslator::buildBingStateMachine()
     buildSplitNetworkRequest(translationState, &QOnlineTranslator::requestBingTranslate, &QOnlineTranslator::parseBingTranslate, m_source, bingTranslateLimit);
 
     // Setup dictionary state
-    if (m_translationOptionsEnabled && isSupportDictionary(Bing, m_sourceLang, m_translationLang) && !m_source.contains(' '))
+    if (m_translationOptionsEnabled)
         buildNetworkRequestState(dictionaryState, &QOnlineTranslator::requestBingDictionary, &QOnlineTranslator::parseBingDictionary, m_source);
     else
         dictionaryState->setInitialState(new QFinalState(dictionaryState));
@@ -1380,6 +1392,13 @@ void QOnlineTranslator::buildNetworkRequestState(QState *parent, void (QOnlineTr
 
 void QOnlineTranslator::requestYandexTranslit(Language language)
 {
+    // Check if language is supported (need to check here because language may be autodetected)
+    if (!isSupportTranslit(Yandex, language)) {
+        auto *state = qobject_cast<QState *>(sender());
+        state->addTransition(new QFinalState(state->parentState()));
+        return;
+    }
+
     const QString text = sender()->property(textProperty).toString();
 
     // Generate API url
