@@ -106,7 +106,7 @@ void QOnlineTts::generateUrls(const QString &text, QOnlineTranslator::Engine eng
         break;
     }
     case QOnlineTranslator::Bing:
-        setError(UnsupportedEngine, tr("%1 engine does not support TTS").arg(QMetaEnum::fromType<QOnlineTranslator::Engine>().name()));
+        setError(UnsupportedEngine, tr("%1 engine does not support TTS").arg(QMetaEnum::fromType<QOnlineTranslator::Engine>().key(QOnlineTranslator::Bing)));
     }
 }
 
