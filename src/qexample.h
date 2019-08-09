@@ -28,12 +28,12 @@ class QExample
 public:
     QExample(const QString &description, const QString &example);
 
-    QString descriptions() const;
-    QString examples() const;
+    QString description() const;
+    QString example() const;
 
 private:
-    QString m_descriptions;
-    QString m_examples;
+    QString m_description;
+    QString m_example;
 };
 
 #endif // QEXAMPLE_H

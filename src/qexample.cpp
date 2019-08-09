@@ -21,17 +21,17 @@
 #include "qexample.h"
 
 QExample::QExample(const QString &description, const QString &example) :
-    m_descriptions(description),
-    m_examples(example)
+    m_description(description),
+    m_example(example)
 {
 }
 
-QString QExample::descriptions() const
+QString QExample::description() const
 {
-    return m_descriptions;
+    return m_description;
 }
 
-QString QExample::examples() const
+QString QExample::example() const
 {
-    return m_examples;
+    return m_example;
 }
