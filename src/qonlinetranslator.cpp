@@ -192,12 +192,12 @@ QOnlineTranslator::Language QOnlineTranslator::translationLanguage() const
     return m_translationLang;
 }
 
-QMap<QString, QVector<QOption>> QOnlineTranslator::translationOptions() const
+QMap<QString, QVector<QOnlineTranslator::QOption>> QOnlineTranslator::translationOptions() const
 {
     return m_translationOptions;
 }
 
-QMap<QString, QVector<QExample>> QOnlineTranslator::examples() const
+QMap<QString, QVector<QOnlineTranslator::QExample>> QOnlineTranslator::examples() const
 {
     return m_examples;
 }
@@ -910,7 +910,7 @@ void QOnlineTranslator::parseGoogleTranslate()
             QStringList translations;
             for (const QJsonValueRef wordTranslation : wordDataArray.at(1).toArray())
                 translations.append(wordTranslation.toString());
-            m_translationOptions[typeOfSpeech] << QOption(word, translations, gender);
+            m_translationOptions[typeOfSpeech].append({word, gender, translations});
         }
     }
 
@@ -921,7 +921,7 @@ void QOnlineTranslator::parseGoogleTranslate()
             const QString typeOfSpeech = exampleDataArray.at(0).toString();
             const QJsonArray example = exampleDataArray.at(1).toArray().first().toArray();
 
-            m_examples[typeOfSpeech] << QExample(example.at(0).toString(), example.at(2).toString());
+            m_examples[typeOfSpeech].append({example.at(0).toString(), example.at(2).toString()});
         }
     }
 }
@@ -1092,7 +1092,7 @@ void QOnlineTranslator::parseYandexDictionary()
             for (const QJsonValueRef wordTranslation : wordObject.value("mean").toArray())
                 translations.append(wordTranslation.toObject().value("text").toString());
 
-            m_translationOptions[typeOfSpeech] << QOption(word, translations, gender);
+            m_translationOptions[typeOfSpeech].append({word, gender, translations});
 
             // Parse examples
             if (m_examplesEnabled && wordObject.contains("ex")) {
@@ -1101,7 +1101,7 @@ void QOnlineTranslator::parseYandexDictionary()
                     const QString example = exampleObject.value("text").toString();
                     const QString description = exampleObject.value("tr").toArray().first().toObject().value("text").toString();
 
-                    m_examples[typeOfSpeech] << QExample(description, example);
+                    m_examples[typeOfSpeech].append({description, example});
                 }
             }
         }
@@ -1203,7 +1203,7 @@ void QOnlineTranslator::parseBingDictionary()
         for (const QJsonValueRef wordTranslation : dictionaryObject.value("backTranslations").toArray())
             translations.append(wordTranslation.toObject().value("displayText").toString());
 
-        m_translationOptions[typeOfSpeech] << QOption(word, translations);
+        m_translationOptions[typeOfSpeech].append({word, {}, translations});
     }
 }
 

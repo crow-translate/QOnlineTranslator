@@ -1,20 +1,19 @@
 # QExample
 
-The **QExample** class provides storage for example usage examples for a single type of speech.
+The **QExample** structure provides storage for example usage examples for a single type of speech.
 
 ## Content
 
--   [Public Functions](#public-functions)
+-   [Public Members](#public-members)
 -   [Detailed Description](#detailed-description)
--   [Member Function Documentation](#member-function-documentation)
+-   [Members Documentation](#members-documentation)
 
-## Public Functions
+## Public Members
 
-| Return type | Data member                                                                      |
-| ----------: | :------------------------------------------------------------------------------- |
-|             | [**QExample**(const QString &description, const QString &example)](#constructor) |
-|     QString | [**example**()](#example)                                               |
-|     QString | [**description**()](#description)                                       |
+|    Type | Data member                     |
+| ------: | :------------------------------ |
+| QString | [**example**](#example)         |
+| QString | [**description**](#description) |
 
 ## Detailed Description
 
@@ -31,8 +30,8 @@ QTextStream out(stdout);
 foreach (const QString &typeOfSpeech, translator.examples().keys()) {
     out << typeOfSpeech << ":" << endl; // Output the type of speech with a colon
     for (const QExample &example : translator->examples().value(typeOfSpeech)) {
-        out << "   " << example.description() << endl;
-        out << "   " << example.example() << endl;
+        out << "   " << example.description << endl;
+        out << "   " << example.example << endl;
         out << endl;
     }
     out << endl;
@@ -55,20 +54,14 @@ exclamation:
 
 * * *
 
-## Member Function Documentation
+## Members Documentation
 
-### <a id='constructor'/> QExample::QExample(_const QString &description, const QString &example_)
-
-Constructs translation example with specified _description_ and _example_ sentense.
-
-* * *
-
-### <a id='example'/> [QString](https://doc.qt.io/qt-5/qstring.html "Qt Documentation") QExample::example()
+### <a id='example'/> [QString](https://doc.qt.io/qt-5/qstring.html "Qt Documentation") QExample::example
 
 Returns the example sentense.
 
 * * *
 
-### <a id='description'/> [QString](https://doc.qt.io/qt-5/qstring.html "Qt Documentation") QExample::description()
+### <a id='description'/> [QString](https://doc.qt.io/qt-5/qstring.html "Qt Documentation") QExample::description
 
 Returns the description for the example.
