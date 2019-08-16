@@ -23,6 +23,7 @@
 
 #include <QPointer>
 #include <QMap>
+#include <QVector>
 
 class QStateMachine;
 class QState;
