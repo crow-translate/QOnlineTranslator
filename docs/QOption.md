@@ -27,13 +27,13 @@ QOnlineTranslator translator;
 ...
 
 QTextStream out(stdout);
-foreach (const QString &typeOfSpeech, translator.translationOptions().keys()) {
-    out << typeOfSpeech << ":" << endl; // Output the type of speech with a colon
-    for (const QOption &option : translator->translationOptions().value(typeOfSpeech)) {
-        if (!option.gender.isEmpty())
-            out << " " << option.gender; // Print the gender of the word
-        out << " " << option.word << ": "; // Print the word
-        out << option.translations; // Print translations
+for (auto it = translator.translationOptions().cbegin(); it != translator.translationOptions().cend(); ++it) {
+    out << it.key() << ":" << endl; // Output the type of speech with a colon
+    for (const auto &[gender, word, translations] : it.value()) {
+        if (!gender.isEmpty())
+            out << " " << gender; // Print the gender of the word
+        out << " " << word << ": "; // Print the word
+        out << translations; // Print translations
         out << endl;
     }
     out << endl;
