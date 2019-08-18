@@ -921,7 +921,7 @@ void QOnlineTranslator::parseGoogleTranslate()
             const QString typeOfSpeech = exampleDataArray.at(0).toString();
             const QJsonArray example = exampleDataArray.at(1).toArray().first().toArray();
 
-            m_examples[typeOfSpeech].append({example.at(0).toString(), example.at(2).toString()});
+            m_examples[typeOfSpeech].append({example.at(2).toString(), example.at(0).toString()});
         }
     }
 }
@@ -1101,7 +1101,7 @@ void QOnlineTranslator::parseYandexDictionary()
                     const QString example = exampleObject.value("text").toString();
                     const QString description = exampleObject.value("tr").toArray().first().toObject().value("text").toString();
 
-                    m_examples[typeOfSpeech].append({description, example});
+                    m_examples[typeOfSpeech].append({example, description});
                 }
             }
         }

@@ -182,14 +182,14 @@ public:
 
     struct QExample
     {
-        QString description;
         QString example;
+        QString description;
     };
 
     struct QOption
     {
-        QString gender;
         QString word;
+        QString gender;
         QStringList translations;
     };
 

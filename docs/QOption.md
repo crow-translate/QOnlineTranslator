@@ -29,7 +29,7 @@ QOnlineTranslator translator;
 QTextStream out(stdout);
 for (auto it = translator.translationOptions().cbegin(); it != translator.translationOptions().cend(); ++it) {
     out << it.key() << ":" << endl; // Output the type of speech with a colon
-    for (const auto &[gender, word, translations] : it.value()) {
+    for (const auto &[word, gender, translations] : it.value()) {
         if (!gender.isEmpty())
             out << " " << gender; // Print the gender of the word
         out << " " << word << ": "; // Print the word
