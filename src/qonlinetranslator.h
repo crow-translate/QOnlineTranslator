@@ -241,7 +241,7 @@ public:
 
 signals:
     void finished();
-    void error(QOnlineTranslator::TranslationError error);
+    void error(TranslationError error);
 
 private slots:
     void skipGarbageText();
@@ -293,7 +293,7 @@ private:
     void buildNetworkRequestState(QState *parent, void (QOnlineTranslator::*requestMethod)(), void (QOnlineTranslator::*parseMethod)(), const QString &text = {});
 
     // Helper functions for transliteration
-    void requestYandexTranslit(QOnlineTranslator::Language language);
+    void requestYandexTranslit(Language language);
     void parseYandexTranslit(QString &text);
 
     // Check for service support

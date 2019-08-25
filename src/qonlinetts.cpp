@@ -34,7 +34,7 @@ QOnlineTts::QOnlineTts(QObject *parent) :
 {
 }
 
-void QOnlineTts::generateUrls(const QString &text, QOnlineTranslator::Engine engine, QOnlineTranslator::Language lang, QOnlineTts::Voice voice, QOnlineTts::Emotion emotion)
+void QOnlineTts::generateUrls(const QString &text, QOnlineTranslator::Engine engine, QOnlineTranslator::Language lang, Voice voice, Emotion emotion)
 {
     // Get speech
     QString unparsedText = text;
@@ -125,12 +125,12 @@ QOnlineTts::TtsError QOnlineTts::error() const
     return m_error;
 }
 
-QString QOnlineTts::voiceCode(QOnlineTts::Voice voice)
+QString QOnlineTts::voiceCode(Voice voice)
 {
     return m_voiceCodes.value(voice);
 }
 
-QString QOnlineTts::emotionCode(QOnlineTts::Emotion emotion)
+QString QOnlineTts::emotionCode(Emotion emotion)
 {
     return m_emotionCodes.value(emotion);
 }
@@ -145,7 +145,7 @@ QOnlineTts::Voice QOnlineTts::voice(const QString &voiceCode)
     return static_cast<Voice>(m_emotionCodes.indexOf(voiceCode));
 }
 
-void QOnlineTts::setError(QOnlineTts::TtsError error, const QString &errorString)
+void QOnlineTts::setError(TtsError error, const QString &errorString)
 {
     m_error = error;
     m_errorString = errorString;

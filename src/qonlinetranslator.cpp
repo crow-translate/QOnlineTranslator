@@ -1142,9 +1142,9 @@ void QOnlineTranslator::parseBingTranslate()
     const QJsonDocument jsonResponse = QJsonDocument::fromJson(m_currentReply->readAll());
     const QJsonObject responseObject = jsonResponse.array().first().toObject();
 
-    if (m_sourceLang == QOnlineTranslator::Auto) {
+    if (m_sourceLang == Auto) {
         const QString langCode = responseObject.value("detectedLanguage").toObject().value("language").toString();
-        m_sourceLang = language(QOnlineTranslator::Bing, langCode);
+        m_sourceLang = language(Bing, langCode);
         if (m_sourceLang == NoLanguage) {
             resetData(ParsingError, tr("Error: Unable to parse autodetected language"));
             return;
