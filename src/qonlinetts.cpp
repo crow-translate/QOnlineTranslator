@@ -183,7 +183,7 @@ QString QOnlineTts::languageApiCode(QOnlineTranslator::Engine engine, QOnlineTra
 
 QString QOnlineTts::voiceApiCode(QOnlineTranslator::Engine engine, Voice voice)
 {
-    if (engine == QOnlineTranslator::Yandex)
+    if (engine == QOnlineTranslator::Yandex && voice != NoVoice)
         return voiceCode(voice);
 
     setError(UnsupportedVoice, tr("Selected voice %1 is not supported by: %2")
@@ -194,7 +194,7 @@ QString QOnlineTts::voiceApiCode(QOnlineTranslator::Engine engine, Voice voice)
 
 QString QOnlineTts::emotionApiCode(QOnlineTranslator::Engine engine, Emotion emotion)
 {
-    if (engine == QOnlineTranslator::Yandex)
+    if (engine == QOnlineTranslator::Yandex && emotion != NoEmotion)
         return emotionCode(emotion);
 
     setError(UnsupportedEmotion, tr("Selected emotion %1 is not supported by: %2")
