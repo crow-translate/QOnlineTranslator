@@ -41,6 +41,16 @@ void QOnlineTts::generateUrls(const QString &text, QOnlineTranslator::Engine eng
     switch (engine) {
     case QOnlineTranslator::Google:
     {
+        if (voice != NoVoice) {
+            setError(UnsupportedVoice, tr("Selected engine %1 does not support voice settings").arg(QMetaEnum::fromType<QOnlineTranslator::Engine>().key(engine)));
+            return;
+        }
+
+        if (emotion != NoEmotion) {
+            setError(UnsupportedEmotion, tr("Selected engine %1 does not support emotion settings").arg(QMetaEnum::fromType<QOnlineTranslator::Engine>().key(engine)));
+            return;
+        }
+
         const QString langString = languageApiCode(engine, lang);
         if (langString.isNull())
             return;
