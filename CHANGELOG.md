@@ -4,17 +4,30 @@ All notable changes to this project will be documented in this file. This projec
 
 ## [Unreleased](https://github.com/crow-translate/crow-translate/tree/HEAD)
 
-[Full Changelog](https://github.com/crow-translate/QOnlineTranslator/compare/1.1.2...HEAD)
+[Full Changelog](https://github.com/crow-translate/QOnlineTranslator/compare/1.2.0...HEAD)
+
+_No unreleased changes yet_
+
+## [1.2.0](https://github.com/crow-translate/QOnlineTranslator/tree/1.2.0) (2019-08-27)
+
+[Full Changelog](https://github.com/crow-translate/QOnlineTranslator/compare/1.1.2...1.2.0)
+
+**Added**
+
+-   The ability to abort the translation request.
+-   Function to detect language.
 
 **Changed**
 
 -   Fix data reset on error.
+-   Bing: Update to API v3.
 -   Google: Show message about suspicious traffic.
 -   Google: Fix language parsing for saying.
 -   Move TTS functions to QOnlineTts class.
--   Add the ability to abort the translation request.
--   Add function to detect language.
 -   Cancel the current request if a new one has been added.
+-   Fix wrong OS defines.
+-   Rework QOption and QExample.
+-   Minor performance improvements.
 
 ## [1.1.2](https://github.com/crow-translate/QOnlineTranslator/tree/1.1.2) (2018-12-08)
 
