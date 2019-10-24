@@ -199,7 +199,7 @@ public:
     void detectLanguage(const QString &text, Engine engine = Google);
 
     void abort();
-    bool isRunning();
+    bool isRunning() const;
 
     QString source() const;
     QString sourceTranslit() const;
@@ -296,6 +296,8 @@ private:
     void requestYandexTranslit(Language language);
     void parseYandexTranslit(QString &text);
 
+    void resetData(TranslationError error = NoError, const QString &errorString = {});
+
     // Check for service support
     static bool isSupportTranslit(Engine engine, Language lang);
     static bool isSupportDictionary(Engine engine, Language sourceLang, Language translationLang);
@@ -304,7 +306,6 @@ private:
     static QString languageApiCode(Engine engine, Language lang);
     static Language language(Engine engine, const QString &langCode);
     static int getSplitIndex(const QString &untranslatedText, int limit);
-    void resetData(TranslationError error = NoError, const QString &errorString = QString());
 
     QStateMachine *m_stateMachine;
     QNetworkAccessManager *m_networkManager;

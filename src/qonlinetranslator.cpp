@@ -142,7 +142,7 @@ void QOnlineTranslator::abort()
         m_currentReply->abort();
 }
 
-bool QOnlineTranslator::isRunning()
+bool QOnlineTranslator::isRunning() const
 {
     return m_stateMachine->isRunning();
 }
@@ -1428,6 +1428,27 @@ void QOnlineTranslator::parseYandexTranslit(QString &text)
 #endif
 }
 
+void QOnlineTranslator::resetData(TranslationError error, const QString &errorString)
+{
+    m_error = error;
+    m_errorString = errorString;
+    m_translation.clear();
+    m_translationTranslit.clear();
+    m_sourceTranslit.clear();
+    m_sourceTranscription.clear();
+    m_translationOptions.clear();
+    m_examples.clear();
+
+    if (m_error != NoError)
+        emit this->error(m_error);
+
+    m_stateMachine->stop();
+    for (QAbstractState *state : m_stateMachine->findChildren<QAbstractState *>()) {
+        if (!m_stateMachine->configuration().contains(state))
+            state->deleteLater();
+    }
+}
+
 bool QOnlineTranslator::isSupportTranslit(Engine engine, Language lang)
 {
     switch (engine) {
@@ -2005,27 +2026,6 @@ int QOnlineTranslator::getSplitIndex(const QString &untranslatedText, int limit)
 
     // If the text has not passed any check and is most likely garbage
     return limit;
-}
-
-void QOnlineTranslator::resetData(TranslationError error, const QString &errorString)
-{
-    m_error = error;
-    m_errorString = errorString;
-    m_translation.clear();
-    m_translationTranslit.clear();
-    m_sourceTranslit.clear();
-    m_sourceTranscription.clear();
-    m_translationOptions.clear();
-    m_examples.clear();
-
-    if (m_error != NoError)
-        emit this->error(m_error);
-
-    m_stateMachine->stop();
-    for (QAbstractState *state : m_stateMachine->findChildren<QAbstractState *>()) {
-        if (!m_stateMachine->configuration().contains(state))
-            state->deleteLater();
-    }
 }
 
 bool QOnlineTranslator::isExamplesEnabled() const
