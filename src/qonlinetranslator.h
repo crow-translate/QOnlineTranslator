@@ -47,17 +47,16 @@ public:
         Arabic,
         Armenian,
         Azerbaijani,
-        Basque,
         Bashkir,
+        Basque,
         Belarusian,
         Bengali,
         Bosnian,
         Bulgarian,
-        Catalan,
         Cantonese,
+        Catalan,
         Cebuano,
-        SimplifiedChinese,
-        TraditionalChinese,
+        Chichewa,
         Corsican,
         Croatian,
         Czech,
@@ -117,7 +116,6 @@ public:
         Myanmar,
         Nepali,
         Norwegian,
-        Chichewa,
         Papiamento,
         Pashto,
         Persian,
@@ -133,6 +131,7 @@ public:
         SerbianLatin,
         Sesotho,
         Shona,
+        SimplifiedChinese,
         Sindhi,
         Sinhala,
         Slovak,
@@ -150,6 +149,7 @@ public:
         Telugu,
         Thai,
         Tongan,
+        TraditionalChinese,
         Turkish,
         Udmurt,
         Ukrainian,
@@ -334,8 +334,18 @@ private:
 
     bool m_onlyDetectLanguage = false;
 
-    static const QStringList m_languageCodes;
-    static QString m_yandexKey;
+    static const QMap<Language, QString> s_languageCodes;
+    static QString s_yandexKey;
+
+    // This properties used to store unseful information in states
+    static constexpr char s_textProperty[] = "Text";
+
+    // Engines have a limit of characters per translation request.
+    // If the query is larger, then it should be splited into several with getSplitIndex() helper function
+    static constexpr int s_googleTranslateLimit = 5000;
+    static constexpr int s_yandexTranslateLimit = 150;
+    static constexpr int s_yandexTranslitLimit = 180;
+    static constexpr int s_bingTranslateLimit = 5001;
 };
 
 #endif // QONLINETRANSLATOR_H

@@ -23,14 +23,23 @@
 #include <QUrl>
 #include <QMetaEnum>
 
-constexpr int googleTtsLimit = 200;
-constexpr int yandexTtsLimit = 1400;
+const QMap<QOnlineTts::Emotion, QString> QOnlineTts::s_emotionCodes = {
+    {Neutral, QStringLiteral("neutral")},
+    {Good, QStringLiteral("good")},
+    {Evil, QStringLiteral("evil")}
+};
 
-const QStringList QOnlineTts::m_emotionCodes = { "neutral", "good", "evil" };
-const QStringList QOnlineTts::m_voiceCodes = { "zahar", "ermil", "jane", "oksana", "alyss", "omazh" };
+const QMap<QOnlineTts::Voice, QString> QOnlineTts::s_voiceCodes = {
+    {Zahar, QStringLiteral("zahar")},
+    {Ermil, QStringLiteral("ermil")},
+    {Jane, QStringLiteral("jane")},
+    {Oksana, QStringLiteral("oksana")},
+    {Alyss, QStringLiteral("alyss")},
+    {Omazh, QStringLiteral("omazh")}
+};
 
-QOnlineTts::QOnlineTts(QObject *parent) :
-    QObject(parent)
+QOnlineTts::QOnlineTts(QObject *parent)
+    : QObject(parent)
 {
 }
 
@@ -57,7 +66,7 @@ void QOnlineTts::generateUrls(const QString &text, QOnlineTranslator::Engine eng
 
         // Google has a limit of characters per tts request. If the query is larger, then it should be splited into several
         while (!unparsedText.isEmpty()) {
-            const int splitIndex = QOnlineTranslator::getSplitIndex(unparsedText, googleTtsLimit); // Split the part by special symbol
+            const int splitIndex = QOnlineTranslator::getSplitIndex(unparsedText, s_googleTtsLimit); // Split the part by special symbol
 
             // Generate URL API for add it to the playlist
             QUrl apiUrl("http://translate.googleapis.com/translate_tts");
@@ -91,7 +100,7 @@ void QOnlineTts::generateUrls(const QString &text, QOnlineTranslator::Engine eng
 
         // Yandex has a limit of characters per tts request. If the query is larger, then it should be splited into several
         while (!unparsedText.isEmpty()) {
-            const int splitIndex = QOnlineTranslator::getSplitIndex(unparsedText, yandexTtsLimit); // Split the part by special symbol
+            const int splitIndex = QOnlineTranslator::getSplitIndex(unparsedText, s_yandexTtsLimit); // Split the part by special symbol
 
             // Generate URL API for add it to the playlist
             QUrl apiUrl("https://tts.voicetech.yandex.net/tts");
@@ -137,22 +146,22 @@ QOnlineTts::TtsError QOnlineTts::error() const
 
 QString QOnlineTts::voiceCode(Voice voice)
 {
-    return m_voiceCodes.value(voice);
+    return s_voiceCodes.value(voice);
 }
 
 QString QOnlineTts::emotionCode(Emotion emotion)
 {
-    return m_emotionCodes.value(emotion);
+    return s_emotionCodes.value(emotion);
 }
 
 QOnlineTts::Emotion QOnlineTts::emotion(const QString &emotionCode)
 {
-    return static_cast<Emotion>(m_emotionCodes.indexOf(emotionCode));
+    return s_emotionCodes.key(emotionCode, NoEmotion);
 }
 
 QOnlineTts::Voice QOnlineTts::voice(const QString &voiceCode)
 {
-    return static_cast<Voice>(m_emotionCodes.indexOf(voiceCode));
+    return s_voiceCodes.key(voiceCode, NoVoice);
 }
 
 void QOnlineTts::setError(TtsError error, const QString &errorString)
