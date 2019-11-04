@@ -4,11 +4,18 @@ All notable changes to this project will be documented in this file. This projec
 
 ## [Unreleased](https://github.com/crow-translate/crow-translate/tree/HEAD)
 
-[Full Changelog](https://github.com/crow-translate/QOnlineTranslator/compare/1.2.0...HEAD)
+[Full Changelog](https://github.com/crow-translate/QOnlineTranslator/compare/1.2.1...HEAD)
+
+_No unreleased changes yet_
+
+## [1.2.1](https://github.com/crow-translate/QOnlineTranslator/tree/1.2.1) (2019-11-04)
+
+[Full Changelog](https://github.com/crow-translate/QOnlineTranslator/compare/1.2.0...1.2.1)
 
 **Changed**
 
 -   Fix wrong names in errors.
+-   Small refactorings.
 
 ## [1.2.0](https://github.com/crow-translate/QOnlineTranslator/tree/1.2.0) (2019-08-27)
 
