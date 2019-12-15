@@ -6,7 +6,9 @@ All notable changes to this project will be documented in this file. This projec
 
 [Full Changelog](https://github.com/crow-translate/QOnlineTranslator/compare/1.2.1...HEAD)
 
-_No unreleased changes yet_
+**Changed**
+
+-   Google: Fix parsing several sentences in some cases.
 
 ## [1.2.1](https://github.com/crow-translate/QOnlineTranslator/tree/1.2.1) (2019-11-04)
 

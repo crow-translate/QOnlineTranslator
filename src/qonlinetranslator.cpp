@@ -981,27 +981,14 @@ void QOnlineTranslator::parseGoogleTranslate()
             return;
     }
 
-    // Add a space between parts
-    if (!m_translation.isEmpty() && !m_translation.endsWith('\n'))
-        m_translation.append(' ');
-
-    // Parse first sentense. If the answer contains more than one sentence, then at the end of the first one there will be a space
-    const QJsonArray translationDataArray = jsonData.at(0).toArray();
-    m_translation.append(translationDataArray.at(0).toArray().first().toString());
-    for (int i = 1; m_translation.endsWith(' ') || m_translation.endsWith('\n') || m_translation.endsWith(0x00a0); ++i)
-        m_translation.append(translationDataArray.at(i).toArray().first().toString());
-
-    // Parse transliterations and source language
-    if (m_translationTranslitEnabled) {
-        if (!m_translationTranslit.isEmpty() && !m_translationTranslit.endsWith('\n'))
-            m_translationTranslit.append(' ');
-        m_translationTranslit.append(translationDataArray.last().toArray().at(2).toString());
-    }
-
-    if (m_sourceTranslitEnabled) {
-        if (!m_sourceTranslit.isEmpty() && !m_sourceTranslit.endsWith('\n'))
-            m_sourceTranslit.append(' ');
-        m_sourceTranslit.append(translationDataArray.last().toArray().at(3).toString());
+    addSpaceBetweenParts(m_translation);
+    addSpaceBetweenParts(m_translationTranslit);
+    addSpaceBetweenParts(m_sourceTranslit);
+    for (const QJsonValueRef translationData : jsonData.at(0).toArray()) {
+        const QJsonArray translationArray = translationData.toArray();
+        m_translation.append(translationArray.at(0).toString());
+        m_translationTranslit.append(translationArray.at(2).toString());
+        m_sourceTranslit.append(translationArray.at(3).toString());
     }
 
     if (!m_translationOptionsEnabled || m_source.size() >= s_googleTranslateLimit)
@@ -2134,6 +2121,20 @@ int QOnlineTranslator::getSplitIndex(const QString &untranslatedText, int limit)
 
     // If the text has not passed any check and is most likely garbage
     return limit;
+}
+
+void QOnlineTranslator::addSpaceBetweenParts(QString &text)
+{
+    if (text.isEmpty())
+        return;
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
+    if (!text.back().isSpace()) {
+#else
+    if (!text.at(text.size() - 1).isSpace()) {
+#endif
+        text.append(' ');
+    }
 }
 
 bool QOnlineTranslator::isExamplesEnabled() const

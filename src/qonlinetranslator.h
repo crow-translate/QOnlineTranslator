@@ -306,6 +306,7 @@ private:
     static QString languageApiCode(Engine engine, Language lang);
     static Language language(Engine engine, const QString &langCode);
     static int getSplitIndex(const QString &untranslatedText, int limit);
+    static void addSpaceBetweenParts(QString &text);
 
     QStateMachine *m_stateMachine;
     QNetworkAccessManager *m_networkManager;
