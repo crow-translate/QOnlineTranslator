@@ -991,26 +991,28 @@ void QOnlineTranslator::parseGoogleTranslate()
         m_sourceTranslit.append(translationArray.at(3).toString());
     }
 
-    if (!m_translationOptionsEnabled || m_source.size() >= s_googleTranslateLimit)
+    if (m_source.size() >= s_googleTranslateLimit)
         return;
 
     // Translation options
-    for (const QJsonValueRef typeOfSpeechData : jsonData.at(1).toArray()) {
-        const QJsonArray typeOfSpeechDataArray = typeOfSpeechData.toArray();
-        const QString typeOfSpeech = typeOfSpeechDataArray.at(0).toString();
-        for (const QJsonValueRef wordData : typeOfSpeechDataArray.at(2).toArray()) {
-            const QJsonArray wordDataArray = wordData.toArray();
-            const QString word = wordDataArray.at(0).toString();
-            const QString gender = wordDataArray.at(4).toString();
-            QStringList translations;
-            for (const QJsonValueRef wordTranslation : wordDataArray.at(1).toArray())
-                translations.append(wordTranslation.toString());
-            m_translationOptions[typeOfSpeech].append({word, gender, translations});
+    if (m_translationOptionsEnabled) {
+        for (const QJsonValueRef typeOfSpeechData : jsonData.at(1).toArray()) {
+            const QJsonArray typeOfSpeechDataArray = typeOfSpeechData.toArray();
+            const QString typeOfSpeech = typeOfSpeechDataArray.at(0).toString();
+            for (const QJsonValueRef wordData : typeOfSpeechDataArray.at(2).toArray()) {
+                const QJsonArray wordDataArray = wordData.toArray();
+                const QString word = wordDataArray.at(0).toString();
+                const QString gender = wordDataArray.at(4).toString();
+                QStringList translations;
+                for (const QJsonValueRef wordTranslation : wordDataArray.at(1).toArray())
+                    translations.append(wordTranslation.toString());
+                m_translationOptions[typeOfSpeech].append({word, gender, translations});
+            }
         }
     }
 
     // Examples
-    if (m_translationOptionsEnabled) {
+    if (m_examplesEnabled) {
         for (const QJsonValueRef exampleData : jsonData.at(12).toArray()) {
             const QJsonArray exampleDataArray = exampleData.toArray();
             const QString typeOfSpeech = exampleDataArray.at(0).toString();
