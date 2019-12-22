@@ -987,8 +987,10 @@ void QOnlineTranslator::parseGoogleTranslate()
     for (const QJsonValueRef translationData : jsonData.at(0).toArray()) {
         const QJsonArray translationArray = translationData.toArray();
         m_translation.append(translationArray.at(0).toString());
-        m_translationTranslit.append(translationArray.at(2).toString());
-        m_sourceTranslit.append(translationArray.at(3).toString());
+        if (m_translationTranslitEnabled)
+            m_translationTranslit.append(translationArray.at(2).toString());
+        if (m_sourceTranslitEnabled)
+            m_sourceTranslit.append(translationArray.at(3).toString());
     }
 
     if (m_source.size() >= s_googleTranslateLimit)
