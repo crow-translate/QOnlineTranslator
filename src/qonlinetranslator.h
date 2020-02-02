@@ -241,7 +241,7 @@ public:
 
 signals:
     void finished();
-    void error(TranslationError error);
+    void error(QOnlineTranslator::TranslationError error);
 
 private slots:
     void skipGarbageText();

@@ -936,12 +936,9 @@ void QOnlineTranslator::requestGoogleTranslate()
     const QString sourceText = sender()->property(s_textProperty).toString();
 
     // Generate API url
-    QUrl url("https://translate.googleapis.com/translate_a/single");
-    url.setQuery("client=gtx&ie=UTF-8&oe=UTF-8&dt=bd&dt=ex&dt=ld&dt=md&dt=rw&dt=rm&dt=ss&dt=t&dt=at&dt=qc"
-                 "&sl=" + languageApiCode(Google, m_sourceLang)
-                 + "&tl=" + languageApiCode(Google, m_translationLang)
-                 + "&hl=" + languageApiCode(Google, m_uiLang)
-                 + "&q=" + QUrl::toPercentEncoding(sourceText));
+    QUrl url(QStringLiteral("https://translate.googleapis.com/translate_a/single"));
+    url.setQuery(QStringLiteral("client=gtx&ie=UTF-8&oe=UTF-8&dt=bd&dt=ex&dt=ld&dt=md&dt=rw&dt=rm&dt=ss&dt=t&dt=at&dt=qc&sl=%1&tl=%2&hl=%3&q=%4")
+                 .arg(languageApiCode(Google, m_sourceLang), languageApiCode(Google, m_translationLang), languageApiCode(Google, m_uiLang), QUrl::toPercentEncoding(sourceText)));
 
     m_currentReply = m_networkManager->get(QNetworkRequest(url));
 }
@@ -1005,8 +1002,10 @@ void QOnlineTranslator::parseGoogleTranslate()
                 const QJsonArray wordDataArray = wordData.toArray();
                 const QString word = wordDataArray.at(0).toString();
                 const QString gender = wordDataArray.at(4).toString();
+                const QJsonArray translationsArray = wordDataArray.at(1).toArray();
                 QStringList translations;
-                for (const QJsonValueRef wordTranslation : wordDataArray.at(1).toArray())
+                translations.reserve(translationsArray.size());
+                for (const QJsonValue &wordTranslation : translationsArray)
                     translations.append(wordTranslation.toString());
                 m_translationOptions[typeOfSpeech].append({word, gender, translations});
             }
@@ -1027,7 +1026,7 @@ void QOnlineTranslator::parseGoogleTranslate()
 
 void QOnlineTranslator::requestYandexKey()
 {
-    const QUrl url("https://translate.yandex.com/");
+    const QUrl url(QStringLiteral("https://translate.yandex.com/"));
     m_currentReply = m_networkManager->get(QNetworkRequest(url));
 }
 
@@ -1052,7 +1051,7 @@ void QOnlineTranslator::parseYandexKey()
 
     // Yandex show reversed parts of session ID, need to decode
     QStringList sidParts = sid.split('.');
-    for (short i = 0; i < sidParts.size(); ++i)
+    for (int i = 0; i < sidParts.size(); ++i)
         std::reverse(sidParts[i].begin(), sidParts[i].end());
 
     s_yandexKey = sidParts.join('.');
@@ -1073,13 +1072,9 @@ void QOnlineTranslator::requestYandexTranslate()
         lang = languageApiCode(Yandex, m_sourceLang) + '-' + languageApiCode(Yandex, m_translationLang);
 
     // Generate API url
-    QUrl url("https://translate.yandex.net/api/v1/tr.json/translate");
-    url.setQuery("id="
-                 + s_yandexKey
-                 + "-0-0&srv=tr-text&text="
-                 + QUrl::toPercentEncoding(sourceText)
-                 + "&lang="
-                 + lang);
+    QUrl url(QStringLiteral("https://translate.yandex.net/api/v1/tr.json/translate"));
+    url.setQuery(QStringLiteral("id=%1-0-0&srv=tr-text&text=%2&lang=%3")
+                 .arg(s_yandexKey, QUrl::toPercentEncoding(sourceText), lang));
 
     m_currentReply = m_networkManager->get(QNetworkRequest(url));
 }
@@ -1099,7 +1094,7 @@ void QOnlineTranslator::parseYandexTranslate()
         // Parse data to get request error type
         s_yandexKey.clear();
         const QJsonDocument jsonResponse = QJsonDocument::fromJson(m_currentReply->readAll());
-        resetData(ServiceError, jsonResponse.object().value("message").toString());
+        resetData(ServiceError, jsonResponse.object().value(QStringLiteral("message")).toString());
         return;
     }
 
@@ -1109,7 +1104,7 @@ void QOnlineTranslator::parseYandexTranslate()
 
     // Parse language
     if (m_sourceLang == Auto) {
-        QString sourceCode = jsonData.value("lang").toString();
+        QString sourceCode = jsonData.value(QStringLiteral("lang")).toString();
         sourceCode = sourceCode.left(sourceCode.indexOf('-'));
         m_sourceLang = language(Yandex, sourceCode);
         if (m_sourceLang == NoLanguage) {
@@ -1121,7 +1116,7 @@ void QOnlineTranslator::parseYandexTranslate()
     }
 
     // Parse translation data
-    m_translation += jsonData.value("text").toArray().at(0).toString();
+    m_translation += jsonData.value(QStringLiteral("text")).toArray().at(0).toString();
 }
 
 void QOnlineTranslator::requestYandexSourceTranslit()
@@ -1155,10 +1150,9 @@ void QOnlineTranslator::requestYandexDictionary()
 
     // Generate API url
     const QString text = sender()->property(s_textProperty).toString();
-    QUrl url("http://dictionary.yandex.net/dicservice.json/lookupMultiple");
-    url.setQuery("text=" + QUrl::toPercentEncoding(text)
-                 + "&ui=" + languageApiCode(Yandex, m_uiLang)
-                 + "&dict=" + languageApiCode(Yandex, m_sourceLang) + '-' + languageApiCode(Yandex, m_translationLang));
+    QUrl url(QStringLiteral("http://dictionary.yandex.net/dicservice.json/lookupMultiple"));
+    url.setQuery(QStringLiteral("text=%1&ui=%2&dict=%3-%4")
+                 .arg(QUrl::toPercentEncoding(text), languageApiCode(Yandex, m_uiLang), languageApiCode(Yandex, m_sourceLang), languageApiCode(Yandex, m_translationLang)));
 
     m_currentReply = m_networkManager->get(QNetworkRequest(url));
 }
@@ -1174,31 +1168,33 @@ void QOnlineTranslator::parseYandexDictionary()
 
     // Parse reply
     const QJsonDocument jsonResponse = QJsonDocument::fromJson(m_currentReply->readAll());
-    const QJsonValue jsonData = jsonResponse.object().value(languageApiCode(Yandex, m_sourceLang) + '-' + languageApiCode(Yandex, m_translationLang)).toObject().value("regular");
+    const QJsonValue jsonData = jsonResponse.object().value(languageApiCode(Yandex, m_sourceLang) + '-' + languageApiCode(Yandex, m_translationLang)).toObject().value(QStringLiteral("regular"));
 
     if (m_sourceTranscriptionEnabled)
-        m_sourceTranscription = jsonData.toArray().at(0).toObject().value("ts").toString();
+        m_sourceTranscription = jsonData.toArray().at(0).toObject().value(QStringLiteral("ts")).toString();
 
     for (const QJsonValueRef typeOfSpeechData : jsonData.toArray()) {
         QJsonObject typeOfSpeechObject = typeOfSpeechData.toObject();
-        const QString typeOfSpeech = typeOfSpeechObject.value("pos").toObject().value("text").toString();
-        for (const QJsonValueRef wordData : typeOfSpeechObject.value("tr").toArray()) {
+        const QString typeOfSpeech = typeOfSpeechObject.value(QStringLiteral("pos")).toObject().value(QStringLiteral("text")).toString();
+        for (const QJsonValueRef wordData : typeOfSpeechObject.value(QStringLiteral("tr")).toArray()) {
             // Parse translation options
             const QJsonObject wordObject = wordData.toObject();
-            const QString word = wordObject.value("text").toString();
-            const QString gender = wordObject.value("gen").toObject().value("text").toString();
+            const QString word = wordObject.value(QStringLiteral("text")).toString();
+            const QString gender = wordObject.value(QStringLiteral("gen")).toObject().value(QStringLiteral("text")).toString();
+            const QJsonArray translationsArray = wordObject.value(QStringLiteral("mean")).toArray();
             QStringList translations;
-            for (const QJsonValueRef wordTranslation : wordObject.value("mean").toArray())
-                translations.append(wordTranslation.toObject().value("text").toString());
+            translations.reserve(translationsArray.size());
+            for (const QJsonValue &wordTranslation : translationsArray)
+                translations.append(wordTranslation.toObject().value(QStringLiteral("text")).toString());
 
             m_translationOptions[typeOfSpeech].append({word, gender, translations});
 
             // Parse examples
-            if (m_examplesEnabled && wordObject.contains("ex")) {
-                for (const QJsonValueRef exampleData : wordObject.value("ex").toArray()) {
+            if (m_examplesEnabled && wordObject.contains(QLatin1String("ex"))) {
+                for (const QJsonValueRef exampleData : wordObject.value(QStringLiteral("ex")).toArray()) {
                     const QJsonObject exampleObject = exampleData.toObject();
-                    const QString example = exampleObject.value("text").toString();
-                    const QString description = exampleObject.value("tr").toArray().first().toObject().value("text").toString();
+                    const QString example = exampleObject.value(QStringLiteral("text")).toString();
+                    const QString description = exampleObject.value(QStringLiteral("tr")).toArray().first().toObject().value(QStringLiteral("text")).toString();
 
                     m_examples[typeOfSpeech].append({example, description});
                 }
@@ -1215,7 +1211,7 @@ void QOnlineTranslator::requestBingTranslate()
     const QByteArray postData = "&text=" + sourceText.toLocal8Bit()
             + "&fromLang=" + languageApiCode(Bing, m_sourceLang).toLocal8Bit()
             + "&to=" + languageApiCode(Bing, m_translationLang).toLocal8Bit();
-    const QUrl url("http://www.bing.com/ttranslatev3");
+    const QUrl url(QStringLiteral("http://www.bing.com/ttranslatev3"));
 
     // Setup request
     QNetworkRequest request;
@@ -1242,7 +1238,7 @@ void QOnlineTranslator::parseBingTranslate()
     const QJsonObject responseObject = jsonResponse.array().first().toObject();
 
     if (m_sourceLang == Auto) {
-        const QString langCode = responseObject.value("detectedLanguage").toObject().value("language").toString();
+        const QString langCode = responseObject.value(QStringLiteral("detectedLanguage")).toObject().value(QStringLiteral("language")).toString();
         m_sourceLang = language(Bing, langCode);
         if (m_sourceLang == NoLanguage) {
             resetData(ParsingError, tr("Error: Unable to parse autodetected language"));
@@ -1252,9 +1248,9 @@ void QOnlineTranslator::parseBingTranslate()
             return;
     }
 
-    const QJsonObject translationsObject = responseObject.value("translations").toArray().first().toObject();
-    m_translation += translationsObject.value("text").toString();
-    m_translationTranslit += translationsObject.value("transliteration").toObject().value("text").toString();
+    const QJsonObject translationsObject = responseObject.value(QStringLiteral("translations")).toArray().first().toObject();
+    m_translation += translationsObject.value(QStringLiteral("text")).toString();
+    m_translationTranslit += translationsObject.value(QStringLiteral("transliteration")).toObject().value(QStringLiteral("text")).toString();
 }
 
 void QOnlineTranslator::requestBingDictionary()
@@ -1271,7 +1267,7 @@ void QOnlineTranslator::requestBingDictionary()
     const QByteArray postData = "&text=" + text.toLocal8Bit()
             + "&from=" + languageApiCode(Bing, m_sourceLang).toLocal8Bit()
             + "&to=" + languageApiCode(Bing, m_translationLang).toLocal8Bit();
-    const QUrl url("http://www.bing.com/tlookupv3");
+    const QUrl url(QStringLiteral("http://www.bing.com/tlookupv3"));
 
     QNetworkRequest request;
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
@@ -1294,13 +1290,15 @@ void QOnlineTranslator::parseBingDictionary()
     const QJsonDocument jsonResponse = QJsonDocument::fromJson(m_currentReply->readAll());
     const QJsonObject responseObject = jsonResponse.array().first().toObject();
 
-    for (const QJsonValueRef dictionaryData : responseObject.value("translations").toArray()) {
+    for (const QJsonValueRef dictionaryData : responseObject.value(QStringLiteral("translations")).toArray()) {
         const QJsonObject dictionaryObject = dictionaryData.toObject();
-        const QString typeOfSpeech = dictionaryObject.value("posTag").toString().toLower();
-        const QString word = dictionaryObject.value("displayTarget").toString().toLower();
+        const QString typeOfSpeech = dictionaryObject.value(QStringLiteral("posTag")).toString().toLower();
+        const QString word = dictionaryObject.value(QStringLiteral("displayTarget")).toString().toLower();
+        const QJsonArray translationsArray = dictionaryObject.value(QStringLiteral("backTranslations")).toArray();
         QStringList translations;
-        for (const QJsonValueRef wordTranslation : dictionaryObject.value("backTranslations").toArray())
-            translations.append(wordTranslation.toObject().value("displayText").toString());
+        translations.reserve(translationsArray.size());
+        for (const QJsonValue &wordTranslation : translationsArray)
+            translations.append(wordTranslation.toObject().value(QStringLiteral("displayText")).toString());
 
         m_translationOptions[typeOfSpeech].append({word, {}, translations});
     }
@@ -1501,7 +1499,7 @@ void QOnlineTranslator::requestYandexTranslit(Language language)
     const QString text = sender()->property(s_textProperty).toString();
 
     // Generate API url
-    QUrl url("https://translate.yandex.net/translit/translit");
+    QUrl url(QStringLiteral("https://translate.yandex.net/translit/translit"));
     url.setQuery("text=" + QUrl::toPercentEncoding(text)
                  + "&lang=" + languageApiCode(Yandex, language));
 
@@ -1620,7 +1618,6 @@ bool QOnlineTranslator::isSupportDictionary(Engine engine, Language sourceLang, 
         case Belarusian:
             switch (translationLang) {
             case Belarusian:
-                return true;
             case Russian:
                 return true;
             default:
@@ -1636,7 +1633,6 @@ bool QOnlineTranslator::isSupportDictionary(Engine engine, Language sourceLang, 
         case Czech:
             switch (translationLang) {
             case English:
-                return true;
             case Russian:
                 return true;
             default:
@@ -1645,7 +1641,6 @@ bool QOnlineTranslator::isSupportDictionary(Engine engine, Language sourceLang, 
         case Danish:
             switch (translationLang) {
             case English:
-                return true;
             case Russian:
                 return true;
             default:
@@ -1654,11 +1649,8 @@ bool QOnlineTranslator::isSupportDictionary(Engine engine, Language sourceLang, 
         case German:
             switch (translationLang) {
             case German:
-                return true;
             case English:
-                return true;
             case Russian:
-                return true;
             case Turkish:
                 return true;
             default:
@@ -1667,7 +1659,6 @@ bool QOnlineTranslator::isSupportDictionary(Engine engine, Language sourceLang, 
         case Greek:
             switch (translationLang) {
             case English:
-                return true;
             case Russian:
                 return true;
             default:
@@ -1676,43 +1667,24 @@ bool QOnlineTranslator::isSupportDictionary(Engine engine, Language sourceLang, 
         case English:
             switch (translationLang) {
             case Czech:
-                return true;
             case Danish:
-                return true;
             case German:
-                return true;
             case Greek:
-                return true;
             case English:
-                return true;
             case Spanish:
-                return true;
             case Estonian:
-                return true;
             case Finnish:
-                return true;
             case French:
-                return true;
             case Italian:
-                return true;
             case Lithuanian:
-                return true;
             case Latvian:
-                return true;
             case Dutch:
-                return true;
             case Norwegian:
-                return true;
             case Portuguese:
-                return true;
             case Russian:
-                return true;
             case Slovak:
-                return true;
             case Swedish:
-                return true;
             case Turkish:
-                return true;
             case Ukrainian:
                 return true;
             default:
@@ -1721,9 +1693,7 @@ bool QOnlineTranslator::isSupportDictionary(Engine engine, Language sourceLang, 
         case Spanish:
             switch (translationLang) {
             case English:
-                return true;
             case Spanish:
-                return true;
             case Russian:
                 return true;
             default:
@@ -1732,7 +1702,6 @@ bool QOnlineTranslator::isSupportDictionary(Engine engine, Language sourceLang, 
         case Estonian:
             switch (translationLang) {
             case English:
-                return true;
             case Russian:
                 return true;
             default:
@@ -1741,9 +1710,7 @@ bool QOnlineTranslator::isSupportDictionary(Engine engine, Language sourceLang, 
         case Finnish:
             switch (translationLang) {
             case English:
-                return true;
             case Russian:
-                return true;
             case Finnish:
                 return true;
             default:
@@ -1752,9 +1719,7 @@ bool QOnlineTranslator::isSupportDictionary(Engine engine, Language sourceLang, 
         case French:
             switch (translationLang) {
             case French:
-                return true;
             case English:
-                return true;
             case Russian:
                 return true;
             default:
@@ -1763,7 +1728,6 @@ bool QOnlineTranslator::isSupportDictionary(Engine engine, Language sourceLang, 
         case Hungarian:
             switch (translationLang) {
             case Hungarian:
-                return true;
             case Russian:
                 return true;
             default:
@@ -1772,9 +1736,7 @@ bool QOnlineTranslator::isSupportDictionary(Engine engine, Language sourceLang, 
         case Italian:
             switch (translationLang) {
             case English:
-                return true;
             case Italian:
-                return true;
             case Russian:
                 return true;
             default:
@@ -1783,9 +1745,7 @@ bool QOnlineTranslator::isSupportDictionary(Engine engine, Language sourceLang, 
         case Lithuanian:
             switch (translationLang) {
             case English:
-                return true;
             case Lithuanian:
-                return true;
             case Russian:
                 return true;
             default:
@@ -1794,7 +1754,6 @@ bool QOnlineTranslator::isSupportDictionary(Engine engine, Language sourceLang, 
         case Latvian:
             switch (translationLang) {
             case English:
-                return true;
             case Russian:
                 return true;
             default:
@@ -1817,7 +1776,6 @@ bool QOnlineTranslator::isSupportDictionary(Engine engine, Language sourceLang, 
         case Dutch:
             switch (translationLang) {
             case English:
-                return true;
             case Russian:
                 return true;
             default:
@@ -1826,7 +1784,6 @@ bool QOnlineTranslator::isSupportDictionary(Engine engine, Language sourceLang, 
         case Norwegian:
             switch (translationLang) {
             case English:
-                return true;
             case Russian:
                 return true;
             default:
@@ -1842,7 +1799,6 @@ bool QOnlineTranslator::isSupportDictionary(Engine engine, Language sourceLang, 
         case Portuguese:
             switch (translationLang) {
             case English:
-                return true;
             case Russian:
                 return true;
             default:
@@ -1851,53 +1807,29 @@ bool QOnlineTranslator::isSupportDictionary(Engine engine, Language sourceLang, 
         case Russian:
             switch (translationLang) {
             case Belarusian:
-                return true;
             case Bulgarian:
-                return true;
             case Czech:
-                return true;
             case Danish:
-                return true;
             case German:
-                return true;
             case Greek:
-                return true;
             case English:
-                return true;
             case Spanish:
-                return true;
             case Estonian:
-                return true;
             case Finnish:
-                return true;
             case French:
-                return true;
             case Italian:
-                return true;
             case Lithuanian:
-                return true;
             case Latvian:
-                return true;
             case Mari:
-                return true;
             case HillMari:
-                return true;
             case Dutch:
-                return true;
             case Norwegian:
-                return true;
             case Portuguese:
-                return true;
             case Russian:
-                return true;
             case Slovak:
-                return true;
             case Swedish:
-                return true;
             case Turkish:
-                return true;
             case Tatar:
-                return true;
             case Ukrainian:
                 return true;
             default:
@@ -1906,7 +1838,6 @@ bool QOnlineTranslator::isSupportDictionary(Engine engine, Language sourceLang, 
         case Slovak:
             switch (translationLang) {
             case English:
-                return true;
             case Russian:
                 return true;
             default:
@@ -1915,7 +1846,6 @@ bool QOnlineTranslator::isSupportDictionary(Engine engine, Language sourceLang, 
         case Swedish:
             switch (translationLang) {
             case English:
-                return true;
             case Russian:
                 return true;
             default:
@@ -1924,9 +1854,7 @@ bool QOnlineTranslator::isSupportDictionary(Engine engine, Language sourceLang, 
         case Turkish:
             switch (translationLang) {
             case German:
-                return true;
             case English:
-                return true;
             case Russian:
                 return true;
             default:
@@ -1942,9 +1870,7 @@ bool QOnlineTranslator::isSupportDictionary(Engine engine, Language sourceLang, 
         case Ukrainian:
             switch (translationLang) {
             case English:
-                return true;
             case Russian:
-                return true;
             case Ukrainian:
                 return true;
             default:
@@ -2033,16 +1959,16 @@ QString QOnlineTranslator::languageApiCode(Engine engine, Language lang)
     switch (engine) {
     case Google:
         if (lang == SerbianCyrillic)
-            return "sr";
+            return QStringLiteral("sr");
         break;
     case Yandex:
         switch (lang) {
         case SimplifiedChinese:
-            return "zn";
+            return QStringLiteral("zn");
         case Javanese:
-            return "jv";
+            return QStringLiteral("jv");
         case SerbianCyrillic:
-            return "sr";
+            return QStringLiteral("sr");
         default:
             break;
         }
@@ -2050,15 +1976,15 @@ QString QOnlineTranslator::languageApiCode(Engine engine, Language lang)
     case Bing:
         switch (lang) {
         case Auto:
-            return "auto-detect";
+            return QStringLiteral("auto-detect");
         case Bosnian:
-            return "bs-Latn";
+            return QStringLiteral("bs-Latn");
         case SimplifiedChinese:
-            return "zh-Hans";
+            return QStringLiteral("zh-Hans");
         case TraditionalChinese:
-            return "zh-Hant";
+            return QStringLiteral("zh-Hant");
         case Hmong:
-            return "mww";
+            return QStringLiteral("mww");
         default:
             break;
         }
@@ -2075,23 +2001,23 @@ QOnlineTranslator::Language QOnlineTranslator::language(Engine engine, const QSt
     // Engine exceptions
     switch (engine) {
     case Google:
-        if (langCode == "sr")
+        if (langCode == QLatin1String("sr"))
             return SerbianCyrillic;
         break;
     case Yandex:
-        if (langCode == "sr")
+        if (langCode == QLatin1String("sr"))
             return SerbianCyrillic;
-        if (langCode == "zn")
+        if (langCode == QLatin1String("zn"))
             return SimplifiedChinese;
-        if (langCode == "jv")
+        if (langCode == QLatin1String("jv"))
             return Javanese;
         break;
     case Bing:
-        if (langCode == "zh-Hans")
+        if (langCode == QLatin1String("zh-Hans"))
             return SimplifiedChinese;
-        if (langCode == "zh-Hant")
+        if (langCode == QLatin1String("zh-Hant"))
             return TraditionalChinese;
-        if (langCode == "mww")
+        if (langCode == QLatin1String("mww"))
             return Hmong;
         break;
     }
@@ -2106,7 +2032,7 @@ int QOnlineTranslator::getSplitIndex(const QString &untranslatedText, int limit)
     if (untranslatedText.size() < limit)
         return limit;
 
-    int splitIndex = untranslatedText.lastIndexOf(". ", limit - 1);
+    int splitIndex = untranslatedText.lastIndexOf(QLatin1String(". "), limit - 1);
     if (splitIndex != -1)
         return splitIndex + 1;
 
