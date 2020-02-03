@@ -70,7 +70,7 @@ void QOnlineTts::generateUrls(const QString &text, QOnlineTranslator::Engine eng
 
             // Generate URL API for add it to the playlist
             QUrl apiUrl(QStringLiteral("http://translate.googleapis.com/translate_tts"));
-            const QString query = QStringLiteral("ie=UTF-8&client=gtx&tl=%1&q=%2").arg(langString, QUrl::toPercentEncoding(unparsedText.left(splitIndex)));
+            const QString query = QStringLiteral("ie=UTF-8&client=gtx&tl=%1&q=%2").arg(langString, QString(QUrl::toPercentEncoding(unparsedText.left(splitIndex))));
 #if defined(Q_OS_LINUX)
             apiUrl.setQuery(query);
 #elif defined(Q_OS_WIN)
