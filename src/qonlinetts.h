@@ -88,8 +88,8 @@ private:
     QString m_errorString;
     TtsError m_error = NoError;
 
-    const static QMap<Emotion, QString> s_emotionCodes;
-    const static QMap<Voice, QString> s_voiceCodes;
+    static const QMap<Emotion, QString> s_emotionCodes;
+    static const QMap<Voice, QString> s_voiceCodes;
 
     static constexpr int s_googleTtsLimit = 200;
     static constexpr int s_yandexTtsLimit = 1400;
