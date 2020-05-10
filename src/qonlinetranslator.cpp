@@ -22,6 +22,7 @@
 #include "qonlinetts.h"
 
 #include <QStateMachine>
+#include <QCoreApplication>
 #include <QFinalState>
 #include <QMediaPlayer>
 #include <QJsonDocument>
@@ -1216,6 +1217,7 @@ void QOnlineTranslator::requestBingTranslate()
     // Setup request
     QNetworkRequest request;
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+    request.setHeader(QNetworkRequest::UserAgentHeader, QCoreApplication::applicationName() + '/' + QCoreApplication::applicationVersion());
     request.setHeader(QNetworkRequest::ContentLengthHeader, postData.size());
     request.setUrl(url);
 
