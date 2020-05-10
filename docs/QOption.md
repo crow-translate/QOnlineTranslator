@@ -4,17 +4,17 @@ The **QOption** structure provides storage for translation options data for a si
 
 ## Content
 
--   [Public Members](#public-members)
--   [Detailed Description](#detailed-description)
--   [Members Documentation](#members-documentation)
+- [Public Members](#public-members)
+- [Detailed Description](#detailed-description)
+- [Members Documentation](#members-documentation)
 
 ## Public Members
 
-|        Type | Data member                        |
-| ----------: | :--------------------------------- |
-|     QString | [**word**](#word)                  |
-|     QString | [**gender**](#gender)              |
-| QStringList | [**translations**](#translations)  |
+|        Type | Data member                       |
+| ----------: | :-------------------------------- |
+|     QString | [**word**](#word)                 |
+|     QString | [**gender**](#gender)             |
+| QStringList | [**translations**](#translations) |
 
 ## Detailed Description
 
@@ -56,7 +56,7 @@ noun:
 */
 ```
 
-* * *
+---
 
 ## Members Documentation
 
@@ -64,13 +64,13 @@ noun:
 
 Returns word, that specified for translation options.
 
-* * *
+---
 
 ### <a id='gender'/> [QString](https://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOption::gender
 
 Returns the gender of the word above.
 
-* * *
+---
 
 ### <a id='translations'/> [QStringList](https://doc.qt.io/qt-5/qstringlist.html "Qt Documentation") QOption::translations
 

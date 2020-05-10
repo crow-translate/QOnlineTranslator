@@ -4,9 +4,9 @@ The **QExample** structure provides storage for example usage examples for a sin
 
 ## Content
 
--   [Public Members](#public-members)
--   [Detailed Description](#detailed-description)
--   [Members Documentation](#members-documentation)
+- [Public Members](#public-members)
+- [Detailed Description](#detailed-description)
+- [Members Documentation](#members-documentation)
 
 ## Public Members
 
@@ -52,7 +52,7 @@ exclamation:
 */
 ```
 
-* * *
+---
 
 ## Members Documentation
 
@@ -60,7 +60,7 @@ exclamation:
 
 Returns the example sentense.
 
-* * *
+---
 
 ### <a id='description'/> [QString](https://doc.qt.io/qt-5/qstring.html "Qt Documentation") QExample::description
 
