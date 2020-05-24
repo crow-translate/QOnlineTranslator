@@ -14,6 +14,7 @@ add_library(${PROJECT_NAME} STATIC
     src/qonlinetranslator.cpp
     src/qonlinetts.cpp
 )
+add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::Network)
 target_link_libraries(${PROJECT_NAME} PUBLIC Qt5::Multimedia)
