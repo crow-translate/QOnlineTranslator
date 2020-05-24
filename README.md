@@ -9,23 +9,24 @@
 
 ```cpp
 QCoreApplication app(argc, argv);
-...
+
 QOnlineTranslator translator;
 translator.translate("Hello world", QOnlineTranslator::Google);
-
 QObject::connect(&translator, &QOnlineTranslator::finished, [&] {
     if (translator.error() == QOnlineTranslator::NoError)
         qInfo() << translator.translation();
     else
         qCritical() << translator.errorString();
 });
+
+return QCoreApplication::exec();
 ```
 
 For real example of usage you can look into my other project: [Crow Translate](https://github.com/crow-translate/CrowTranslate "A simple and lightweight translator that allows to translate and say the selected text using the Google Translate API").
 
 ## Requirements
 
-**Linux**: GCC 6 +
+**Linux**: GCC 7 +
 
 **Windows**: MSVC2017 / MinGW 7 +
 
@@ -44,6 +45,10 @@ or if you don't want to add the library as a submodule, you can download the arc
 Then include the `qonlinetranslator.pri` file in your `.pro` project file:
 
 `include(src/third-party/qonlinetranslator/qonlinetranslator.pri)`
+
+or add the directory into `CMakeLists.txt`:
+
+`add_subdirectory(src/third-party/qonlinetranslator)`
 
 **Header:**
 
