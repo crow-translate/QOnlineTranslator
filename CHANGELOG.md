@@ -6,7 +6,9 @@ All notable changes to this project will be documented in this file. This projec
 
 [Full Changelog](https://github.com/crow-translate/QOnlineTranslator/compare/1.2.2...HEAD)
 
-_No unreleased changes yet_
+**Changed**
+
+- Use `https` instead of `http` for all engines.
 
 ## [1.2.3](https://github.com/crow-translate/QOnlineTranslator/tree/1.2.3) (2020-05-10)
 

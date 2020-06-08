@@ -14,7 +14,7 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a get of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -1151,7 +1151,7 @@ void QOnlineTranslator::requestYandexDictionary()
 
     // Generate API url
     const QString text = sender()->property(s_textProperty).toString();
-    QUrl url(QStringLiteral("http://dictionary.yandex.net/dicservice.json/lookupMultiple"));
+    QUrl url(QStringLiteral("https://dictionary.yandex.net/dicservice.json/lookupMultiple"));
     url.setQuery(QStringLiteral("text=%1&ui=%2&dict=%3-%4")
                  .arg(QUrl::toPercentEncoding(text), languageApiCode(Yandex, m_uiLang), languageApiCode(Yandex, m_sourceLang), languageApiCode(Yandex, m_translationLang)));
 
@@ -1212,7 +1212,7 @@ void QOnlineTranslator::requestBingTranslate()
     const QByteArray postData = "&text=" + sourceText.toLocal8Bit()
             + "&fromLang=" + languageApiCode(Bing, m_sourceLang).toLocal8Bit()
             + "&to=" + languageApiCode(Bing, m_translationLang).toLocal8Bit();
-    const QUrl url(QStringLiteral("http://www.bing.com/ttranslatev3"));
+    const QUrl url(QStringLiteral("https://www.bing.com/ttranslatev3"));
 
     // Setup request
     QNetworkRequest request;
@@ -1269,7 +1269,7 @@ void QOnlineTranslator::requestBingDictionary()
     const QByteArray postData = "&text=" + text.toLocal8Bit()
             + "&from=" + languageApiCode(Bing, m_sourceLang).toLocal8Bit()
             + "&to=" + languageApiCode(Bing, m_translationLang).toLocal8Bit();
-    const QUrl url(QStringLiteral("http://www.bing.com/tlookupv3"));
+    const QUrl url(QStringLiteral("https://www.bing.com/tlookupv3"));
 
     QNetworkRequest request;
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
