@@ -20,8 +20,8 @@
 
 #include "qonlinetts.h"
 
-#include <QUrl>
 #include <QMetaEnum>
+#include <QUrl>
 
 const QMap<QOnlineTts::Emotion, QString> QOnlineTts::s_emotionCodes = {
     {Neutral, QStringLiteral("neutral")},
@@ -48,8 +48,7 @@ void QOnlineTts::generateUrls(const QString &text, QOnlineTranslator::Engine eng
     // Get speech
     QString unparsedText = text;
     switch (engine) {
-    case QOnlineTranslator::Google:
-    {
+    case QOnlineTranslator::Google: {
         if (voice != NoVoice) {
             setError(UnsupportedVoice, tr("Selected engine %1 does not support voice settings").arg(QMetaEnum::fromType<QOnlineTranslator::Engine>().valueToKey(engine)));
             return;
@@ -83,8 +82,7 @@ void QOnlineTts::generateUrls(const QString &text, QOnlineTranslator::Engine eng
         }
         break;
     }
-    case QOnlineTranslator::Yandex:
-    {
+    case QOnlineTranslator::Yandex: {
         const QString langString = languageApiCode(engine, lang);
         if (langString.isNull())
             return;

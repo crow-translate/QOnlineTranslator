@@ -19,16 +19,17 @@
  */
 
 #include "qonlinetranslator.h"
+
 #include "qonlinetts.h"
 
-#include <QStateMachine>
 #include <QCoreApplication>
 #include <QFinalState>
-#include <QMediaPlayer>
-#include <QJsonDocument>
 #include <QJsonArray>
+#include <QJsonDocument>
 #include <QJsonObject>
+#include <QMediaPlayer>
 #include <QNetworkReply>
+#include <QStateMachine>
 
 QString QOnlineTranslator::s_yandexKey; // The key that is parsed from the web version to get the translation using the API
 
@@ -1520,10 +1521,10 @@ void QOnlineTranslator::parseYandexTranslit(QString &text)
     const QByteArray reply = m_currentReply->readAll();
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
-        text += reply.mid(1).chopped(1);
+    text += reply.mid(1).chopped(1);
 #else
-        text += reply.mid(1);
-        text.chop(1);
+    text += reply.mid(1);
+    text.chop(1);
 #endif
 }
 

@@ -21,8 +21,8 @@
 #ifndef QONLINETRANSLATOR_H
 #define QONLINETRANSLATOR_H
 
-#include <QPointer>
 #include <QMap>
+#include <QPointer>
 #include <QVector>
 
 class QStateMachine;
