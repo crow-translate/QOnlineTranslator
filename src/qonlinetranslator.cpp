@@ -312,14 +312,64 @@ QMap<QString, QVector<QOnlineTranslator::QExample>> QOnlineTranslator::examples(
     return m_examples;
 }
 
+QOnlineTranslator::TranslationError QOnlineTranslator::error() const
+{
+    return m_error;
+}
+
 QString QOnlineTranslator::errorString() const
 {
     return m_errorString;
 }
 
-QOnlineTranslator::TranslationError QOnlineTranslator::error() const
+bool QOnlineTranslator::isSourceTranslitEnabled() const
 {
-    return m_error;
+    return m_sourceTranslitEnabled;
+}
+
+void QOnlineTranslator::setSourceTranslitEnabled(bool enable)
+{
+    m_sourceTranslitEnabled = enable;
+}
+
+bool QOnlineTranslator::isTranslationTranslitEnabled() const
+{
+    return m_translationTranslitEnabled;
+}
+
+void QOnlineTranslator::setTranslationTranslitEnabled(bool enable)
+{
+    m_translationTranslitEnabled = enable;
+}
+
+bool QOnlineTranslator::isSourceTranscriptionEnabled() const
+{
+    return m_sourceTranscriptionEnabled;
+}
+
+void QOnlineTranslator::setSourceTranscriptionEnabled(bool enable)
+{
+    m_sourceTranscriptionEnabled = enable;
+}
+
+bool QOnlineTranslator::isTranslationOptionsEnabled() const
+{
+    return m_translationOptionsEnabled;
+}
+
+void QOnlineTranslator::setTranslationOptionsEnabled(bool enable)
+{
+    m_translationOptionsEnabled = enable;
+}
+
+bool QOnlineTranslator::isExamplesEnabled() const
+{
+    return m_examplesEnabled;
+}
+
+void QOnlineTranslator::setExamplesEnabled(bool enable)
+{
+    m_examplesEnabled = enable;
 }
 
 QString QOnlineTranslator::languageString(Language lang)
@@ -2075,54 +2125,4 @@ QString QOnlineTranslator::parseYandexSid(const QByteArray &webSiteData)
         std::reverse(sidParts[i].begin(), sidParts[i].end());
 
     return sidParts.join('.');
-}
-
-bool QOnlineTranslator::isExamplesEnabled() const
-{
-    return m_examplesEnabled;
-}
-
-void QOnlineTranslator::setExamplesEnabled(bool enable)
-{
-    m_examplesEnabled = enable;
-}
-
-bool QOnlineTranslator::isTranslationOptionsEnabled() const
-{
-    return m_translationOptionsEnabled;
-}
-
-void QOnlineTranslator::setTranslationOptionsEnabled(bool enable)
-{
-    m_translationOptionsEnabled = enable;
-}
-
-bool QOnlineTranslator::isSourceTranscriptionEnabled() const
-{
-    return m_sourceTranscriptionEnabled;
-}
-
-void QOnlineTranslator::setSourceTranscriptionEnabled(bool enable)
-{
-    m_sourceTranscriptionEnabled = enable;
-}
-
-bool QOnlineTranslator::isTranslationTranslitEnabled() const
-{
-    return m_translationTranslitEnabled;
-}
-
-void QOnlineTranslator::setTranslationTranslitEnabled(bool enable)
-{
-    m_translationTranslitEnabled = enable;
-}
-
-bool QOnlineTranslator::isSourceTranslitEnabled() const
-{
-    return m_sourceTranslitEnabled;
-}
-
-void QOnlineTranslator::setSourceTranslitEnabled(bool enable)
-{
-    m_sourceTranslitEnabled = enable;
 }
