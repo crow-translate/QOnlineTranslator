@@ -307,6 +307,7 @@ private:
     static Language language(Engine engine, const QString &langCode);
     static int getSplitIndex(const QString &untranslatedText, int limit);
     static void addSpaceBetweenParts(QString &text);
+    static QString parseYandexSid(const QByteArray &webSiteData);
 
     QStateMachine *m_stateMachine;
     QNetworkAccessManager *m_networkManager;

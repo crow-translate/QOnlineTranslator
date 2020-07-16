@@ -1048,15 +1048,7 @@ void QOnlineTranslator::parseYandexKey()
         return;
     }
 
-    // Parse SID
-    const QString sid = webSiteData.mid(webSiteData.indexOf("SID: '") + 6, 26);
-
-    // Yandex show reversed parts of session ID, need to decode
-    QStringList sidParts = sid.split('.');
-    for (int i = 0; i < sidParts.size(); ++i)
-        std::reverse(sidParts[i].begin(), sidParts[i].end());
-
-    s_yandexKey = sidParts.join('.');
+    s_yandexKey = parseYandexSid(webSiteData);
     if (s_yandexKey.isEmpty()) {
         resetData(ParsingError, tr("Error: Unable to parse Yandex SID."));
         return;
@@ -2068,6 +2060,21 @@ void QOnlineTranslator::addSpaceBetweenParts(QString &text)
 #endif
         text.append(' ');
     }
+}
+
+QString QOnlineTranslator::parseYandexSid(const QByteArray &webSiteData)
+{
+    const int sidBeginPosition = webSiteData.indexOf("SID: '") + 6;
+    const int sidEndPosition = webSiteData.indexOf('\'', sidBeginPosition);
+
+    const QString sid = webSiteData.mid(sidBeginPosition, sidEndPosition - sidBeginPosition);
+
+    // Yandex show reversed parts of session ID, need to decode
+    QStringList sidParts = sid.split('.');
+    for (int i = 0; i < sidParts.size(); ++i)
+        std::reverse(sidParts[i].begin(), sidParts[i].end());
+
+    return sidParts.join('.');
 }
 
 bool QOnlineTranslator::isExamplesEnabled() const
