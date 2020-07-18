@@ -204,12 +204,12 @@ public:
     QString source() const;
     QString sourceTranslit() const;
     QString sourceTranscription() const;
-    QString sourceLanguageString() const;
+    QString sourceLanguageName() const;
     Language sourceLanguage() const;
 
     QString translation() const;
     QString translationTranslit() const;
-    QString translationLanguageString() const;
+    QString translationLanguageName() const;
     Language translationLanguage() const;
 
     QMap<QString, QVector<QOption>> translationOptions() const;
@@ -233,7 +233,7 @@ public:
     bool isExamplesEnabled() const;
     void setExamplesEnabled(bool enable);
 
-    static QString languageString(Language lang);
+    static QString languageName(Language lang);
     static QString languageCode(Language lang);
     static Language language(const QLocale &locale);
     static Language language(const QString &langCode);

@@ -189,19 +189,19 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
     // Check if choosed languages are supported by the engine
     if (!isSupportTranslation(engine, m_sourceLang)) {
         resetData(ParametersError, tr("Selected source language %1 is not supported for %2")
-                  .arg(languageString(m_sourceLang), QMetaEnum::fromType<Engine>().valueToKey(engine)));
+                  .arg(languageName(m_sourceLang), QMetaEnum::fromType<Engine>().valueToKey(engine)));
         emit finished();
         return;
     }
     if (!isSupportTranslation(engine, m_translationLang)) {
         resetData(ParametersError, tr("Selected translation language %1 is not supported for %2")
-                  .arg(languageString(m_translationLang), QMetaEnum::fromType<Engine>().valueToKey(engine)));
+                  .arg(languageName(m_translationLang), QMetaEnum::fromType<Engine>().valueToKey(engine)));
         emit finished();
         return;
     }
     if (!isSupportTranslation(engine, m_uiLang)) {
         resetData(ParametersError, tr("Selected ui language %1 is not supported for %2")
-                  .arg(languageString(m_uiLang), QMetaEnum::fromType<Engine>().valueToKey(engine)));
+                  .arg(languageName(m_uiLang), QMetaEnum::fromType<Engine>().valueToKey(engine)));
         emit finished();
         return;
     }
@@ -272,9 +272,9 @@ QString QOnlineTranslator::sourceTranscription() const
     return m_sourceTranscription;
 }
 
-QString QOnlineTranslator::sourceLanguageString() const
+QString QOnlineTranslator::sourceLanguageName() const
 {
-    return languageString(m_sourceLang);
+    return languageName(m_sourceLang);
 }
 
 QOnlineTranslator::Language QOnlineTranslator::sourceLanguage() const
@@ -292,9 +292,9 @@ QString QOnlineTranslator::translationTranslit() const
     return m_translationTranslit;
 }
 
-QString QOnlineTranslator::translationLanguageString() const
+QString QOnlineTranslator::translationLanguageName() const
 {
-    return languageString(m_translationLang);
+    return languageName(m_translationLang);
 }
 
 QOnlineTranslator::Language QOnlineTranslator::translationLanguage() const
@@ -372,7 +372,7 @@ void QOnlineTranslator::setExamplesEnabled(bool enable)
     m_examplesEnabled = enable;
 }
 
-QString QOnlineTranslator::languageString(Language lang)
+QString QOnlineTranslator::languageName(Language lang)
 {
     switch (lang) {
     case Auto:

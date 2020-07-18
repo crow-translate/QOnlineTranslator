@@ -30,11 +30,11 @@ The **QOnlineTranslator** class provides translation data.
 |                            QString | [**source**()](#source)                                                                                                                                       |
 |                            QString | [**sourceTranslit**()](#source-translit)                                                                                                                      |
 |                            QString | [**sourceTranscription**()](source-transcription)                                                                                                             |
-|                            QString | [**sourceLanguageString**()](#source-language-string)                                                                                                         |
+|                            QString | [**sourceLanguageName**()](#source-language-name)                                                                                                             |
 |                           Language | [**sourceLanguage**()](#source-language)                                                                                                                      |
 |                            QString | [**translation**()](#translation)                                                                                                                             |
 |                            QString | [**translationTranslit**()](translation-translit)                                                                                                             |
-|                            QString | [**translationLanguageString**()](#translation-language-string)                                                                                               |
+|                            QString | [**translationLanguageName**()](#translation-language-name)                                                                                                   |
 |                           Language | [**translationLanguage**()](#translation-language)                                                                                                            |
 |  QMap\<QString, QVector\<QOption>> | [**translationOptions**()](#translation-options)                                                                                                              |
 | QMap\<QString, QVector\<QExample>> | [**examples**()](#examples)                                                                                                                                   |
@@ -62,7 +62,7 @@ The **QOnlineTranslator** class provides translation data.
 
 | Return type | Data member                                                                       |
 | ----------: | :-------------------------------------------------------------------------------- |
-|     QString | [**languageString**(Language language)](#language-string)                         |
+|     QString | [**languageName**(Language language)](#language-name)                             |
 |     QString | [**languageCode**(Language language)](#language-code)                             |
 |    Language | [**language**(const QLocale &locale)](#language-1)                                |
 |    Language | [**language**(const QString &languageCode)](#language-2)                          |
@@ -278,7 +278,7 @@ This signal is emitted when the reply detects an error in processing. The [finis
 
 ---
 
-### <a id='source-language-string'/> [QString](https://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::sourceLanguage()
+### <a id='source-language-name'/> [QString](https://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::sourceLanguageName()
 
 Returns the name of the source language.
 
@@ -308,7 +308,7 @@ Returns the transcription of the source text. Supports only for Yandex.
 
 ---
 
-### <a id='translation-language-string'/> [QString](https://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::translationLanguage()
+### <a id='translation-language-name'/> [QString](https://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::translationLanguageName()
 
 Returns the name of the translation language.
 
@@ -404,7 +404,7 @@ Allows to enable or disable definitions.
 
 ---
 
-### <a id='language-string'/> static [QString](https://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::languageString(_Language language_)
+### <a id='language-name'/> static [QString](https://doc.qt.io/qt-5/qstring.html "Qt Documentation") QOnlineTranslator::languageName(_Language language_)
 
 Returns the _language_ name.
 
