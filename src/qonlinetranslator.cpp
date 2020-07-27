@@ -87,6 +87,7 @@ const QMap<QOnlineTranslator::Language, QString> QOnlineTranslator::s_languageCo
     {Kannada, QStringLiteral("kn")},
     {Kazakh, QStringLiteral("kk")},
     {Khmer, QStringLiteral("km")},
+    {Kinyarwanda, QStringLiteral("rw")},
     {Klingon, QStringLiteral("tlh")},
     {KlingonPlqaD, QStringLiteral("tlh-Qaak")},
     {Korean, QStringLiteral("ko")},
@@ -110,6 +111,7 @@ const QMap<QOnlineTranslator::Language, QString> QOnlineTranslator::s_languageCo
     {Myanmar, QStringLiteral("my")},
     {Nepali, QStringLiteral("ne")},
     {Norwegian, QStringLiteral("no")},
+    {Oriya, QStringLiteral("or")},
     {Papiamento, QStringLiteral("pap")},
     {Pashto, QStringLiteral("ps")},
     {Persian, QStringLiteral("fa")},
@@ -145,7 +147,9 @@ const QMap<QOnlineTranslator::Language, QString> QOnlineTranslator::s_languageCo
     {Tongan, QStringLiteral("to")},
     {TraditionalChinese, QStringLiteral("zh-TW")},
     {Turkish, QStringLiteral("tr")},
+    {Turkmen, QStringLiteral("tk")},
     {Udmurt, QStringLiteral("udm")},
+    {Uighur, QStringLiteral("ug")},
     {Ukrainian, QStringLiteral("uk")},
     {Urdu, QStringLiteral("ur")},
     {Uzbek, QStringLiteral("uz")},
@@ -483,6 +487,8 @@ QString QOnlineTranslator::languageName(Language lang)
         return tr("Kazakh");
     case Khmer:
         return tr("Khmer");
+    case Kinyarwanda:
+        return tr("Kinyarwanda");
     case Klingon:
         return tr("Klingon");
     case KlingonPlqaD:
@@ -529,6 +535,8 @@ QString QOnlineTranslator::languageName(Language lang)
         return tr("Nepali");
     case Norwegian:
         return tr("Norwegian");
+    case Oriya:
+        return tr("Oriya");
     case Chichewa:
         return tr("Chichewa");
     case Papiamento:
@@ -597,8 +605,12 @@ QString QOnlineTranslator::languageName(Language lang)
         return tr("Tongan");
     case Turkish:
         return tr("Turkish");
+    case Turkmen:
+        return tr("Turkmen");
     case Udmurt:
         return tr("Udmurt");
+    case Uighur:
+        return tr("Uighur");
     case Ukrainian:
         return tr("Ukrainian");
     case Urdu:
@@ -724,6 +736,8 @@ QOnlineTranslator::Language QOnlineTranslator::language(const QLocale &locale)
         return Kazakh;
     case QLocale::Khmer:
         return Khmer;
+    case QLocale::Kinyarwanda:
+        return Kinyarwanda;
     case QLocale::Korean:
         return Korean;
     case QLocale::Kurdish:
@@ -758,6 +772,8 @@ QOnlineTranslator::Language QOnlineTranslator::language(const QLocale &locale)
         return Nepali;
     case QLocale::Norwegian:
         return Norwegian;
+    case QLocale::Oriya:
+        return Oriya;
     case QLocale::Pashto:
         return Pashto;
     case QLocale::Persian:
@@ -804,12 +820,18 @@ QOnlineTranslator::Language QOnlineTranslator::language(const QLocale &locale)
         return Tajik;
     case QLocale::Tamil:
         return Tamil;
+    case QLocale::Tatar:
+        return Tatar;
     case QLocale::Telugu:
         return Telugu;
     case QLocale::Thai:
         return Thai;
     case QLocale::Turkish:
         return Turkish;
+    case QLocale::Turkmen:
+        return Turkmen;
+    case QLocale::Uighur:
+        return Uighur;
     case QLocale::Ukrainian:
         return Ukrainian;
     case QLocale::Urdu:
@@ -848,22 +870,21 @@ bool QOnlineTranslator::isSupportTranslation(Engine engine, Language lang)
         switch (lang) {
         case NoLanguage:
         case Bashkir:
-        case HillMari:
-        case Mari:
-        case Papiamento:
-        case Tatar:
-        case Udmurt:
         case Cantonese:
         case Fijian:
         case Filipino:
         case Georgian:
+        case HillMari:
         case Klingon:
         case KlingonPlqaD:
         case LevantineArabic:
+        case Mari:
+        case Papiamento:
         case QueretaroOtomi:
         case SerbianLatin:
         case Tahitian:
         case Tongan:
+        case Udmurt:
         case YucatecMaya:
             isSupported = false;
             break;
@@ -875,19 +896,21 @@ bool QOnlineTranslator::isSupportTranslation(Engine engine, Language lang)
     case Yandex:
         switch (lang) {
         case NoLanguage:
-        case LevantineArabic:
         case Cantonese:
+        case Chichewa:
         case Corsican:
         case Fijian:
         case Filipino:
         case Frisian:
-        case Igbo:
         case Hausa:
         case Hawaiian:
+        case Igbo:
+        case Kinyarwanda:
         case Klingon:
         case KlingonPlqaD:
         case Kurdish:
-        case Chichewa:
+        case LevantineArabic:
+        case Oriya:
         case Pashto:
         case QueretaroOtomi:
         case Samoan:
@@ -898,6 +921,8 @@ bool QOnlineTranslator::isSupportTranslation(Engine engine, Language lang)
         case Somali:
         case Tahitian:
         case Tongan:
+        case Turkmen:
+        case Uighur:
         case Yoruba:
         case YucatecMaya:
         case Zulu:
@@ -934,6 +959,7 @@ bool QOnlineTranslator::isSupportTranslation(Engine engine, Language lang)
         case Kannada:
         case Kazakh:
         case Khmer:
+        case Kinyarwanda:
         case Kurdish:
         case Kyrgyz:
         case Lao:
@@ -947,6 +973,7 @@ bool QOnlineTranslator::isSupportTranslation(Engine engine, Language lang)
         case Mongolian:
         case Myanmar:
         case Nepali:
+        case Oriya:
         case Chichewa:
         case Papiamento:
         case Pashto:
@@ -961,6 +988,8 @@ bool QOnlineTranslator::isSupportTranslation(Engine engine, Language lang)
         case Tagalog:
         case Tajik:
         case Tatar:
+        case Turkmen:
+        case Uighur:
         case Udmurt:
         case Uzbek:
         case Xhosa:
