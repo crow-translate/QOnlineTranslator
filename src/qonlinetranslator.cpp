@@ -1705,14 +1705,15 @@ bool QOnlineTranslator::isSupportDictionary(Engine engine, Language sourceLang, 
                 return false;
             }
         case Czech:
-            switch (translationLang) {
-            case English:
-            case Russian:
-                return true;
-            default:
-                return false;
-            }
         case Danish:
+        case Dutch:
+        case Estonian:
+        case Greek:
+        case Latvian:
+        case Norwegian:
+        case Portuguese:
+        case Slovak:
+        case Swedish:
             switch (translationLang) {
             case English:
             case Russian:
@@ -1726,14 +1727,6 @@ bool QOnlineTranslator::isSupportDictionary(Engine engine, Language sourceLang, 
             case English:
             case Russian:
             case Turkish:
-                return true;
-            default:
-                return false;
-            }
-        case Greek:
-            switch (translationLang) {
-            case English:
-            case Russian:
                 return true;
             default:
                 return false;
@@ -1768,14 +1761,6 @@ bool QOnlineTranslator::isSupportDictionary(Engine engine, Language sourceLang, 
             switch (translationLang) {
             case English:
             case Spanish:
-            case Russian:
-                return true;
-            default:
-                return false;
-            }
-        case Estonian:
-            switch (translationLang) {
-            case English:
             case Russian:
                 return true;
             default:
@@ -1825,54 +1810,11 @@ bool QOnlineTranslator::isSupportDictionary(Engine engine, Language sourceLang, 
             default:
                 return false;
             }
-        case Latvian:
-            switch (translationLang) {
-            case English:
-            case Russian:
-                return true;
-            default:
-                return false;
-            }
         case Mari:
-            switch (translationLang) {
-            case Russian:
-                return true;
-            default:
-                return false;
-            }
         case HillMari:
-            switch (translationLang) {
-            case Russian:
-                return true;
-            default:
-                return false;
-            }
-        case Dutch:
-            switch (translationLang) {
-            case English:
-            case Russian:
-                return true;
-            default:
-                return false;
-            }
-        case Norwegian:
-            switch (translationLang) {
-            case English:
-            case Russian:
-                return true;
-            default:
-                return false;
-            }
         case Polish:
+        case Tatar:
             switch (translationLang) {
-            case Russian:
-                return true;
-            default:
-                return false;
-            }
-        case Portuguese:
-            switch (translationLang) {
-            case English:
             case Russian:
                 return true;
             default:
@@ -1909,33 +1851,10 @@ bool QOnlineTranslator::isSupportDictionary(Engine engine, Language sourceLang, 
             default:
                 return false;
             }
-        case Slovak:
-            switch (translationLang) {
-            case English:
-            case Russian:
-                return true;
-            default:
-                return false;
-            }
-        case Swedish:
-            switch (translationLang) {
-            case English:
-            case Russian:
-                return true;
-            default:
-                return false;
-            }
         case Turkish:
             switch (translationLang) {
             case German:
             case English:
-            case Russian:
-                return true;
-            default:
-                return false;
-            }
-        case Tatar:
-            switch (translationLang) {
             case Russian:
                 return true;
             default:
