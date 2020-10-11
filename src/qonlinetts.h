@@ -84,15 +84,15 @@ private:
     QString voiceApiCode(QOnlineTranslator::Engine engine, Voice voice);
     QString emotionApiCode(QOnlineTranslator::Engine engine, Emotion emotion);
 
-    QList<QMediaContent> m_media;
-    QString m_errorString;
-    TtsError m_error = NoError;
-
     static const QMap<Emotion, QString> s_emotionCodes;
     static const QMap<Voice, QString> s_voiceCodes;
 
     static constexpr int s_googleTtsLimit = 200;
     static constexpr int s_yandexTtsLimit = 1400;
+
+    QList<QMediaContent> m_media;
+    QString m_errorString;
+    TtsError m_error = NoError;
 };
 
 #endif // QONLINETTS_H

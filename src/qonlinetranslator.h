@@ -313,6 +313,19 @@ private:
     static void addSpaceBetweenParts(QString &text);
     static QString parseYandexSid(const QByteArray &webSiteData);
 
+    static const QMap<Language, QString> s_languageCodes;
+    static inline QString s_yandexKey; // A key that is parsed from the web version to receive the translation using the API
+
+    // This properties used to store unseful information in states
+    static constexpr char s_textProperty[] = "Text";
+
+    // Engines have a limit of characters per translation request.
+    // If the query is larger, then it should be splited into several with getSplitIndex() helper function
+    static constexpr int s_googleTranslateLimit = 5000;
+    static constexpr int s_yandexTranslateLimit = 150;
+    static constexpr int s_yandexTranslitLimit = 180;
+    static constexpr int s_bingTranslateLimit = 5001;
+
     QStateMachine *m_stateMachine;
     QNetworkAccessManager *m_networkManager;
     QPointer<QNetworkReply> m_currentReply;
@@ -339,19 +352,6 @@ private:
     bool m_examplesEnabled = true;
 
     bool m_onlyDetectLanguage = false;
-
-    static const QMap<Language, QString> s_languageCodes;
-    static QString s_yandexKey;
-
-    // This properties used to store unseful information in states
-    static constexpr char s_textProperty[] = "Text";
-
-    // Engines have a limit of characters per translation request.
-    // If the query is larger, then it should be splited into several with getSplitIndex() helper function
-    static constexpr int s_googleTranslateLimit = 5000;
-    static constexpr int s_yandexTranslateLimit = 150;
-    static constexpr int s_yandexTranslitLimit = 180;
-    static constexpr int s_bingTranslateLimit = 5001;
 };
 
 #endif // QONLINETRANSLATOR_H

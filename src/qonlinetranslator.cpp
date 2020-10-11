@@ -31,8 +31,6 @@
 #include <QNetworkReply>
 #include <QStateMachine>
 
-QString QOnlineTranslator::s_yandexKey; // The key that is parsed from the web version to get the translation using the API
-
 const QMap<QOnlineTranslator::Language, QString> QOnlineTranslator::s_languageCodes = {
     {Auto, QStringLiteral("auto")},
     {Afrikaans, QStringLiteral("af")},
@@ -190,7 +188,7 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
     else
         m_uiLang = uiLang;
 
-    // Check if choosed languages are supported by the engine
+    // Check if the selected languages ​​are supported by the engine
     if (!isSupportTranslation(engine, m_sourceLang)) {
         resetData(ParametersError, tr("Selected source language %1 is not supported for %2")
                   .arg(languageName(m_sourceLang), QMetaEnum::fromType<Engine>().valueToKey(engine)));
