@@ -1461,7 +1461,7 @@ void QOnlineTranslator::buildYandexStateMachine()
         translationTranslitState->setInitialState(new QFinalState(translationTranslitState));
 
     // Setup dictionary state
-    if (m_translationOptionsEnabled)
+    if (m_translationOptionsEnabled && !isContainsSpace(m_source))
         buildNetworkRequestState(dictionaryState, &QOnlineTranslator::requestYandexDictionary, &QOnlineTranslator::parseYandexDictionary, m_source);
     else
         dictionaryState->setInitialState(new QFinalState(dictionaryState));
@@ -1506,7 +1506,7 @@ void QOnlineTranslator::buildBingStateMachine()
     buildSplitNetworkRequest(translationState, &QOnlineTranslator::requestBingTranslate, &QOnlineTranslator::parseBingTranslate, m_source, s_bingTranslateLimit);
 
     // Setup dictionary state
-    if (m_translationOptionsEnabled)
+    if (m_translationOptionsEnabled && !isContainsSpace(m_source))
         buildNetworkRequestState(dictionaryState, &QOnlineTranslator::requestBingDictionary, &QOnlineTranslator::parseBingDictionary, m_source);
     else
         dictionaryState->setInitialState(new QFinalState(dictionaryState));
@@ -2017,6 +2017,13 @@ int QOnlineTranslator::getSplitIndex(const QString &untranslatedText, int limit)
 
     // If the text has not passed any check and is most likely garbage
     return limit;
+}
+
+bool QOnlineTranslator::isContainsSpace(const QString &text) 
+{
+    return std::any_of(text.begin(), text.end(), [](QChar symbol) {
+        return symbol.isSpace();
+    });
 }
 
 void QOnlineTranslator::addSpaceBetweenParts(QString &text)

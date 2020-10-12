@@ -310,6 +310,7 @@ private:
     static QString languageApiCode(Engine engine, Language lang);
     static Language language(Engine engine, const QString &langCode);
     static int getSplitIndex(const QString &untranslatedText, int limit);
+    static bool isContainsSpace(const QString &text);
     static void addSpaceBetweenParts(QString &text);
     static QString parseYandexSid(const QByteArray &webSiteData);
 
