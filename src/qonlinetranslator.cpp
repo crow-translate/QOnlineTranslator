@@ -1966,11 +1966,11 @@ QString QOnlineTranslator::languageApiCode(Engine engine, Language lang)
 
     switch (engine) {
     case Google:
-        return s_genericLanguageCodes.value(lang, s_googleLanguageCodes.value(lang));
+        return s_googleLanguageCodes.value(lang, s_genericLanguageCodes.value(lang));
     case Yandex:
-        return s_genericLanguageCodes.value(lang, s_yandexLanguageCodes.value(lang));
+        return s_yandexLanguageCodes.value(lang, s_genericLanguageCodes.value(lang));
     case Bing:
-        return s_genericLanguageCodes.value(lang, s_bingLanguageCodes.value(lang));
+        return s_bingLanguageCodes.value(lang, s_genericLanguageCodes.value(lang));
     }
 
     Q_UNREACHABLE();
@@ -1982,11 +1982,11 @@ QOnlineTranslator::Language QOnlineTranslator::language(Engine engine, const QSt
     // Engine exceptions
     switch (engine) {
     case Google:
-        return s_genericLanguageCodes.key(langCode, s_googleLanguageCodes.key(langCode, NoLanguage));
+        return s_googleLanguageCodes.key(langCode, s_genericLanguageCodes.key(langCode, NoLanguage));
     case Yandex:
-        return s_genericLanguageCodes.key(langCode, s_yandexLanguageCodes.key(langCode, NoLanguage));
+        return s_yandexLanguageCodes.key(langCode, s_genericLanguageCodes.key(langCode, NoLanguage));
     case Bing:
-        return s_genericLanguageCodes.key(langCode, s_bingLanguageCodes.key(langCode, NoLanguage));
+        return s_bingLanguageCodes.key(langCode, s_genericLanguageCodes.key(langCode, NoLanguage));
     }
 
     Q_UNREACHABLE();
