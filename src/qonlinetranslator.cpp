@@ -121,7 +121,7 @@ const QMap<QOnlineTranslator::Language, QString> QOnlineTranslator::s_languageCo
     {Russian, QStringLiteral("ru")},
     {Samoan, QStringLiteral("sm")},
     {ScotsGaelic, QStringLiteral("gd")},
-    {SerbianCyrillic, QStringLiteral("sr-Cyrl")},
+    {SerbianCyrillic, QStringLiteral("sr")},
     {SerbianLatin, QStringLiteral("sr-Latin")},
     {Sesotho, QStringLiteral("st")},
     {Shona, QStringLiteral("sn")},
@@ -1949,8 +1949,6 @@ QString QOnlineTranslator::languageApiCode(Engine engine, Language lang)
     // Engines have some language codes exceptions
     switch (engine) {
     case Google:
-        if (lang == SerbianCyrillic)
-            return QStringLiteral("sr");
         break;
     case Yandex:
         switch (lang) {
@@ -1958,8 +1956,6 @@ QString QOnlineTranslator::languageApiCode(Engine engine, Language lang)
             return QStringLiteral("zn");
         case Javanese:
             return QStringLiteral("jv");
-        case SerbianCyrillic:
-            return QStringLiteral("sr");
         default:
             break;
         }
@@ -1970,6 +1966,8 @@ QString QOnlineTranslator::languageApiCode(Engine engine, Language lang)
             return QStringLiteral("auto-detect");
         case Bosnian:
             return QStringLiteral("bs-Latn");
+        case SerbianCyrillic:
+            return QStringLiteral("sr-Cyrl");
         case SimplifiedChinese:
             return QStringLiteral("zh-Hans");
         case TraditionalChinese:
@@ -1992,18 +1990,16 @@ QOnlineTranslator::Language QOnlineTranslator::language(Engine engine, const QSt
     // Engine exceptions
     switch (engine) {
     case Google:
-        if (langCode == QLatin1String("sr"))
-            return SerbianCyrillic;
         break;
     case Yandex:
-        if (langCode == QLatin1String("sr"))
-            return SerbianCyrillic;
         if (langCode == QLatin1String("zn"))
             return SimplifiedChinese;
         if (langCode == QLatin1String("jv"))
             return Javanese;
         break;
     case Bing:
+        if (langCode == QLatin1String("sr-Cyrl"))
+            return SerbianCyrillic;
         if (langCode == QLatin1String("zh-Hans"))
             return SimplifiedChinese;
         if (langCode == QLatin1String("zh-Hant"))
