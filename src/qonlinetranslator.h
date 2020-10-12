@@ -313,7 +313,13 @@ private:
     static void addSpaceBetweenParts(QString &text);
     static QString parseYandexSid(const QByteArray &webSiteData);
 
-    static const QMap<Language, QString> s_languageCodes;
+    static const QMap<Language, QString> s_genericLanguageCodes;
+
+    // Engines have some language codes exceptions
+    static const QMap<Language, QString> s_googleLanguageCodes;
+    static const QMap<Language, QString> s_yandexLanguageCodes;
+    static const QMap<Language, QString> s_bingLanguageCodes;
+
     static inline QString s_yandexKey; // A key that is parsed from the web version to receive the translation using the API
 
     // This properties used to store unseful information in states

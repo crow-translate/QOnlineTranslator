@@ -31,7 +31,7 @@
 #include <QNetworkReply>
 #include <QStateMachine>
 
-const QMap<QOnlineTranslator::Language, QString> QOnlineTranslator::s_languageCodes = {
+const QMap<QOnlineTranslator::Language, QString> QOnlineTranslator::s_genericLanguageCodes = {
     {Auto, QStringLiteral("auto")},
     {Afrikaans, QStringLiteral("af")},
     {Albanian, QStringLiteral("sq")},
@@ -158,6 +158,24 @@ const QMap<QOnlineTranslator::Language, QString> QOnlineTranslator::s_languageCo
     {Yoruba, QStringLiteral("yo")},
     {YucatecMaya, QStringLiteral("yua")},
     {Zulu, QStringLiteral("zu")}
+};
+
+const QMap<QOnlineTranslator::Language, QString> QOnlineTranslator::s_googleLanguageCodes = {
+    {Hebrew, QStringLiteral("iw")}
+};
+
+const QMap<QOnlineTranslator::Language, QString> QOnlineTranslator::s_yandexLanguageCodes = {
+    {SimplifiedChinese, QStringLiteral("zn")},
+    {Javanese, QStringLiteral("jv")}
+};
+
+const QMap<QOnlineTranslator::Language, QString> QOnlineTranslator::s_bingLanguageCodes = {
+    {Auto, QStringLiteral("auto-detect")},
+    {Bosnian, QStringLiteral("bs-Latn")},
+    {SerbianCyrillic, QStringLiteral("sr-Cyrl")},
+    {SimplifiedChinese, QStringLiteral("zh-Hans")},
+    {TraditionalChinese, QStringLiteral("zh-Hant")},
+    {Hmong, QStringLiteral("mww")}
 };
 
 QOnlineTranslator::QOnlineTranslator(QObject *parent)
@@ -636,7 +654,7 @@ QString QOnlineTranslator::languageName(Language lang)
 
 QString QOnlineTranslator::languageCode(Language lang)
 {
-    return s_languageCodes.value(lang);
+    return s_genericLanguageCodes.value(lang);
 }
 
 QOnlineTranslator::Language QOnlineTranslator::language(const QLocale &locale)
@@ -856,7 +874,7 @@ QOnlineTranslator::Language QOnlineTranslator::language(const QLocale &locale)
 // Returns general language code
 QOnlineTranslator::Language QOnlineTranslator::language(const QString &langCode)
 {
-    return s_languageCodes.key(langCode, NoLanguage);
+    return s_genericLanguageCodes.key(langCode, NoLanguage);
 }
 
 bool QOnlineTranslator::isSupportTranslation(Engine engine, Language lang)
@@ -1946,44 +1964,16 @@ QString QOnlineTranslator::languageApiCode(Engine engine, Language lang)
     if (!isSupportTranslation(engine, lang))
         return QString();
 
-    // Engines have some language codes exceptions
     switch (engine) {
     case Google:
-        if (lang == Hebrew)
-            return QStringLiteral("iw");
-        break;
+        return s_genericLanguageCodes.value(lang, s_googleLanguageCodes.value(lang));
     case Yandex:
-        switch (lang) {
-        case SimplifiedChinese:
-            return QStringLiteral("zn");
-        case Javanese:
-            return QStringLiteral("jv");
-        default:
-            break;
-        }
-        break;
+        return s_genericLanguageCodes.value(lang, s_yandexLanguageCodes.value(lang));
     case Bing:
-        switch (lang) {
-        case Auto:
-            return QStringLiteral("auto-detect");
-        case Bosnian:
-            return QStringLiteral("bs-Latn");
-        case SerbianCyrillic:
-            return QStringLiteral("sr-Cyrl");
-        case SimplifiedChinese:
-            return QStringLiteral("zh-Hans");
-        case TraditionalChinese:
-            return QStringLiteral("zh-Hant");
-        case Hmong:
-            return QStringLiteral("mww");
-        default:
-            break;
-        }
-        break;
+        return s_genericLanguageCodes.value(lang, s_bingLanguageCodes.value(lang));
     }
 
-    // General case
-    return s_languageCodes.value(lang);
+    Q_UNREACHABLE();
 }
 
 // Parse language from response language code
@@ -1992,31 +1982,14 @@ QOnlineTranslator::Language QOnlineTranslator::language(Engine engine, const QSt
     // Engine exceptions
     switch (engine) {
     case Google:
-        if (langCode == QLatin1String("iw"))
-            return Hebrew;
-        break;
+        return s_genericLanguageCodes.key(langCode, s_googleLanguageCodes.key(langCode, NoLanguage));
     case Yandex:
-        if (langCode == QLatin1String("zn"))
-            return SimplifiedChinese;
-        if (langCode == QLatin1String("jv"))
-            return Javanese;
-        break;
+        return s_genericLanguageCodes.key(langCode, s_yandexLanguageCodes.key(langCode, NoLanguage));
     case Bing:
-        if (langCode == QLatin1String("bs-Latn"))
-            return Bosnian;
-        if (langCode == QLatin1String("sr-Cyrl"))
-            return SerbianCyrillic;
-        if (langCode == QLatin1String("zh-Hans"))
-            return SimplifiedChinese;
-        if (langCode == QLatin1String("zh-Hant"))
-            return TraditionalChinese;
-        if (langCode == QLatin1String("mww"))
-            return Hmong;
-        break;
+        return s_genericLanguageCodes.key(langCode, s_bingLanguageCodes.key(langCode, NoLanguage));
     }
 
-    // General case
-    return s_languageCodes.key(langCode, NoLanguage);
+    Q_UNREACHABLE();
 }
 
 // Get split index of the text according to the limit
