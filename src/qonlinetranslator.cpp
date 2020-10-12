@@ -1949,6 +1949,8 @@ QString QOnlineTranslator::languageApiCode(Engine engine, Language lang)
     // Engines have some language codes exceptions
     switch (engine) {
     case Google:
+        if (lang == Hebrew)
+            return QStringLiteral("iw");
         break;
     case Yandex:
         switch (lang) {
@@ -1990,6 +1992,8 @@ QOnlineTranslator::Language QOnlineTranslator::language(Engine engine, const QSt
     // Engine exceptions
     switch (engine) {
     case Google:
+        if (langCode == QLatin1String("iw"))
+            return Hebrew;
         break;
     case Yandex:
         if (langCode == QLatin1String("zn"))
