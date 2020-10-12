@@ -1998,6 +1998,8 @@ QOnlineTranslator::Language QOnlineTranslator::language(Engine engine, const QSt
             return Javanese;
         break;
     case Bing:
+        if (langCode == QLatin1String("bs-Latn"))
+            return Bosnian;
         if (langCode == QLatin1String("sr-Cyrl"))
             return SerbianCyrillic;
         if (langCode == QLatin1String("zh-Hans"))
