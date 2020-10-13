@@ -32,32 +32,12 @@ For real example of usage you can look into my other project: [Crow Translate](h
 
 ## Installation
 
-To include the library files I would recommend that you add it as a git submodule to your project and include it's contents with a `.pri` file. For example, if you want to clone the library in `src/third-party/` in your project, use this command to clone with **ssh**:
+To include the library files you could use [FetchContent](https://cmake.org/cmake/help/latest/module/FetchContent.html) CMake module. Or you can add it as a git submodule to your project and include it's contents:
 
-`git submodule add git@github.com:crow-translate/QOnlineTranslator.git src/third-party/qonlinetranslator`
-
-or this to clone with **https**:
-
-`git submodule add https://github.com/crow-translate/QOnlineTranslator.git src/third-party/qonlinetranslator`
-
-or if you don't want to add the library as a submodule, you can download the archive from the [releases](https://github.com/crow-translate/QOnlineTranslator/releases) page and unpack it to the desired folder **manually**.
-
-Then include the `qonlinetranslator.pri` file in your `.pro` project file:
+**QMake**:
 
 `include(src/third-party/qonlinetranslator/qonlinetranslator.pri)`
 
-or add the directory into `CMakeLists.txt`:
+**CMake**:
 
 `add_subdirectory(src/third-party/qonlinetranslator)`
-
-**Header:**
-
-```cpp
-#include "qonlinetranslator.h"
-```
-
-**or:**
-
-```cpp
-#include <QOnlineTranslator>
-```
