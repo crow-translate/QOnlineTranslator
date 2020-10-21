@@ -1626,9 +1626,6 @@ void QOnlineTranslator::resetData(TranslationError error, const QString &errorSt
     m_translationOptions.clear();
     m_examples.clear();
 
-    if (m_error != NoError)
-        emit this->error(m_error);
-
     m_stateMachine->stop();
     for (QAbstractState *state : m_stateMachine->findChildren<QAbstractState *>()) {
         if (!m_stateMachine->configuration().contains(state))
