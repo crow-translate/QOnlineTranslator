@@ -728,8 +728,6 @@ QOnlineTranslator::Language QOnlineTranslator::language(const QLocale &locale)
         return Hebrew;
     case QLocale::Hindi:
         return Hindi;
-    case QLocale::HmongNjua:
-        return Hmong;
     case QLocale::Hungarian:
         return Hungarian;
     case QLocale::Icelandic:
@@ -786,7 +784,7 @@ QOnlineTranslator::Language QOnlineTranslator::language(const QLocale &locale)
         return Mongolian;
     case QLocale::Nepali:
         return Nepali;
-    case QLocale::Norwegian:
+    case QLocale::NorwegianBokmal:
         return Norwegian;
     case QLocale::Oriya:
         return Oriya;
