@@ -195,16 +195,8 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
     m_onlyDetectLanguage = false;
     m_source = text;
     m_sourceLang = sourceLang;
-
-    if (translationLang == Auto)
-        m_translationLang = language(QLocale());
-    else
-        m_translationLang = translationLang;
-
-    if (uiLang == Auto)
-        m_uiLang = language(QLocale());
-    else
-        m_uiLang = uiLang;
+    m_translationLang = translationLang == Auto ? language(QLocale()) : translationLang;
+    m_uiLang = uiLang == Auto ? language(QLocale()) : uiLang;
 
     // Check if the selected languages ​​are supported by the engine
     if (!isSupportTranslation(engine, m_sourceLang)) {
