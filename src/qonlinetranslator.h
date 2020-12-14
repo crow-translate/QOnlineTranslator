@@ -195,7 +195,7 @@ public:
     void abort();
     bool isRunning() const;
 
-    QString toJson() const;
+    QJsonDocument toJson() const;
     QString source() const;
     QString sourceTranslit() const;
     QString sourceTranscription() const;

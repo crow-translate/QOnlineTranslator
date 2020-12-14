@@ -269,7 +269,7 @@ bool QOnlineTranslator::isRunning() const
     return m_stateMachine->isRunning();
 }
 
-QString QOnlineTranslator::toJson() const
+QJsonDocument QOnlineTranslator::toJson() const
 {
     QJsonObject translationOptions;
     for (auto it = m_translationOptions.begin(); it != m_translationOptions.end(); ++it) {
@@ -301,8 +301,7 @@ QString QOnlineTranslator::toJson() const
         {"examples", qMove(examples)}
     };
 
-    QJsonDocument doc = QJsonDocument(object);
-    return QString(doc.toJson(QJsonDocument::Indented));
+    return QJsonDocument(object);
 }
 
 QString QOnlineTranslator::source() const
