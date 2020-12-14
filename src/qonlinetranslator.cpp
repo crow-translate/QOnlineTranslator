@@ -269,6 +269,41 @@ bool QOnlineTranslator::isRunning() const
     return m_stateMachine->isRunning();
 }
 
+QJsonDocument QOnlineTranslator::toJson() const
+{
+    QJsonObject translationOptions;
+    for (auto it = m_translationOptions.begin(); it != m_translationOptions.end(); ++it) {
+        QJsonArray arr;
+        for (const QOption &option : it.value()) {
+            arr.append(option.toJson());
+        }
+        translationOptions.insert(it.key(), arr);
+    }
+
+    QJsonObject examples;
+    for (auto it = m_examples.begin(); it != m_examples.end(); ++it) {
+        QJsonArray arr;
+        for (const QExample &example : it.value()) {
+            arr.append(example.toJson());
+        }
+        examples.insert(it.key(), arr);
+    }
+
+    QJsonObject object
+    {
+        {"source", m_source},
+        {"sourceTranslit", m_sourceTranslit},
+        {"sourceTranscription", m_sourceTranscription},
+        {"translation", m_translation},
+        {"translationTranslit", m_translationTranslit},
+        {"errorString", m_errorString},
+        {"translationOptions", qMove(translationOptions)},
+        {"examples", qMove(examples)}
+    };
+
+    return QJsonDocument(object);
+}
+
 QString QOnlineTranslator::source() const
 {
     return m_source;
@@ -314,12 +349,12 @@ QOnlineTranslator::Language QOnlineTranslator::translationLanguage() const
     return m_translationLang;
 }
 
-QMap<QString, QVector<QOnlineTranslator::QOption>> QOnlineTranslator::translationOptions() const
+QMap<QString, QVector<QOption>> QOnlineTranslator::translationOptions() const
 {
     return m_translationOptions;
 }
 
-QMap<QString, QVector<QOnlineTranslator::QExample>> QOnlineTranslator::examples() const
+QMap<QString, QVector<QExample>> QOnlineTranslator::examples() const
 {
     return m_examples;
 }

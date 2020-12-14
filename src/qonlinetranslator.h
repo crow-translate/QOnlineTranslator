@@ -21,6 +21,9 @@
 #ifndef QONLINETRANSLATOR_H
 #define QONLINETRANSLATOR_H
 
+#include "qexample.h"
+#include "qoption.h"
+
 #include <QMap>
 #include <QPointer>
 #include <QVector>
@@ -184,19 +187,6 @@ public:
         ParsingError
     };
 
-    struct QExample
-    {
-        QString example;
-        QString description;
-    };
-
-    struct QOption
-    {
-        QString word;
-        QString gender;
-        QStringList translations;
-    };
-
     explicit QOnlineTranslator(QObject *parent = nullptr);
 
     void translate(const QString &text, Engine engine = Google, Language translationLang = Auto, Language sourceLang = Auto, Language uiLang = Auto);
@@ -205,6 +195,7 @@ public:
     void abort();
     bool isRunning() const;
 
+    QJsonDocument toJson() const;
     QString source() const;
     QString sourceTranslit() const;
     QString sourceTranscription() const;
