@@ -13,6 +13,8 @@ find_package(Qt5 COMPONENTS Multimedia Network REQUIRED)
 add_library(${PROJECT_NAME} STATIC
     src/qonlinetranslator.cpp
     src/qonlinetts.cpp
+    src/qexample.cpp
+    src/qoption.cpp
 )
 add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 

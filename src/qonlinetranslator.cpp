@@ -178,35 +178,6 @@ const QMap<QOnlineTranslator::Language, QString> QOnlineTranslator::s_bingLangua
     {Hmong, QStringLiteral("mww")}
 };
 
-QJsonObject QOnlineTranslator::QExample::toJson() const
-{
-    QJsonObject obj
-    {
-        {"example", example},
-        {"description", description},
-    };
-
-    return obj;
-}
-
-QJsonObject QOnlineTranslator::QOption::toJson() const
-{
-    QJsonArray arr;
-    for (const auto &translation : translations)
-    {
-        arr.append(translation);
-    }
-
-    QJsonObject obj
-    {
-        {"word", word},
-        {"gender", gender},
-        {"translations", arr}
-    };
-
-    return obj;
-}
-
 QOnlineTranslator::QOnlineTranslator(QObject *parent)
     : QObject(parent)
     , m_stateMachine(new QStateMachine(this))
@@ -301,25 +272,21 @@ bool QOnlineTranslator::isRunning() const
 QString QOnlineTranslator::toJson() const
 {
     QJsonObject translationOptions;
-    for (auto i = m_translationOptions.begin(); i != m_translationOptions.end(); ++i)
-    {
+    for (auto it = m_translationOptions.begin(); it != m_translationOptions.end(); ++it) {
         QJsonArray arr;
-        for (const auto &j : i.value())
-        {
-            arr.append(j.toJson());
+        for (const QOption &option : it.value()) {
+            arr.append(option.toJson());
         }
-        translationOptions.insert(i.key(), arr);
+        translationOptions.insert(it.key(), arr);
     }
 
     QJsonObject examples;
-    for (auto i = m_examples.begin(); i != m_examples.end(); ++i)
-    {
+    for (auto it = m_examples.begin(); it != m_examples.end(); ++it) {
         QJsonArray arr;
-        for (const auto &j : i.value())
-        {
-            arr.append(j.toJson());
+        for (const QExample &example : it.value()) {
+            arr.append(example.toJson());
         }
-        examples.insert(i.key(), arr);
+        examples.insert(it.key(), arr);
     }
 
     QJsonObject object
@@ -330,8 +297,8 @@ QString QOnlineTranslator::toJson() const
         {"translation", m_translation},
         {"translationTranslit", m_translationTranslit},
         {"errorString", m_errorString},
-        {"translationOptions", translationOptions},
-        {"examples", examples}
+        {"translationOptions", qMove(translationOptions)},
+        {"examples", qMove(examples)}
     };
 
     QJsonDocument doc = QJsonDocument(object);
@@ -383,12 +350,12 @@ QOnlineTranslator::Language QOnlineTranslator::translationLanguage() const
     return m_translationLang;
 }
 
-QMap<QString, QVector<QOnlineTranslator::QOption>> QOnlineTranslator::translationOptions() const
+QMap<QString, QVector<QOption>> QOnlineTranslator::translationOptions() const
 {
     return m_translationOptions;
 }
 
-QMap<QString, QVector<QOnlineTranslator::QExample>> QOnlineTranslator::examples() const
+QMap<QString, QVector<QExample>> QOnlineTranslator::examples() const
 {
     return m_examples;
 }

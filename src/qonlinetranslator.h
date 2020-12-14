@@ -21,6 +21,9 @@
 #ifndef QONLINETRANSLATOR_H
 #define QONLINETRANSLATOR_H
 
+#include "qexample.h"
+#include "qoption.h"
+
 #include <QMap>
 #include <QPointer>
 #include <QVector>
@@ -182,21 +185,6 @@ public:
         NetworkError,
         ServiceError,
         ParsingError
-    };
-
-    struct QExample
-    {
-        QString example;
-        QString description;
-        QJsonObject toJson() const;
-    };
-
-    struct QOption
-    {
-        QString word;
-        QString gender;
-        QStringList translations;
-        QJsonObject toJson() const;
     };
 
     explicit QOnlineTranslator(QObject *parent = nullptr);
