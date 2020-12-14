@@ -178,6 +178,35 @@ const QMap<QOnlineTranslator::Language, QString> QOnlineTranslator::s_bingLangua
     {Hmong, QStringLiteral("mww")}
 };
 
+QJsonObject QOnlineTranslator::QExample::toJson() const
+{
+    QJsonObject obj
+    {
+        {"example", example},
+        {"description", description},
+    };
+
+    return obj;
+}
+
+QJsonObject QOnlineTranslator::QOption::toJson() const
+{
+    QJsonArray arr;
+    for (const auto &translation : translations)
+    {
+        arr.append(translation);
+    }
+
+    QJsonObject obj
+    {
+        {"word", word},
+        {"gender", gender},
+        {"translations", arr}
+    };
+
+    return obj;
+}
+
 QOnlineTranslator::QOnlineTranslator(QObject *parent)
     : QObject(parent)
     , m_stateMachine(new QStateMachine(this))
@@ -267,6 +296,46 @@ void QOnlineTranslator::abort()
 bool QOnlineTranslator::isRunning() const
 {
     return m_stateMachine->isRunning();
+}
+
+QString QOnlineTranslator::toJson() const
+{
+    QJsonObject translationOptions;
+    for (auto i = m_translationOptions.begin(); i != m_translationOptions.end(); ++i)
+    {
+        QJsonArray arr;
+        for (const auto &j : i.value())
+        {
+            arr.append(j.toJson());
+        }
+        translationOptions.insert(i.key(), arr);
+    }
+
+    QJsonObject examples;
+    for (auto i = m_examples.begin(); i != m_examples.end(); ++i)
+    {
+        QJsonArray arr;
+        for (const auto &j : i.value())
+        {
+            arr.append(j.toJson());
+        }
+        examples.insert(i.key(), arr);
+    }
+
+    QJsonObject object
+    {
+        {"source", m_source},
+        {"sourceTranslit", m_sourceTranslit},
+        {"sourceTranscription", m_sourceTranscription},
+        {"translation", m_translation},
+        {"translationTranslit", m_translationTranslit},
+        {"errorString", m_errorString},
+        {"translationOptions", translationOptions},
+        {"examples", examples}
+    };
+
+    QJsonDocument doc = QJsonDocument(object);
+    return QString(doc.toJson(QJsonDocument::Indented));
 }
 
 QString QOnlineTranslator::source() const

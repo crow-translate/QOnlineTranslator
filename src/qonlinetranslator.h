@@ -188,6 +188,7 @@ public:
     {
         QString example;
         QString description;
+        QJsonObject toJson() const;
     };
 
     struct QOption
@@ -195,6 +196,7 @@ public:
         QString word;
         QString gender;
         QStringList translations;
+        QJsonObject toJson() const;
     };
 
     explicit QOnlineTranslator(QObject *parent = nullptr);
@@ -205,6 +207,7 @@ public:
     void abort();
     bool isRunning() const;
 
+    QString toJson() const;
     QString source() const;
     QString sourceTranslit() const;
     QString sourceTranscription() const;
