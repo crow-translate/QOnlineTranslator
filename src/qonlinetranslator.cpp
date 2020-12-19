@@ -272,7 +272,7 @@ bool QOnlineTranslator::isRunning() const
 QJsonDocument QOnlineTranslator::toJson() const
 {
     QJsonObject translationOptions;
-    for (auto it = m_translationOptions.begin(); it != m_translationOptions.end(); ++it) {
+    for (auto it = m_translationOptions.cbegin(); it != m_translationOptions.cend(); ++it) {
         QJsonArray arr;
         for (const QOption &option : it.value()) {
             arr.append(option.toJson());
@@ -281,7 +281,7 @@ QJsonDocument QOnlineTranslator::toJson() const
     }
 
     QJsonObject examples;
-    for (auto it = m_examples.begin(); it != m_examples.end(); ++it) {
+    for (auto it = m_examples.cbegin(); it != m_examples.cend(); ++it) {
         QJsonArray arr;
         for (const QExample &example : it.value()) {
             arr.append(example.toJson());
@@ -2043,7 +2043,7 @@ int QOnlineTranslator::getSplitIndex(const QString &untranslatedText, int limit)
 
 bool QOnlineTranslator::isContainsSpace(const QString &text) 
 {
-    return std::any_of(text.begin(), text.end(), [](QChar symbol) {
+    return std::any_of(text.cbegin(), text.cend(), [](QChar symbol) {
         return symbol.isSpace();
     });
 }
