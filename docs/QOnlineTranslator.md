@@ -27,6 +27,7 @@ The **QOnlineTranslator** class provides translation data.
 |                               void | [**detectLanguage**(const QString &text, Engine engine = Google)](#detect-language)                                                                           |
 |                               void | [**abort**()](#abort)                                                                                                                                         |
 |                               bool | [**isRunning**()](#is-running)                                                                                                                                |
+|                      QJsonDocument | [**toJson**()](#tojson)                                                                                                                                       |
 |                            QString | [**source**()](#source)                                                                                                                                       |
 |                            QString | [**sourceTranslit**()](#source-translit)                                                                                                                      |
 |                            QString | [**sourceTranscription**()](source-transcription)                                                                                                             |
@@ -250,6 +251,12 @@ Cancel translation operation (if any).
 ### <a id='is-running'/> bool QOnlineTranslator::isRunning()
 
 Returns `true` when the translation is still processing and has not finished or was aborted yet.
+
+---
+
+### <a id='tojson'/> [QJsonDocument](https://doc.qt.io/qt-5/qjsonobject.html "Qt Documentation") QOnlineTranslator::toJson()
+
+Returns a [QJsonDocument](https://doc.qt.io/qt-5/qjsondocument.html "Qt Documentation") representation from data.
 
 ---
 

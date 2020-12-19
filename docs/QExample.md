@@ -15,6 +15,12 @@ The **QExample** structure provides storage for example usage examples for a sin
 | QString | [**example**](#example)         |
 | QString | [**description**](#description) |
 
+## Public Functions
+
+| Return type | Data member             |
+| ----------: | :---------------------- |
+| QJsonObject | [**toJson**()](#tojson) |
+
 ## Detailed Description
 
 A **QExample** object can be obtained from the [QOnlineTranslator](docs/QOnlineTranslator.md "Class documentation") object, which contains translation example.
@@ -65,3 +71,9 @@ Returns the example sentense.
 ### <a id='description'/> [QString](https://doc.qt.io/qt-5/qstring.html "Qt Documentation") QExample::description
 
 Returns the description for the example.
+
+## Member Function Documentation
+
+### <a id='tojson'/> [QJsonObject](https://doc.qt.io/qt-5/qjsonobject.html "Qt Documentation") QExample::toJson()
+
+Returns a [QJsonObject](https://doc.qt.io/qt-5/qjsonobject.html "Qt Documentation") representation from data.

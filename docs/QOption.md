@@ -16,6 +16,12 @@ The **QOption** structure provides storage for translation options data for a si
 |     QString | [**gender**](#gender)             |
 | QStringList | [**translations**](#translations) |
 
+## Public Functions
+
+| Return type | Data member             |
+| ----------: | :---------------------- |
+| QJsonObject | [**toJson**()](#tojson) |
+
 ## Detailed Description
 
 A **QOption** object can be obtained from the [QOnlineTranslator](docs/QOnlineTranslator.md "Class documentation") object, which contains translation options for a single word.
@@ -75,3 +81,9 @@ Returns the gender of the word above.
 ### <a id='translations'/> [QStringList](https://doc.qt.io/qt-5/qstringlist.html "Qt Documentation") QOption::translations
 
 Returns associated translations for the word.
+
+## Member Function Documentation
+
+### <a id='tojson'/> [QJsonObject](https://doc.qt.io/qt-5/qjsonobject.html "Qt Documentation") QOption::toJson()
+
+Returns a [QJsonObject](https://doc.qt.io/qt-5/qjsonobject.html "Qt Documentation") representation from data.
