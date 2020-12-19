@@ -22,6 +22,7 @@
 #define QOPTION_H
 
 #include <QJsonObject>
+#include <QStringList>
 
 struct QOption
 {
