@@ -26,8 +26,8 @@ QJsonObject QExample::toJson() const
 {
     QJsonObject object
     {
-        {"example", example},
         {"description", description},
+        {"example", example},
     };
 
     return object;

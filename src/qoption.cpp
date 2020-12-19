@@ -27,9 +27,9 @@ QJsonObject QOption::toJson() const
 {
     QJsonObject object
     {
-        {"word", word},
         {"gender", gender},
-        {"translations", QJsonArray::fromStringList(translations)}
+        {"translations", QJsonArray::fromStringList(translations)},
+        {"word", word},
     };
 
     return object;

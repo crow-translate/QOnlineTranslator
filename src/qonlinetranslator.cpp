@@ -291,14 +291,14 @@ QJsonDocument QOnlineTranslator::toJson() const
 
     QJsonObject object
     {
-        {"source", m_source},
-        {"sourceTranslit", m_sourceTranslit},
-        {"sourceTranscription", m_sourceTranscription},
-        {"translation", m_translation},
-        {"translationTranslit", m_translationTranslit},
         {"errorString", m_errorString},
+        {"examples", qMove(examples)},
+        {"source", m_source},
+        {"sourceTranscription", m_sourceTranscription},
+        {"sourceTranslit", m_sourceTranslit},
+        {"translation", m_translation},
         {"translationOptions", qMove(translationOptions)},
-        {"examples", qMove(examples)}
+        {"translationTranslit", m_translationTranslit},
     };
 
     return QJsonDocument(object);
