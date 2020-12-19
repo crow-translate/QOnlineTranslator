@@ -291,7 +291,6 @@ QJsonDocument QOnlineTranslator::toJson() const
 
     QJsonObject object
     {
-        {"errorString", m_errorString},
         {"examples", qMove(examples)},
         {"source", m_source},
         {"sourceTranscription", m_sourceTranscription},
