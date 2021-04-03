@@ -1321,9 +1321,9 @@ void QOnlineTranslator::requestBingTranslate()
     const QString sourceText = sender()->property(s_textProperty).toString();
 
     // Generate POST data
-    const QByteArray postData = "&text=" + sourceText.toLocal8Bit()
-            + "&fromLang=" + languageApiCode(Bing, m_sourceLang).toLocal8Bit()
-            + "&to=" + languageApiCode(Bing, m_translationLang).toLocal8Bit();
+    const QByteArray postData = "&text=" + sourceText.toUtf8()
+            + "&fromLang=" + languageApiCode(Bing, m_sourceLang).toUtf8()
+            + "&to=" + languageApiCode(Bing, m_translationLang).toUtf8();
     const QUrl url(QStringLiteral("https://www.bing.com/ttranslatev3"));
 
     // Setup request
@@ -1378,9 +1378,9 @@ void QOnlineTranslator::requestBingDictionary()
 
     // Generate POST data
     const QString text = sender()->property(s_textProperty).toString();
-    const QByteArray postData = "&text=" + text.toLocal8Bit()
-            + "&from=" + languageApiCode(Bing, m_sourceLang).toLocal8Bit()
-            + "&to=" + languageApiCode(Bing, m_translationLang).toLocal8Bit();
+    const QByteArray postData = "&text=" + text.toUtf8()
+            + "&from=" + languageApiCode(Bing, m_sourceLang).toUtf8()
+            + "&to=" + languageApiCode(Bing, m_translationLang).toUtf8();
     const QUrl url(QStringLiteral("https://www.bing.com/tlookupv3"));
 
     QNetworkRequest request;
