@@ -1162,7 +1162,7 @@ void QOnlineTranslator::parseYandexKey()
 
     // Check availability of service
     const QByteArray webSiteData = m_currentReply->readAll();
-    if (webSiteData.contains("<title>Oops!</title>") || webSiteData.contains("<title>302 Found</title>")) {
+    if (webSiteData.isEmpty() || webSiteData.contains("<title>Oops!</title>") || webSiteData.contains("<title>302 Found</title>")) {
         resetData(ServiceError, tr("Error: Engine systems have detected suspicious traffic from your computer network. Please try your request again later."));
         return;
     }
@@ -1186,10 +1186,16 @@ void QOnlineTranslator::requestYandexTranslate()
 
     // Generate API url
     QUrl url(QStringLiteral("https://translate.yandex.net/api/v1/tr.json/translate"));
-    url.setQuery(QStringLiteral("id=%1-0-0&srv=tr-text&text=%2&lang=%3")
+    url.setQuery(QStringLiteral("id=%1-2-0&srv=tr-text&text=%2&lang=%3")
                  .arg(s_yandexKey, QUrl::toPercentEncoding(sourceText), lang));
 
-    m_currentReply = m_networkManager->get(QNetworkRequest(url));
+    // Setup request
+    QNetworkRequest request;
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+    request.setUrl(url);
+
+    // Make reply
+    m_currentReply = m_networkManager->post(request, QByteArray());
 }
 
 void QOnlineTranslator::parseYandexTranslate()
