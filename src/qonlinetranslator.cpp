@@ -1330,7 +1330,6 @@ void QOnlineTranslator::requestBingTranslate()
     QNetworkRequest request;
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
     request.setHeader(QNetworkRequest::UserAgentHeader, QCoreApplication::applicationName() + '/' + QCoreApplication::applicationVersion());
-    request.setHeader(QNetworkRequest::ContentLengthHeader, postData.size());
     request.setUrl(url);
 
     // Make reply
@@ -1385,7 +1384,6 @@ void QOnlineTranslator::requestBingDictionary()
 
     QNetworkRequest request;
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-    request.setHeader(QNetworkRequest::ContentLengthHeader, postData.size());
     request.setUrl(url);
 
     m_currentReply = m_networkManager->post(request, postData);
