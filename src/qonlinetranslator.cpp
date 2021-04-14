@@ -1324,13 +1324,12 @@ void QOnlineTranslator::requestBingTranslate()
     const QByteArray postData = "&text=" + QUrl::toPercentEncoding(sourceText)
             + "&fromLang=" + languageApiCode(Bing, m_sourceLang).toUtf8()
             + "&to=" + languageApiCode(Bing, m_translationLang).toUtf8();
-    const QUrl url(QStringLiteral("https://www.bing.com/ttranslatev3"));
 
     // Setup request
     QNetworkRequest request;
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
     request.setHeader(QNetworkRequest::UserAgentHeader, QCoreApplication::applicationName() + '/' + QCoreApplication::applicationVersion());
-    request.setUrl(url);
+    request.setUrl(QStringLiteral("https://www.bing.com/ttranslatev3"));
 
     // Make reply
     m_currentReply = m_networkManager->post(request, postData);
@@ -1376,15 +1375,13 @@ void QOnlineTranslator::requestBingDictionary()
     }
 
     // Generate POST data
-    const QString text = sender()->property(s_textProperty).toString();
-    const QByteArray postData = "&text=" + QUrl::toPercentEncoding(text);
+    const QByteArray postData = "&text=" + QUrl::toPercentEncoding(sender()->property(s_textProperty).toString());
             + "&from=" + languageApiCode(Bing, m_sourceLang).toUtf8()
             + "&to=" + languageApiCode(Bing, m_translationLang).toUtf8();
-    const QUrl url(QStringLiteral("https://www.bing.com/tlookupv3"));
 
     QNetworkRequest request;
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-    request.setUrl(url);
+    request.setUrl(QStringLiteral("https://www.bing.com/tlookupv3"));
 
     m_currentReply = m_networkManager->post(request, postData);
 }
