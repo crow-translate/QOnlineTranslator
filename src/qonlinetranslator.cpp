@@ -1322,6 +1322,46 @@ void QOnlineTranslator::parseYandexDictionary()
     }
 }
 
+void QOnlineTranslator::requestBingCredentials()
+{
+    const QUrl url(QStringLiteral("https://www.bing.com/translator"));
+    m_currentReply = m_networkManager->get(QNetworkRequest(url));
+}
+
+void QOnlineTranslator::parseBingCredentials()
+{
+    m_currentReply->deleteLater();
+
+    if (m_currentReply->error() != QNetworkReply::NoError) {
+        resetData(NetworkError, m_currentReply->errorString());
+        return;
+    }
+
+    const QByteArray webSiteData = m_currentReply->readAll();
+    const QByteArray credentialsBeginString = "var params_RichTranslateHelper = [";
+    const int credentialsBeginPos = webSiteData.indexOf(credentialsBeginString);
+    if (credentialsBeginPos == -1) {
+        resetData(ParsingError, tr("Error: Unable to find Bing credentials in web version."));
+        return;
+    }
+
+    const int keyBeginPos = credentialsBeginPos + credentialsBeginString.size();
+    const int keyEndPos = webSiteData.indexOf(',', keyBeginPos);
+    if (keyEndPos == -1) {
+        resetData(ParsingError, tr("Error: Unable to extract Bing key from web version."));
+        return;
+    }
+    s_bingKey = webSiteData.mid(keyBeginPos, keyEndPos - keyBeginPos);
+
+    const int tokenBeginPos = keyEndPos + 2; // Skip two symbols instead of one because the value is enclosed in quotes
+    const int tokenEndPos = webSiteData.indexOf('"', tokenBeginPos);
+    if (tokenEndPos == -1) {
+        resetData(ParsingError, tr("Error: Unable to extract Bing token from web version."));
+        return;
+    }
+    s_bingToken = webSiteData.mid(tokenBeginPos, tokenEndPos - tokenBeginPos);
+}
+
 void QOnlineTranslator::requestBingTranslate()
 {
     const QString sourceText = sender()->property(s_textProperty).toString();
@@ -1329,7 +1369,9 @@ void QOnlineTranslator::requestBingTranslate()
     // Generate POST data
     const QByteArray postData = "&text=" + QUrl::toPercentEncoding(sourceText)
             + "&fromLang=" + languageApiCode(Bing, m_sourceLang).toUtf8()
-            + "&to=" + languageApiCode(Bing, m_translationLang).toUtf8();
+            + "&to=" + languageApiCode(Bing, m_translationLang).toUtf8()
+            + "&token=" + s_bingToken
+            + "&key=" + s_bingKey;
 
     // Setup request
     QNetworkRequest request;
@@ -1518,14 +1560,22 @@ void QOnlineTranslator::buildYandexDetectStateMachine()
 void QOnlineTranslator::buildBingStateMachine()
 {
     // States
+    auto *credentialsState = new QState(m_stateMachine); // Generate credentials from web version first to access API
     auto *translationState = new QState(m_stateMachine);
     auto *dictionaryState = new QState(m_stateMachine);
     auto *finalState = new QFinalState(m_stateMachine);
-    m_stateMachine->setInitialState(translationState);
+    m_stateMachine->setInitialState(credentialsState);
 
     // Transitions
+    credentialsState->addTransition(credentialsState, &QState::finished, translationState);
     translationState->addTransition(translationState, &QState::finished, dictionaryState);
     dictionaryState->addTransition(dictionaryState, &QState::finished, finalState);
+
+    // Setup credentials state
+    if (s_bingKey.isEmpty() || s_bingToken.isEmpty())
+        buildNetworkRequestState(credentialsState, &QOnlineTranslator::requestBingCredentials, &QOnlineTranslator::parseBingCredentials);
+    else
+        credentialsState->setInitialState(new QFinalState(credentialsState));
 
     // Setup translation state
     buildSplitNetworkRequest(translationState, &QOnlineTranslator::requestBingTranslate, &QOnlineTranslator::parseBingTranslate, m_source, s_bingTranslateLimit);

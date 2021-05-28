@@ -261,6 +261,9 @@ private slots:
     void parseYandexDictionary();
 
     // Bing
+    void requestBingCredentials();
+    void parseBingCredentials();
+
     void requestBingTranslate();
     void parseBingTranslate();
 
@@ -311,7 +314,10 @@ private:
     static const QMap<Language, QString> s_yandexLanguageCodes;
     static const QMap<Language, QString> s_bingLanguageCodes;
 
-    static inline QString s_yandexKey; // A key that is parsed from the web version to receive the translation using the API
+    // Credentials that is parsed from the web version to receive the translation using the API
+    static inline QString s_yandexKey; 
+    static inline QByteArray s_bingKey;
+    static inline QByteArray s_bingToken;
 
     // This properties used to store unseful information in states
     static constexpr char s_textProperty[] = "Text";
