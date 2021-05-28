@@ -305,7 +305,6 @@ private:
     static int getSplitIndex(const QString &untranslatedText, int limit);
     static bool isContainsSpace(const QString &text);
     static void addSpaceBetweenParts(QString &text);
-    static QString parseYandexSid(const QByteArray &webSiteData);
 
     static const QMap<Language, QString> s_genericLanguageCodes;
 

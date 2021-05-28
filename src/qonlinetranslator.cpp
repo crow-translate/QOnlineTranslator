@@ -1147,7 +1147,7 @@ void QOnlineTranslator::parseGoogleTranslate()
 
 void QOnlineTranslator::requestYandexKey()
 {
-    const QUrl url(QStringLiteral("https://translate.yandex.com/"));
+    const QUrl url(QStringLiteral("https://translate.yandex.com"));
     m_currentReply = m_networkManager->get(QNetworkRequest(url));
 }
 
@@ -1167,11 +1167,27 @@ void QOnlineTranslator::parseYandexKey()
         return;
     }
 
-    s_yandexKey = parseYandexSid(webSiteData);
-    if (s_yandexKey.isEmpty()) {
-        resetData(ParsingError, tr("Error: Unable to parse Yandex SID."));
+    const QByteArray sidBeginString = "SID: '";
+    const int sidBeginStringPos = webSiteData.indexOf(sidBeginString);
+    if (sidBeginStringPos == -1) {
+        resetData(ParsingError, tr("Error: Unable to find Yandex SID in web version."));
         return;
     }
+
+    const int sidBeginPosition = sidBeginStringPos + sidBeginString.size();
+    const int sidEndPosition = webSiteData.indexOf('\'', sidBeginPosition);
+    if (sidEndPosition == -1) {
+        resetData(ParsingError, tr("Error: Unable to extract Yandex SID from web version."));
+        return;
+    }
+
+    // Yandex show reversed parts of session ID, need to decode
+    const QString sid = webSiteData.mid(sidBeginPosition, sidEndPosition - sidBeginPosition);
+    QStringList sidParts = sid.split('.');
+    for (int i = 0; i < sidParts.size(); ++i)
+        std::reverse(sidParts[i].begin(), sidParts[i].end());
+
+    s_yandexKey = sidParts.join('.');
 }
 
 void QOnlineTranslator::requestYandexTranslate()
@@ -1491,7 +1507,7 @@ void QOnlineTranslator::buildGoogleDetectStateMachine()
 void QOnlineTranslator::buildYandexStateMachine()
 {
     // States
-    auto *keyState = new QState(m_stateMachine); // Generate session ID first to access API (Required for Yandex)
+    auto *keyState = new QState(m_stateMachine); // Generate SID from web version first to access API
     auto *translationState = new QState(m_stateMachine);
     auto *sourceTranslitState = new QState(m_stateMachine);
     auto *translationTranslitState = new QState(m_stateMachine);
@@ -1537,7 +1553,7 @@ void QOnlineTranslator::buildYandexStateMachine()
 void QOnlineTranslator::buildYandexDetectStateMachine()
 {
     // States
-    auto *keyState = new QState(m_stateMachine); // Generate session ID first to access API (Required for Yandex)
+    auto *keyState = new QState(m_stateMachine); // Generate SID from web version first to access API
     auto *detectState = new QState(m_stateMachine);
     auto *finalState = new QFinalState(m_stateMachine);
     m_stateMachine->setInitialState(keyState);
@@ -2110,19 +2126,4 @@ void QOnlineTranslator::addSpaceBetweenParts(QString &text)
 #endif
         text.append(' ');
     }
-}
-
-QString QOnlineTranslator::parseYandexSid(const QByteArray &webSiteData)
-{
-    const int sidBeginPosition = webSiteData.indexOf("SID: '") + 6;
-    const int sidEndPosition = webSiteData.indexOf('\'', sidBeginPosition);
-
-    const QString sid = webSiteData.mid(sidBeginPosition, sidEndPosition - sidBeginPosition);
-
-    // Yandex show reversed parts of session ID, need to decode
-    QStringList sidParts = sid.split('.');
-    for (int i = 0; i < sidParts.size(); ++i)
-        std::reverse(sidParts[i].begin(), sidParts[i].end());
-
-    return sidParts.join('.');
 }
