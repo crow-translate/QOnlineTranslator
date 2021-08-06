@@ -274,18 +274,16 @@ QJsonDocument QOnlineTranslator::toJson() const
     QJsonObject translationOptions;
     for (auto it = m_translationOptions.cbegin(); it != m_translationOptions.cend(); ++it) {
         QJsonArray arr;
-        for (const QOption &option : it.value()) {
+        for (const QOption &option : it.value())
             arr.append(option.toJson());
-        }
         translationOptions.insert(it.key(), arr);
     }
 
     QJsonObject examples;
     for (auto it = m_examples.cbegin(); it != m_examples.cend(); ++it) {
         QJsonArray arr;
-        for (const QExample &example : it.value()) {
+        for (const QExample &example : it.value())
             arr.append(example.toJson());
-        }
         examples.insert(it.key(), arr);
     }
 
