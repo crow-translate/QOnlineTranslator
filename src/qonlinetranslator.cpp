@@ -1439,7 +1439,7 @@ void QOnlineTranslator::requestBingDictionary()
     }
 
     // Generate POST data
-    const QByteArray postData = "&text=" + QUrl::toPercentEncoding(sender()->property(s_textProperty).toString());
+    const QByteArray postData = "&text=" + QUrl::toPercentEncoding(sender()->property(s_textProperty).toString())
             + "&from=" + languageApiCode(Bing, m_sourceLang).toUtf8()
             + "&to=" + languageApiCode(Bing, m_translationLang).toUtf8();
 
