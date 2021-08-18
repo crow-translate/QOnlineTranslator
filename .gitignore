@@ -1,5 +1,16 @@
-# Directory settings for Plasma
-*.directory
+# Binaries
+build
 
-# Qt Creator project settings
-CMakeLists.txt.*
+# Qt Creator files
+*.user*
+*.autosave
+
+# Neovim
+neovim.json
+
+# VSCode
+.vscode
+
+# Clangd
+.cache
+compile_commands.json
