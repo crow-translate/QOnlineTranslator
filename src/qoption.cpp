@@ -20,13 +20,12 @@
 
 #include "qoption.h"
 
-#include <QJsonObject>
 #include <QJsonArray>
+#include <QJsonObject>
 
 QJsonObject QOption::toJson() const
 {
-    QJsonObject object
-    {
+    QJsonObject object{
         {"gender", gender},
         {"translations", QJsonArray::fromStringList(translations)},
         {"word", word},

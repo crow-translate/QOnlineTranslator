@@ -1,0 +1,35 @@
+Language: Cpp
+BasedOnStyle: WebKit
+AlignAfterOpenBracket: Align
+AlignEscapedNewlines: DontAlign
+AllowAllArgumentsOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowShortFunctionsOnASingleLine: None
+AllowShortLambdasOnASingleLine: Empty
+AlwaysBreakTemplateDeclarations: Yes
+BreakBeforeBinaryOperators: NonAssignment
+BreakBeforeBraces: Linux
+BreakInheritanceList: BeforeComma
+Cpp11BracedListStyle: true
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex: '"ui_.*'
+    Priority: 0
+    SortPriority: 1
+  - Regex: '".*/.*"'
+    Priority: 2
+    SortPriority: 3
+  - Regex: '".*"'
+    Priority: 2
+  - Regex: "<Q.*"
+    Priority: 4
+  - Regex: ".*"
+    Priority: 5
+KeepEmptyLinesAtTheStartOfBlocks: false
+NamespaceIndentation: None
+PointerAlignment: Right
+SpaceAfterTemplateKeyword: false
+SpaceBeforeCpp11BracedList: false
+TabWidth: 4
+
+# vim: filetype=yaml

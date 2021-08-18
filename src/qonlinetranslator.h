@@ -314,7 +314,7 @@ private:
     static const QMap<Language, QString> s_bingLanguageCodes;
 
     // Credentials that is parsed from the web version to receive the translation using the API
-    static inline QString s_yandexKey; 
+    static inline QString s_yandexKey;
     static inline QByteArray s_bingKey;
     static inline QByteArray s_bingToken;
 

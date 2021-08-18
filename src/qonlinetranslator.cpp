@@ -157,17 +157,14 @@ const QMap<QOnlineTranslator::Language, QString> QOnlineTranslator::s_genericLan
     {Yiddish, QStringLiteral("yi")},
     {Yoruba, QStringLiteral("yo")},
     {YucatecMaya, QStringLiteral("yua")},
-    {Zulu, QStringLiteral("zu")}
-};
+    {Zulu, QStringLiteral("zu")}};
 
 const QMap<QOnlineTranslator::Language, QString> QOnlineTranslator::s_googleLanguageCodes = {
-    {Hebrew, QStringLiteral("iw")}
-};
+    {Hebrew, QStringLiteral("iw")}};
 
 const QMap<QOnlineTranslator::Language, QString> QOnlineTranslator::s_yandexLanguageCodes = {
     {SimplifiedChinese, QStringLiteral("zn")},
-    {Javanese, QStringLiteral("jv")}
-};
+    {Javanese, QStringLiteral("jv")}};
 
 const QMap<QOnlineTranslator::Language, QString> QOnlineTranslator::s_bingLanguageCodes = {
     {Auto, QStringLiteral("auto-detect")},
@@ -175,8 +172,7 @@ const QMap<QOnlineTranslator::Language, QString> QOnlineTranslator::s_bingLangua
     {SerbianCyrillic, QStringLiteral("sr-Cyrl")},
     {SimplifiedChinese, QStringLiteral("zh-Hans")},
     {TraditionalChinese, QStringLiteral("zh-Hant")},
-    {Hmong, QStringLiteral("mww")}
-};
+    {Hmong, QStringLiteral("mww")}};
 
 QOnlineTranslator::QOnlineTranslator(QObject *parent)
     : QObject(parent)
@@ -200,20 +196,17 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
 
     // Check if the selected languages ​​are supported by the engine
     if (!isSupportTranslation(engine, m_sourceLang)) {
-        resetData(ParametersError, tr("Selected source language %1 is not supported for %2")
-                  .arg(languageName(m_sourceLang), QMetaEnum::fromType<Engine>().valueToKey(engine)));
+        resetData(ParametersError, tr("Selected source language %1 is not supported for %2").arg(languageName(m_sourceLang), QMetaEnum::fromType<Engine>().valueToKey(engine)));
         emit finished();
         return;
     }
     if (!isSupportTranslation(engine, m_translationLang)) {
-        resetData(ParametersError, tr("Selected translation language %1 is not supported for %2")
-                  .arg(languageName(m_translationLang), QMetaEnum::fromType<Engine>().valueToKey(engine)));
+        resetData(ParametersError, tr("Selected translation language %1 is not supported for %2").arg(languageName(m_translationLang), QMetaEnum::fromType<Engine>().valueToKey(engine)));
         emit finished();
         return;
     }
     if (!isSupportTranslation(engine, m_uiLang)) {
-        resetData(ParametersError, tr("Selected ui language %1 is not supported for %2")
-                  .arg(languageName(m_uiLang), QMetaEnum::fromType<Engine>().valueToKey(engine)));
+        resetData(ParametersError, tr("Selected ui language %1 is not supported for %2").arg(languageName(m_uiLang), QMetaEnum::fromType<Engine>().valueToKey(engine)));
         emit finished();
         return;
     }
@@ -287,8 +280,7 @@ QJsonDocument QOnlineTranslator::toJson() const
         examples.insert(it.key(), arr);
     }
 
-    QJsonObject object
-    {
+    QJsonObject object{
         {"examples", qMove(examples)},
         {"source", m_source},
         {"sourceTranscription", m_sourceTranscription},
@@ -1057,7 +1049,7 @@ void QOnlineTranslator::requestGoogleTranslate()
     // Generate API url
     QUrl url(QStringLiteral("https://translate.googleapis.com/translate_a/single"));
     url.setQuery(QStringLiteral("client=gtx&ie=UTF-8&oe=UTF-8&dt=bd&dt=ex&dt=ld&dt=md&dt=rw&dt=rm&dt=ss&dt=t&dt=at&dt=qc&sl=%1&tl=%2&hl=%3&q=%4")
-                 .arg(languageApiCode(Google, m_sourceLang), languageApiCode(Google, m_translationLang), languageApiCode(Google, m_uiLang), QUrl::toPercentEncoding(sourceText)));
+                     .arg(languageApiCode(Google, m_sourceLang), languageApiCode(Google, m_translationLang), languageApiCode(Google, m_uiLang), QUrl::toPercentEncoding(sourceText)));
 
     m_currentReply = m_networkManager->get(QNetworkRequest(url));
 }
@@ -1201,7 +1193,7 @@ void QOnlineTranslator::requestYandexTranslate()
     // Generate API url
     QUrl url(QStringLiteral("https://translate.yandex.net/api/v1/tr.json/translate"));
     url.setQuery(QStringLiteral("id=%1-2-0&srv=tr-text&text=%2&lang=%3")
-                 .arg(s_yandexKey, QUrl::toPercentEncoding(sourceText), lang));
+                     .arg(s_yandexKey, QUrl::toPercentEncoding(sourceText), lang));
 
     // Setup request
     QNetworkRequest request;
@@ -1285,7 +1277,7 @@ void QOnlineTranslator::requestYandexDictionary()
     const QString text = sender()->property(s_textProperty).toString();
     QUrl url(QStringLiteral("https://dictionary.yandex.net/dicservice.json/lookupMultiple"));
     url.setQuery(QStringLiteral("text=%1&ui=%2&dict=%3-%4")
-                 .arg(QUrl::toPercentEncoding(text), languageApiCode(Yandex, m_uiLang), languageApiCode(Yandex, m_sourceLang), languageApiCode(Yandex, m_translationLang)));
+                     .arg(QUrl::toPercentEncoding(text), languageApiCode(Yandex, m_uiLang), languageApiCode(Yandex, m_sourceLang), languageApiCode(Yandex, m_translationLang)));
 
     m_currentReply = m_networkManager->get(QNetworkRequest(url));
 }
@@ -1382,10 +1374,10 @@ void QOnlineTranslator::requestBingTranslate()
 
     // Generate POST data
     const QByteArray postData = "&text=" + QUrl::toPercentEncoding(sourceText)
-            + "&fromLang=" + languageApiCode(Bing, m_sourceLang).toUtf8()
-            + "&to=" + languageApiCode(Bing, m_translationLang).toUtf8()
-            + "&token=" + s_bingToken
-            + "&key=" + s_bingKey;
+        + "&fromLang=" + languageApiCode(Bing, m_sourceLang).toUtf8()
+        + "&to=" + languageApiCode(Bing, m_translationLang).toUtf8()
+        + "&token=" + s_bingToken
+        + "&key=" + s_bingKey;
 
     // Setup request
     QNetworkRequest request;
@@ -1438,8 +1430,8 @@ void QOnlineTranslator::requestBingDictionary()
 
     // Generate POST data
     const QByteArray postData = "&text=" + QUrl::toPercentEncoding(sender()->property(s_textProperty).toString())
-            + "&from=" + languageApiCode(Bing, m_sourceLang).toUtf8()
-            + "&to=" + languageApiCode(Bing, m_translationLang).toUtf8();
+        + "&from=" + languageApiCode(Bing, m_sourceLang).toUtf8()
+        + "&to=" + languageApiCode(Bing, m_translationLang).toUtf8();
 
     QNetworkRequest request;
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
@@ -2105,7 +2097,7 @@ int QOnlineTranslator::getSplitIndex(const QString &untranslatedText, int limit)
     return limit;
 }
 
-bool QOnlineTranslator::isContainsSpace(const QString &text) 
+bool QOnlineTranslator::isContainsSpace(const QString &text)
 {
     return std::any_of(text.cbegin(), text.cend(), [](QChar symbol) {
         return symbol.isSpace();

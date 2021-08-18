@@ -24,8 +24,7 @@
 #include <QJsonObject>
 #include <QStringList>
 
-struct QOption
-{
+struct QOption {
     QString word;
     QString gender;
     QStringList translations;

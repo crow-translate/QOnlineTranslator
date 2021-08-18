@@ -26,8 +26,7 @@
 const QMap<QOnlineTts::Emotion, QString> QOnlineTts::s_emotionCodes = {
     {Neutral, QStringLiteral("neutral")},
     {Good, QStringLiteral("good")},
-    {Evil, QStringLiteral("evil")}
-};
+    {Evil, QStringLiteral("evil")}};
 
 const QMap<QOnlineTts::Voice, QString> QOnlineTts::s_voiceCodes = {
     {Zahar, QStringLiteral("zahar")},
@@ -35,8 +34,7 @@ const QMap<QOnlineTts::Voice, QString> QOnlineTts::s_voiceCodes = {
     {Jane, QStringLiteral("jane")},
     {Oksana, QStringLiteral("oksana")},
     {Alyss, QStringLiteral("alyss")},
-    {Omazh, QStringLiteral("omazh")}
-};
+    {Omazh, QStringLiteral("omazh")}};
 
 QOnlineTts::QOnlineTts(QObject *parent)
     : QObject(parent)
@@ -102,7 +100,7 @@ void QOnlineTts::generateUrls(const QString &text, QOnlineTranslator::Engine eng
             // Generate URL API for add it to the playlist
             QUrl apiUrl(QStringLiteral("https://tts.voicetech.yandex.net/tts"));
             const QString query = QStringLiteral("text=%1&lang=%2&speaker=%3&emotion=%4&format=mp3")
-                    .arg(QUrl::toPercentEncoding(unparsedText.left(splitIndex)), langString, voiceString, emotionString);
+                                      .arg(QUrl::toPercentEncoding(unparsedText.left(splitIndex)), langString, voiceString, emotionString);
 #if defined(Q_OS_LINUX)
             apiUrl.setQuery(query);
 #elif defined(Q_OS_WIN)
@@ -185,8 +183,7 @@ QString QOnlineTts::languageApiCode(QOnlineTranslator::Engine engine, QOnlineTra
         break;
     }
 
-    setError(UnsupportedLanguage, tr("Selected language %1 is not supported for %2")
-             .arg(QMetaEnum::fromType<QOnlineTranslator::Language>().valueToKey(lang), QMetaEnum::fromType<QOnlineTranslator::Engine>().valueToKey(engine)));
+    setError(UnsupportedLanguage, tr("Selected language %1 is not supported for %2").arg(QMetaEnum::fromType<QOnlineTranslator::Language>().valueToKey(lang), QMetaEnum::fromType<QOnlineTranslator::Engine>().valueToKey(engine)));
     return QString();
 }
 
@@ -198,8 +195,7 @@ QString QOnlineTts::voiceApiCode(QOnlineTranslator::Engine engine, Voice voice)
         return voiceCode(voice);
     }
 
-    setError(UnsupportedVoice, tr("Selected voice %1 is not supported for %2")
-             .arg(QMetaEnum::fromType<Voice>().valueToKey(voice), QMetaEnum::fromType<QOnlineTranslator::Engine>().valueToKey(engine)));
+    setError(UnsupportedVoice, tr("Selected voice %1 is not supported for %2").arg(QMetaEnum::fromType<Voice>().valueToKey(voice), QMetaEnum::fromType<QOnlineTranslator::Engine>().valueToKey(engine)));
     return QString();
 }
 
@@ -211,7 +207,6 @@ QString QOnlineTts::emotionApiCode(QOnlineTranslator::Engine engine, Emotion emo
         return emotionCode(emotion);
     }
 
-    setError(UnsupportedEmotion, tr("Selected emotion %1 is not supported for %2")
-             .arg(QMetaEnum::fromType<Emotion>().valueToKey(emotion), QMetaEnum::fromType<QOnlineTranslator::Engine>().valueToKey(engine)));
+    setError(UnsupportedEmotion, tr("Selected emotion %1 is not supported for %2").arg(QMetaEnum::fromType<Emotion>().valueToKey(emotion), QMetaEnum::fromType<QOnlineTranslator::Engine>().valueToKey(engine)));
     return QString();
 }

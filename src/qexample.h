@@ -23,8 +23,7 @@
 
 #include <QJsonObject>
 
-struct QExample
-{
+struct QExample {
     QString example;
     QString description;
     QJsonObject toJson() const;
