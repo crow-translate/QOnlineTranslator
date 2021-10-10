@@ -174,6 +174,27 @@ const QMap<QOnlineTranslator::Language, QString> QOnlineTranslator::s_bingLangua
     {TraditionalChinese, QStringLiteral("zh-Hant")},
     {Hmong, QStringLiteral("mww")}};
 
+const QMap<QOnlineTranslator::Language, QString> QOnlineTranslator::s_libreTranslateCodes = {
+    {Auto, QStringLiteral("auto-detect")},
+    {English, QStringLiteral("en")},
+    {Arabic, QStringLiteral("ar")},
+    {TraditionalChinese, QStringLiteral("zh")},
+    {French, QStringLiteral("fr")},
+    {German, QStringLiteral("de")},
+    {Hindi, QStringLiteral("hi")},
+    {Indonesian, QStringLiteral("id")},
+    {Irish, QStringLiteral("ga")},
+    {Italian, QStringLiteral("it")},
+    {Japanese, QStringLiteral("ja")},
+    {Korean, QStringLiteral("ko")},
+    {Polish, QStringLiteral("pl")},
+    {Portuguese, QStringLiteral("pt")},
+    {Russian, QStringLiteral("ru")},
+    {Spanish, QStringLiteral("es")},
+    {Turkish, QStringLiteral("tr")},
+    {Vietnamese, QStringLiteral("vi")}
+};
+
 QOnlineTranslator::QOnlineTranslator(QObject *parent)
     : QObject(parent)
     , m_stateMachine(new QStateMachine(this))
@@ -221,6 +242,9 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
     case Bing:
         buildBingStateMachine();
         break;
+    case LibreTranslate:
+        buildLibretranslateStateMachine();
+        break;
     }
 
     m_stateMachine->start();
@@ -246,6 +270,8 @@ void QOnlineTranslator::detectLanguage(const QString &text, Engine engine)
         break;
     case Bing:
         buildBingDetectStateMachine();
+    case LibreTranslate:
+        buildLibretranslateDetectStateMachine();
     }
 
     m_stateMachine->start();
@@ -1032,6 +1058,125 @@ bool QOnlineTranslator::isSupportTranslation(Engine engine, Language lang)
             isSupported = true;
             break;
         }
+        break;
+    case LibreTranslate:
+        switch(lang) {
+        case NoLanguage:
+        case Afrikaans:
+        case Albanian:
+        case Amharic:
+        case Armenian:
+        case Azerbaijani:
+        case Bashkir:
+        case Basque:
+        case Belarusian:
+        case Bengali:
+        case Bosnian:
+        case Bulgarian:
+        case Cantonese:
+        case Catalan:
+        case Cebuano:
+        case Chichewa:
+        case Corsican:
+        case Croatian:
+        case Czech:
+        case Danish:
+        case Dutch:
+        case Esperanto:
+        case Estonian:
+        case Fijian:
+        case Filipino:
+        case Finnish:
+        case Frisian:
+        case Galician:
+        case Georgian:
+        case Greek:
+        case Gujarati:
+        case HaitianCreole:
+        case Hausa:
+        case Hawaiian:
+        case Hebrew:
+        case HillMari:
+        case Hmong:
+        case Hungarian:
+        case Icelandic:
+        case Igbo:
+        case Javanese:
+        case Kannada:
+        case Kazakh:
+        case Khmer:
+        case Kinyarwanda:
+        case Klingon:
+        case KlingonPlqaD:
+        case Kurdish:
+        case Kyrgyz:
+        case Lao:
+        case Latin:
+        case Latvian:
+        case LevantineArabic:
+        case Lithuanian:
+        case Luxembourgish:
+        case Macedonian:
+        case Malagasy:
+        case Malay:
+        case Malayalam:
+        case Maltese:
+        case Maori:
+        case Marathi:
+        case Mari:
+        case Mongolian:
+        case Myanmar:
+        case Nepali:
+        case Norwegian:
+        case Oriya:
+        case Papiamento:
+        case Pashto:
+        case Persian:
+        case Punjabi:
+        case QueretaroOtomi:
+        case Romanian:
+        case Samoan:
+        case ScotsGaelic:
+        case SerbianCyrillic:
+        case SerbianLatin:
+        case Sesotho:
+        case Shona:
+        case SimplifiedChinese:
+        case Sindhi:
+        case Sinhala:
+        case Slovak:
+        case Slovenian:
+        case Somali:
+        case Sundanese:
+        case Swahili:
+        case Swedish:
+        case Tagalog:
+        case Tahitian:
+        case Tajik:
+        case Tamil:
+        case Tatar:
+        case Telugu:
+        case Thai:
+        case Tongan:
+        case Turkmen:
+        case Udmurt:
+        case Uighur:
+        case Ukrainian:
+        case Urdu:
+        case Uzbek:
+        case Welsh:
+        case Xhosa:
+        case Yiddish:
+        case Yoruba:
+        case YucatecMaya:
+        case Zulu:
+            isSupported = false;
+            break;
+        default:
+            isSupported = true;
+            break;
+        }
+        break;
     }
 
     return isSupported;
@@ -1467,6 +1612,80 @@ void QOnlineTranslator::parseBingDictionary()
     }
 }
 
+void QOnlineTranslator::requestLibreLangCode()
+{
+    const QString sourceText = sender()->property(s_textProperty).toString();
+
+    // Generate POST data
+    const QByteArray postData = "&q=" + QUrl::toPercentEncoding(sourceText)
+        + "&api_key="; // api_key is placeholder for now, as free instance doesn't request it
+
+    // Setup request
+    QNetworkRequest request;
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+    request.setUrl(QStringLiteral("https://translate.argosopentech.com/detect"));
+
+    // Make reply
+    m_currentReply = m_networkManager->post(request, postData);
+}
+
+void QOnlineTranslator::parseLibreLangCode()
+{
+    m_currentReply->deleteLater();
+
+    // Check for errors
+    if (m_currentReply->error() != QNetworkReply::NoError) {
+        resetData(NetworkError, m_currentReply->errorString());
+        return;
+    }
+
+    const QJsonDocument jsonResponse = QJsonDocument::fromJson(m_currentReply->readAll());
+    const QJsonObject responseObject = jsonResponse.array().first().toObject();
+
+    if (m_sourceLang == Auto) {
+        const QString langCode = responseObject.value(QStringLiteral("language")).toString();
+        m_sourceLang = language(LibreTranslate, langCode);
+        if (m_sourceLang == NoLanguage) {
+            resetData(ParsingError, tr("Error: Unable to parse autodetected language"));
+        }
+    }
+}
+
+void QOnlineTranslator::requestLibreTranslate()
+{
+    const QString sourceText = sender()->property(s_textProperty).toString();
+
+    // Generate POST data
+    const QByteArray postData = "&q=" + QUrl::toPercentEncoding(sourceText)
+        + "&api_key="; // api_key is placeholder for now, as free instance doesn't request it
+
+    // Setup request
+    QNetworkRequest request;
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+    request.setHeader(QNetworkRequest::UserAgentHeader, QCoreApplication::applicationName() + '/' + QCoreApplication::applicationVersion());
+    request.setUrl(QStringLiteral("https://translate.argosopentech.com/translate"));
+
+    // Make reply
+    m_currentReply = m_networkManager->post(request, postData);
+}
+
+void QOnlineTranslator::parseLibreTranslate()
+{
+    m_currentReply->deleteLater();
+
+    // Check for errors
+    if (m_currentReply->error() != QNetworkReply::NoError) {
+        resetData(NetworkError, m_currentReply->errorString());
+        return;
+    }
+
+    // Parse translation data
+    const QJsonDocument jsonResponse = QJsonDocument::fromJson(m_currentReply->readAll());
+    const QJsonObject responseObject = jsonResponse.object();
+
+    m_translation = responseObject.value(QStringLiteral("translatedText")).toString();
+}
+
 void QOnlineTranslator::buildGoogleStateMachine()
 {
     // States (Google sends translation, translit and dictionary in one request, that will be splitted into several by the translation limit)
@@ -1605,6 +1824,50 @@ void QOnlineTranslator::buildBingDetectStateMachine()
     // Setup translation state
     const QString text = m_source.left(getSplitIndex(m_source, s_bingTranslateLimit));
     buildNetworkRequestState(detectState, &QOnlineTranslator::requestBingTranslate, &QOnlineTranslator::parseBingTranslate, text);
+}
+
+void QOnlineTranslator::buildLibretranslateStateMachine()
+{
+    // States
+    auto *languageDetectionState = new QState(m_stateMachine); // Generate credentials from web version first to access API
+    auto *translationState = new QState(m_stateMachine);
+    auto *dictionaryState = new QState(m_stateMachine);
+    auto *finalState = new QFinalState(m_stateMachine);
+    m_stateMachine->setInitialState(languageDetectionState);
+
+    // Transitions
+    languageDetectionState->addTransition(languageDetectionState, &QState::finished, translationState);
+    translationState->addTransition(translationState, &QState::finished, dictionaryState);
+    dictionaryState->addTransition(dictionaryState, &QState::finished, finalState);
+
+    // Setup language detection state
+    if (s_bingKey.isEmpty() || s_bingToken.isEmpty())
+        buildNetworkRequestState(languageDetectionState, &QOnlineTranslator::requestLibreLangCode, &QOnlineTranslator::parseLibreLangCode);
+    else
+        languageDetectionState->setInitialState(new QFinalState(languageDetectionState));
+
+    // Setup translation state
+    buildSplitNetworkRequest(translationState, &QOnlineTranslator::requestLibreTranslate, &QOnlineTranslator::parseLibreTranslate, m_source, s_libreTranslateLimit);
+
+    // Setup dictionary state
+    if (m_translationOptionsEnabled && !isContainsSpace(m_source))
+        buildNetworkRequestState(dictionaryState, &QOnlineTranslator::requestBingDictionary, &QOnlineTranslator::parseBingDictionary, m_source);
+    else
+        dictionaryState->setInitialState(new QFinalState(dictionaryState));
+}
+
+void QOnlineTranslator::buildLibretranslateDetectStateMachine()
+{
+    // States
+    auto *detectState = new QState(m_stateMachine);
+    auto *finalState = new QFinalState(m_stateMachine);
+    m_stateMachine->setInitialState(detectState);
+
+    detectState->addTransition(detectState, &QState::finished, finalState);
+
+    // Setup translation state
+    const QString text = m_source.left(getSplitIndex(m_source, s_libreTranslateLimit));
+    buildNetworkRequestState(detectState, &QOnlineTranslator::requestLibreTranslate, &QOnlineTranslator::parseLibreTranslate, text);
 }
 
 void QOnlineTranslator::buildSplitNetworkRequest(QState *parent, void (QOnlineTranslator::*requestMethod)(), void (QOnlineTranslator::*parseMethod)(), const QString &text, int textLimit)
@@ -1771,6 +2034,9 @@ bool QOnlineTranslator::isSupportTranslit(Engine engine, Language lang)
         default:
             return false;
         }
+    case LibreTranslate:
+        // LibreTranslate doesn't support translit
+        return false;
     }
 
     return false;
@@ -2031,6 +2297,9 @@ bool QOnlineTranslator::isSupportDictionary(Engine engine, Language sourceLang, 
         default:
             return false;
         }
+    case LibreTranslate:
+        // LibreTranslate doesn't support dictinaries
+        return false;
     }
 
     return false;
@@ -2049,6 +2318,8 @@ QString QOnlineTranslator::languageApiCode(Engine engine, Language lang)
         return s_yandexLanguageCodes.value(lang, s_genericLanguageCodes.value(lang));
     case Bing:
         return s_bingLanguageCodes.value(lang, s_genericLanguageCodes.value(lang));
+    case LibreTranslate:
+        return s_libreTranslateCodes.value(lang, s_genericLanguageCodes.value(lang));
     }
 
     Q_UNREACHABLE();
@@ -2065,6 +2336,8 @@ QOnlineTranslator::Language QOnlineTranslator::language(Engine engine, const QSt
         return s_yandexLanguageCodes.key(langCode, s_genericLanguageCodes.key(langCode, NoLanguage));
     case Bing:
         return s_bingLanguageCodes.key(langCode, s_genericLanguageCodes.key(langCode, NoLanguage));
+    case LibreTranslate:
+        return s_libreTranslateCodes.key(langCode, s_genericLanguageCodes.key(langCode, NoLanguage));
     }
 
     Q_UNREACHABLE();

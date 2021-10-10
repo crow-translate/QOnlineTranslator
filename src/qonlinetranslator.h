@@ -175,7 +175,8 @@ public:
     enum Engine {
         Google,
         Yandex,
-        Bing
+        Bing,
+        LibreTranslate
     };
     Q_ENUM(Engine)
 
@@ -270,6 +271,13 @@ private slots:
     void requestBingDictionary();
     void parseBingDictionary();
 
+    // LibreTranslate
+    void requestLibreLangCode();
+    void parseLibreLangCode();
+
+    void requestLibreTranslate();
+    void parseLibreTranslate();
+
 private:
     /*
      * Engines have translation limit, so need to split all text into parts and make request sequentially.
@@ -284,6 +292,9 @@ private:
 
     void buildBingStateMachine();
     void buildBingDetectStateMachine();
+
+    void buildLibretranslateStateMachine();
+    void buildLibretranslateDetectStateMachine();
 
     // Helper functions to build nested states
     void buildSplitNetworkRequest(QState *parent, void (QOnlineTranslator::*requestMethod)(), void (QOnlineTranslator::*parseMethod)(), const QString &text, int textLimit);
@@ -312,6 +323,7 @@ private:
     static const QMap<Language, QString> s_googleLanguageCodes;
     static const QMap<Language, QString> s_yandexLanguageCodes;
     static const QMap<Language, QString> s_bingLanguageCodes;
+    static const QMap<Language, QString> s_libreTranslateCodes;
 
     // Credentials that is parsed from the web version to receive the translation using the API
     static inline QString s_yandexKey;
@@ -327,6 +339,7 @@ private:
     static constexpr int s_yandexTranslateLimit = 150;
     static constexpr int s_yandexTranslitLimit = 180;
     static constexpr int s_bingTranslateLimit = 5001;
+    static constexpr int s_libreTranslateLimit = 120;
 
     QStateMachine *m_stateMachine;
     QNetworkAccessManager *m_networkManager;
