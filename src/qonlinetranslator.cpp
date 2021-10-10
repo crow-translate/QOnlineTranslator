@@ -1614,10 +1614,8 @@ void QOnlineTranslator::parseBingDictionary()
 
 void QOnlineTranslator::requestLibreLangCode()
 {
-    const QString sourceText = sender()->property(s_textProperty).toString();
-
     // Generate POST data
-    const QByteArray postData = "&q=" + QUrl::toPercentEncoding(sourceText)
+    const QByteArray postData = "&q=" + QUrl::toPercentEncoding(m_source)
         + "&api_key="; // api_key is placeholder for now, as free instance doesn't request it
 
     // Setup request
@@ -1653,16 +1651,15 @@ void QOnlineTranslator::parseLibreLangCode()
 
 void QOnlineTranslator::requestLibreTranslate()
 {
-    const QString sourceText = sender()->property(s_textProperty).toString();
-
     // Generate POST data
-    const QByteArray postData = "&q=" + QUrl::toPercentEncoding(sourceText)
+    const QByteArray postData = "&q=" + QUrl::toPercentEncoding(m_source)
+        + "&source=" + languageApiCode(LibreTranslate, m_sourceLang).toUtf8()
+        + "&target=" + languageApiCode(LibreTranslate, m_translationLang).toUtf8()
         + "&api_key="; // api_key is placeholder for now, as free instance doesn't request it
 
     // Setup request
     QNetworkRequest request;
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-    request.setHeader(QNetworkRequest::UserAgentHeader, QCoreApplication::applicationName() + '/' + QCoreApplication::applicationVersion());
     request.setUrl(QStringLiteral("https://translate.argosopentech.com/translate"));
 
     // Make reply
