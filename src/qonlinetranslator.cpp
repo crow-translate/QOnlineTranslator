@@ -1826,7 +1826,7 @@ void QOnlineTranslator::buildBingDetectStateMachine()
 void QOnlineTranslator::buildLibretranslateStateMachine()
 {
     // States
-    auto *languageDetectionState = new QState(m_stateMachine); // Generate credentials from web version first to access API
+    auto *languageDetectionState = new QState(m_stateMachine);
     auto *translationState = new QState(m_stateMachine);
     auto *dictionaryState = new QState(m_stateMachine);
     auto *finalState = new QFinalState(m_stateMachine);
