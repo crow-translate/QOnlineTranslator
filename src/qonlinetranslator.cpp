@@ -174,27 +174,6 @@ const QMap<QOnlineTranslator::Language, QString> QOnlineTranslator::s_bingLangua
     {TraditionalChinese, QStringLiteral("zh-Hant")},
     {Hmong, QStringLiteral("mww")}};
 
-const QMap<QOnlineTranslator::Language, QString> QOnlineTranslator::s_libreTranslateCodes = {
-    {Auto, QStringLiteral("auto-detect")},
-    {English, QStringLiteral("en")},
-    {Arabic, QStringLiteral("ar")},
-    {TraditionalChinese, QStringLiteral("zh")},
-    {French, QStringLiteral("fr")},
-    {German, QStringLiteral("de")},
-    {Hindi, QStringLiteral("hi")},
-    {Indonesian, QStringLiteral("id")},
-    {Irish, QStringLiteral("ga")},
-    {Italian, QStringLiteral("it")},
-    {Japanese, QStringLiteral("ja")},
-    {Korean, QStringLiteral("ko")},
-    {Polish, QStringLiteral("pl")},
-    {Portuguese, QStringLiteral("pt")},
-    {Russian, QStringLiteral("ru")},
-    {Spanish, QStringLiteral("es")},
-    {Turkish, QStringLiteral("tr")},
-    {Vietnamese, QStringLiteral("vi")}
-};
-
 QOnlineTranslator::QOnlineTranslator(QObject *parent)
     : QObject(parent)
     , m_stateMachine(new QStateMachine(this))
