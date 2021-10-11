@@ -2204,7 +2204,7 @@ QString QOnlineTranslator::languageApiCode(Engine engine, Language lang)
     case Bing:
         return s_bingLanguageCodes.value(lang, s_genericLanguageCodes.value(lang));
     case LibreTranslate:
-        return s_libreTranslateCodes.value(lang, s_genericLanguageCodes.value(lang));
+        return s_genericLanguageCodes.value(lang);
     }
 
     Q_UNREACHABLE();
@@ -2222,7 +2222,7 @@ QOnlineTranslator::Language QOnlineTranslator::language(Engine engine, const QSt
     case Bing:
         return s_bingLanguageCodes.key(langCode, s_genericLanguageCodes.key(langCode, NoLanguage));
     case LibreTranslate:
-        return s_libreTranslateCodes.key(langCode, s_genericLanguageCodes.key(langCode, NoLanguage));
+        return s_genericLanguageCodes.key(langCode, NoLanguage);
     }
 
     Q_UNREACHABLE();
