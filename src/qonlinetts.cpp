@@ -115,6 +115,13 @@ void QOnlineTts::generateUrls(const QString &text, QOnlineTranslator::Engine eng
     }
     case QOnlineTranslator::Bing:
         setError(UnsupportedEngine, tr("%1 engine does not support TTS").arg(QMetaEnum::fromType<QOnlineTranslator::Engine>().valueToKey(QOnlineTranslator::Bing)));
+    case QOnlineTranslator::Lingva:
+        // Lingva returns audio in strange format, use placeholder, until we'll figure it out
+        //
+        // Example: https://lingva.ml/api/v1/audio/en/Hello%20World!
+        // Will return json with uint bytes array, according to documentation
+        // See: https://github.com/TheDavidDelta/lingva-translate#public-apis
+        setError(UnsupportedEngine, tr("%1 engine does not support TTS").arg(QMetaEnum::fromType<QOnlineTranslator::Engine>().valueToKey(QOnlineTranslator::Bing)));
     }
 }
 
@@ -164,6 +171,7 @@ QString QOnlineTts::languageApiCode(QOnlineTranslator::Engine engine, QOnlineTra
 {
     switch (engine) {
     case QOnlineTranslator::Google:
+    case QOnlineTranslator::Lingva: // Lingva is a frontend to Google Translate
         if (lang != QOnlineTranslator::Auto)
             return QOnlineTranslator::languageApiCode(engine, lang); // Google use the same codes for tts (except 'auto')
         break;
