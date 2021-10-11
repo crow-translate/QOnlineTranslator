@@ -250,7 +250,7 @@ void QOnlineTranslator::detectLanguage(const QString &text, Engine engine)
     case Bing:
         buildBingDetectStateMachine();
     case LibreTranslate:
-        buildLibretranslateDetectStateMachine();
+        ();
     }
 
     m_stateMachine->start();
@@ -1716,29 +1716,18 @@ void QOnlineTranslator::buildLibretranslateStateMachine()
     // States
     auto *languageDetectionState = new QState(m_stateMachine);
     auto *translationState = new QState(m_stateMachine);
-    auto *dictionaryState = new QState(m_stateMachine);
     auto *finalState = new QFinalState(m_stateMachine);
     m_stateMachine->setInitialState(languageDetectionState);
 
     // Transitions
     languageDetectionState->addTransition(languageDetectionState, &QState::finished, translationState);
-    translationState->addTransition(translationState, &QState::finished, dictionaryState);
-    dictionaryState->addTransition(dictionaryState, &QState::finished, finalState);
+    translationState->addTransition(translationState, &QState::finished, finalState);
 
-    // Setup language detection state
-    if (s_bingKey.isEmpty() || s_bingToken.isEmpty())
-        buildNetworkRequestState(languageDetectionState, &QOnlineTranslator::requestLibreLangCode, &QOnlineTranslator::parseLibreLangCode);
-    else
-        languageDetectionState->setInitialState(new QFinalState(languageDetectionState));
+    // Setup LibreTranslate lang code detection
+    buildNetworkRequestState(languageDetectionState, &QOnlineTranslator::requestLibreLangCode, &QOnlineTranslator::parseLibreLangCode);
 
     // Setup translation state
     buildSplitNetworkRequest(translationState, &QOnlineTranslator::requestLibreTranslate, &QOnlineTranslator::parseLibreTranslate, m_source, s_libreTranslateLimit);
-
-    // Setup dictionary state
-    if (m_translationOptionsEnabled && !isContainsSpace(m_source))
-        buildNetworkRequestState(dictionaryState, &QOnlineTranslator::requestBingDictionary, &QOnlineTranslator::parseBingDictionary, m_source);
-    else
-        dictionaryState->setInitialState(new QFinalState(dictionaryState));
 }
 
 void QOnlineTranslator::buildLibretranslateDetectStateMachine()
