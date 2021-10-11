@@ -194,7 +194,7 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
     m_translationLang = translationLang == Auto ? language(QLocale()) : translationLang;
     m_uiLang = uiLang == Auto ? language(QLocale()) : uiLang;
 
-    // Check if the selected languages ​​are supported by the engine
+    // Check if the selected languages are supported by the engine
     if (!isSupportTranslation(engine, m_sourceLang)) {
         resetData(ParametersError, tr("Selected source language %1 is not supported for %2").arg(languageName(m_sourceLang), QMetaEnum::fromType<Engine>().valueToKey(engine)));
         emit finished();
@@ -249,8 +249,10 @@ void QOnlineTranslator::detectLanguage(const QString &text, Engine engine)
         break;
     case Bing:
         buildBingDetectStateMachine();
+        break;
     case LibreTranslate:
         buildLibreDetectStateMachine();
+        break;
     }
 
     m_stateMachine->start();
@@ -1039,7 +1041,7 @@ bool QOnlineTranslator::isSupportTranslation(Engine engine, Language lang)
         }
         break;
     case LibreTranslate:
-        switch(lang) {
+        switch (lang) {
         case NoLanguage:
         case Afrikaans:
         case Albanian:

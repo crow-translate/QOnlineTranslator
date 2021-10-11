@@ -1,0 +1,53 @@
+name: Main
+on:
+  push:
+    branches-ignore:
+      - "releases/**"
+    paths-ignore:
+      - "**.md"
+      - ".gitignore"
+  pull_request:
+    paths-ignore:
+      - "**.md"
+      - ".gitignore"
+jobs:
+  Formatting:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Clone repo
+        uses: actions/checkout@v2.3.4
+
+      - name: Check formatting
+        uses: DoozyX/clang-format-lint-action@v0.12
+        with:
+          clangFormatVersion: 12
+
+  Build:
+    strategy:
+      matrix:
+        qt_version: [5.9.9, 5.15.2]
+        platform: [ubuntu-20.04, windows-latest]
+        include:
+          - platform: ubuntu-20.04
+            CXXFLAGS: -Wall -Wextra -pedantic -Werror
+          - platform: windows-latest
+            CXXFLAGS: /experimental:external /external:anglebrackets /external:W0 /W4 /WX
+
+    runs-on: ${{ matrix.platform }}
+    env:
+      CXXFLAGS: ${{ matrix.CXXFLAGS }}
+
+    steps:
+      - name: Clone repo
+        uses: actions/checkout@v2
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v2
+        with:
+          version: ${{ matrix.qt_version }}
+
+      - name: Setup MSVC environment
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Build
+        uses: lukka/run-cmake@v3
