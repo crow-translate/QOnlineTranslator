@@ -293,8 +293,8 @@ private:
     void buildBingStateMachine();
     void buildBingDetectStateMachine();
 
-    void buildLibretranslateStateMachine();
-    void buildLibretranslateDetectStateMachine();
+    void buildLibreStateMachine();
+    void buildLibreDetectStateMachine();
 
     // Helper functions to build nested states
     void buildSplitNetworkRequest(QState *parent, void (QOnlineTranslator::*requestMethod)(), void (QOnlineTranslator::*parseMethod)(), const QString &text, int textLimit);

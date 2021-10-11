@@ -222,7 +222,7 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
         buildBingStateMachine();
         break;
     case LibreTranslate:
-        buildLibretranslateStateMachine();
+        buildLibreStateMachine();
         break;
     }
 
@@ -250,7 +250,7 @@ void QOnlineTranslator::detectLanguage(const QString &text, Engine engine)
     case Bing:
         buildBingDetectStateMachine();
     case LibreTranslate:
-        ();
+        buildLibreDetectStateMachine();
     }
 
     m_stateMachine->start();
@@ -1711,7 +1711,7 @@ void QOnlineTranslator::buildBingDetectStateMachine()
     buildNetworkRequestState(detectState, &QOnlineTranslator::requestBingTranslate, &QOnlineTranslator::parseBingTranslate, text);
 }
 
-void QOnlineTranslator::buildLibretranslateStateMachine()
+void QOnlineTranslator::buildLibreStateMachine()
 {
     // States
     auto *languageDetectionState = new QState(m_stateMachine);
@@ -1730,7 +1730,7 @@ void QOnlineTranslator::buildLibretranslateStateMachine()
     buildSplitNetworkRequest(translationState, &QOnlineTranslator::requestLibreTranslate, &QOnlineTranslator::parseLibreTranslate, m_source, s_libreTranslateLimit);
 }
 
-void QOnlineTranslator::buildLibretranslateDetectStateMachine()
+void QOnlineTranslator::buildLibreDetectStateMachine()
 {
     // States
     auto *detectState = new QState(m_stateMachine);
