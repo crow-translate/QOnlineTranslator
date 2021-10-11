@@ -1500,7 +1500,7 @@ void QOnlineTranslator::parseBingDictionary()
     }
 }
 
-void QOnlineTranslator::requestLibreLangCode()
+void QOnlineTranslator::requestLibreLangDetection()
 {
     // Generate POST data
     const QByteArray postData = "&q=" + QUrl::toPercentEncoding(m_source)
@@ -1515,7 +1515,7 @@ void QOnlineTranslator::requestLibreLangCode()
     m_currentReply = m_networkManager->post(request, postData);
 }
 
-void QOnlineTranslator::parseLibreLangCode()
+void QOnlineTranslator::parseLibreLangDetection()
 {
     m_currentReply->deleteLater();
 
@@ -1724,7 +1724,7 @@ void QOnlineTranslator::buildLibreStateMachine()
     translationState->addTransition(translationState, &QState::finished, finalState);
 
     // Setup LibreTranslate lang code detection
-    buildNetworkRequestState(languageDetectionState, &QOnlineTranslator::requestLibreLangCode, &QOnlineTranslator::parseLibreLangCode);
+    buildNetworkRequestState(languageDetectionState, &QOnlineTranslator::requestLibreLangDetection, &QOnlineTranslator::parseLibreLangDetection);
 
     // Setup translation state
     buildSplitNetworkRequest(translationState, &QOnlineTranslator::requestLibreTranslate, &QOnlineTranslator::parseLibreTranslate, m_source, s_libreTranslateLimit);

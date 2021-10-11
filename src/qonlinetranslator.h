@@ -272,8 +272,8 @@ private slots:
     void parseBingDictionary();
 
     // LibreTranslate
-    void requestLibreLangCode();
-    void parseLibreLangCode();
+    void requestLibreLangDetection();
+    void parseLibreLangDetection();
 
     void requestLibreTranslate();
     void parseLibreTranslate();
