@@ -22,32 +22,61 @@ jobs:
         with:
           clangFormatVersion: 12
 
+  Documentation:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Clone repo
+        uses: actions/checkout@v2.3.4
+
+      - name: Install apt packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install doxygen qtmultimedia5-dev
+
+      - name: Generate documentation
+        run: |
+          cmake -B build -D DOXYGEN_WARN_AS_ERROR=YES
+          cmake --build build --target QOnlineTranslatorDocumentation
+
   Build:
     strategy:
       matrix:
-        qt_version: [5.9.9, 5.15.2]
-        platform: [ubuntu-20.04, windows-latest]
+        os: [ubuntu-18.04, ubuntu-20.04, windows-latest]
         include:
-          - platform: ubuntu-20.04
-            CXXFLAGS: -Wall -Wextra -pedantic -Werror
-          - platform: windows-latest
-            CXXFLAGS: /experimental:external /external:anglebrackets /external:W0 /W4 /WX
+          - os: ubuntu-18.04
+            extra-cmake-arguments: >-
+              -D CMAKE_CXX_FLAGS="-Wall -Wextra -pedantic -Werror"
+          - os: ubuntu-20.04
+            extra-cmake-arguments: >-
+              -D CMAKE_CXX_FLAGS="-Wall -Wextra -pedantic -Werror"
+          - os: windows-latest
+            extra-cmake-arguments: >-
+              -D CMAKE_CXX_FLAGS="/experimental:external /external:anglebrackets /external:W0 /W4 /WX"
+              -D CMAKE_CXX_CLANG_TIDY='clang-tidy;--warnings-as-errors=*'
 
-    runs-on: ${{ matrix.platform }}
-    env:
-      CXXFLAGS: ${{ matrix.CXXFLAGS }}
-
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Clone repo
         uses: actions/checkout@v2
 
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v2
-        with:
-          version: ${{ matrix.qt_version }}
+      - name: Install apt packages
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install qtmultimedia5-dev
 
-      - name: Setup MSVC environment
-        uses: ilammy/msvc-dev-cmd@v1
+      - name: Install vcpkg packages
+        uses: lukka/run-vcpkg@v7
+        if: runner.os == 'Windows'
+        with:
+          vcpkgArguments: qt5-multimedia --triplet x64-windows
+          vcpkgGitCommitId: 5568f110b509a9fd90711978a7cb76bae75bb092
+        env:
+          VCPKG_DISABLE_METRICS: 1
 
       - name: Build
         uses: lukka/run-cmake@v3
+        with:
+          cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
+          useVcpkgToolchainFile: true
+          cmakeAppendedArgs: -G Ninja ${{ matrix.extra-cmake-arguments }}
