@@ -1060,120 +1060,29 @@ bool QOnlineTranslator::isSupportTranslation(Engine engine, Language lang)
         }
         break;
     case LibreTranslate:
+        // LibreTranslate has very few langs support, so we reverse the switch here
         switch(lang) {
-        case NoLanguage:
-        case Afrikaans:
-        case Albanian:
-        case Amharic:
-        case Armenian:
-        case Azerbaijani:
-        case Bashkir:
-        case Basque:
-        case Belarusian:
-        case Bengali:
-        case Bosnian:
-        case Bulgarian:
-        case Cantonese:
-        case Catalan:
-        case Cebuano:
-        case Chichewa:
-        case Corsican:
-        case Croatian:
-        case Czech:
-        case Danish:
-        case Dutch:
-        case Esperanto:
-        case Estonian:
-        case Fijian:
-        case Filipino:
-        case Finnish:
-        case Frisian:
-        case Galician:
-        case Georgian:
-        case Greek:
-        case Gujarati:
-        case HaitianCreole:
-        case Hausa:
-        case Hawaiian:
-        case Hebrew:
-        case HillMari:
-        case Hmong:
-        case Hungarian:
-        case Icelandic:
-        case Igbo:
-        case Javanese:
-        case Kannada:
-        case Kazakh:
-        case Khmer:
-        case Kinyarwanda:
-        case Klingon:
-        case KlingonPlqaD:
-        case Kurdish:
-        case Kyrgyz:
-        case Lao:
-        case Latin:
-        case Latvian:
-        case LevantineArabic:
-        case Lithuanian:
-        case Luxembourgish:
-        case Macedonian:
-        case Malagasy:
-        case Malay:
-        case Malayalam:
-        case Maltese:
-        case Maori:
-        case Marathi:
-        case Mari:
-        case Mongolian:
-        case Myanmar:
-        case Nepali:
-        case Norwegian:
-        case Oriya:
-        case Papiamento:
-        case Pashto:
-        case Persian:
-        case Punjabi:
-        case QueretaroOtomi:
-        case Romanian:
-        case Samoan:
-        case ScotsGaelic:
-        case SerbianCyrillic:
-        case SerbianLatin:
-        case Sesotho:
-        case Shona:
-        case SimplifiedChinese:
-        case Sindhi:
-        case Sinhala:
-        case Slovak:
-        case Slovenian:
-        case Somali:
-        case Sundanese:
-        case Swahili:
-        case Swedish:
-        case Tagalog:
-        case Tahitian:
-        case Tajik:
-        case Tamil:
-        case Tatar:
-        case Telugu:
-        case Thai:
-        case Tongan:
-        case Turkmen:
-        case Udmurt:
-        case Uighur:
-        case Ukrainian:
-        case Urdu:
-        case Uzbek:
-        case Welsh:
-        case Xhosa:
-        case Yiddish:
-        case Yoruba:
-        case YucatecMaya:
-        case Zulu:
-            isSupported = false;
+        case English:
+        case Arabic:
+        case TraditionalChinese:
+        case French:
+        case German:
+        case Hindi:
+        case Indonesian:
+        case Irish:
+        case Italian:
+        case Japanese:
+        case Korean:
+        case Polish:
+        case Portuguese:
+        case Russian:
+        case Spanish:
+        case Turkish:
+        case Vietnamese:
+            isSupported = true;
             break;
         default:
-            isSupported = true;
+            isSupported = false;
             break;
         }
         break;
