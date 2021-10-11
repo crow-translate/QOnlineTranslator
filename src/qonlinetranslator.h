@@ -175,7 +175,8 @@ public:
     enum Engine {
         Google,
         Yandex,
-        Bing
+        Bing,
+        LibreTranslate
     };
     Q_ENUM(Engine)
 
@@ -270,6 +271,13 @@ private slots:
     void requestBingDictionary();
     void parseBingDictionary();
 
+    // LibreTranslate
+    void requestLibreLangDetection();
+    void parseLibreLangDetection();
+
+    void requestLibreTranslate();
+    void parseLibreTranslate();
+
 private:
     /*
      * Engines have translation limit, so need to split all text into parts and make request sequentially.
@@ -284,6 +292,9 @@ private:
 
     void buildBingStateMachine();
     void buildBingDetectStateMachine();
+
+    void buildLibreStateMachine();
+    void buildLibreDetectStateMachine();
 
     // Helper functions to build nested states
     void buildSplitNetworkRequest(QState *parent, void (QOnlineTranslator::*requestMethod)(), void (QOnlineTranslator::*parseMethod)(), const QString &text, int textLimit);
@@ -327,6 +338,7 @@ private:
     static constexpr int s_yandexTranslateLimit = 150;
     static constexpr int s_yandexTranslitLimit = 180;
     static constexpr int s_bingTranslateLimit = 5001;
+    static constexpr int s_libreTranslateLimit = 120;
 
     QStateMachine *m_stateMachine;
     QNetworkAccessManager *m_networkManager;
