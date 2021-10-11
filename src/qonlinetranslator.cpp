@@ -1500,17 +1500,6 @@ void QOnlineTranslator::parseLingvaTranslate()
     const QJsonDocument jsonResponse = QJsonDocument::fromJson(m_currentReply->readAll());
     const QJsonObject responseObject = jsonResponse.object();
 
-    if (m_sourceLang == Auto) {
-        const QString langCode = responseObject.value(QStringLiteral("detectedLanguage")).toObject().value(QStringLiteral("language")).toString();
-        m_sourceLang = language(Lingva, langCode);
-        if (m_sourceLang == NoLanguage) {
-            resetData(ParsingError, tr("Error: Unable to parse autodetected language"));
-            return;
-        }
-        if (m_onlyDetectLanguage)
-            return;
-    }
-
     m_translation = responseObject.value(QStringLiteral("translation")).toString();
 }
 
