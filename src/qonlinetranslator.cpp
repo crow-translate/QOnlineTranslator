@@ -1741,7 +1741,7 @@ void QOnlineTranslator::buildLibreDetectStateMachine()
 
     // Setup translation state
     const QString text = m_source.left(getSplitIndex(m_source, s_libreTranslateLimit));
-    buildNetworkRequestState(detectState, &QOnlineTranslator::requestLibreTranslate, &QOnlineTranslator::parseLibreTranslate, text);
+    buildNetworkRequestState(detectState, &QOnlineTranslator::requestLibreLangDetection, &QOnlineTranslator::parseLibreLangDetection, text);
 }
 
 void QOnlineTranslator::buildSplitNetworkRequest(QState *parent, void (QOnlineTranslator::*requestMethod)(), void (QOnlineTranslator::*parseMethod)(), const QString &text, int textLimit)
