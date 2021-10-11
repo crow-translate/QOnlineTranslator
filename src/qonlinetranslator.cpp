@@ -1502,8 +1502,10 @@ void QOnlineTranslator::parseBingDictionary()
 
 void QOnlineTranslator::requestLibreLangDetection()
 {
+    const QString sourceText = sender()->property(s_textProperty).toString();
+
     // Generate POST data
-    const QByteArray postData = "&q=" + QUrl::toPercentEncoding(m_source)
+    const QByteArray postData = "&q=" + QUrl::toPercentEncoding(sourceText)
         + "&api_key="; // api_key is placeholder for now, as free instance doesn't request it
 
     // Setup request
@@ -1539,8 +1541,10 @@ void QOnlineTranslator::parseLibreLangDetection()
 
 void QOnlineTranslator::requestLibreTranslate()
 {
+    const QString sourceText = sender()->property(s_textProperty).toString();
+
     // Generate POST data
-    const QByteArray postData = "&q=" + QUrl::toPercentEncoding(m_source)
+    const QByteArray postData = "&q=" + QUrl::toPercentEncoding(sourceText)
         + "&source=" + languageApiCode(LibreTranslate, m_sourceLang).toUtf8()
         + "&target=" + languageApiCode(LibreTranslate, m_translationLang).toUtf8()
         + "&api_key="; // api_key is placeholder for now, as free instance doesn't request it
@@ -1724,7 +1728,7 @@ void QOnlineTranslator::buildLibreStateMachine()
     translationState->addTransition(translationState, &QState::finished, finalState);
 
     // Setup LibreTranslate lang code detection
-    buildNetworkRequestState(languageDetectionState, &QOnlineTranslator::requestLibreLangDetection, &QOnlineTranslator::parseLibreLangDetection);
+    buildNetworkRequestState(languageDetectionState, &QOnlineTranslator::requestLibreLangDetection, &QOnlineTranslator::parseLibreLangDetection, m_source);
 
     // Setup translation state
     buildSplitNetworkRequest(translationState, &QOnlineTranslator::requestLibreTranslate, &QOnlineTranslator::parseLibreTranslate, m_source, s_libreTranslateLimit);
