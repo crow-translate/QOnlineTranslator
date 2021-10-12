@@ -428,6 +428,26 @@ public:
     void setExamplesEnabled(bool enable);
 
     /**
+     * @brief Set the URL engine
+     *
+     * Affects only LibreTranslate and Lingva.
+     *
+     * @param engine engine
+     * @param url engine url
+     */
+    void setEngineUrl(Engine engine, QString url);
+
+    /**
+     * @brief Set api key for engine
+     *
+     * Affects only LibreTranslate.
+     *
+     * @param engine engine
+     * @param apiKey your key for this particular instance
+     */
+    void setEngineApiKey(Engine engine, QByteArray apiKey);
+
+    /**
      * @brief Language name
      *
      * @param lang language
@@ -600,6 +620,13 @@ private:
     QString m_translation;
     QString m_translationTranslit;
     QString m_errorString;
+
+    // Self-hosted engines settings
+    // LibreTranslate
+    QByteArray m_libreApiKey; // Doesn't require key for free instance
+    QString m_libreUrl = QStringLiteral("https://translate.argosopentech.com"); // One of the free instance
+    // Lingva
+    QString m_lingvaUrl = QStringLiteral("https://lingva.ml");
 
     QMap<QString, QVector<QOption>> m_translationOptions;
     QMap<QString, QVector<QExample>> m_examples;
