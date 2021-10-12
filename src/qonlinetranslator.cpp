@@ -421,6 +421,31 @@ void QOnlineTranslator::setExamplesEnabled(bool enable)
     m_examplesEnabled = enable;
 }
 
+void QOnlineTranslator::setInstance(Engine engine, const QUrl &instanceUrl)
+{
+    switch(engine) {
+    case LibreTranslate:
+        m_libreInstanceUrl = instanceUrl;
+        break;
+    case Lingva:
+        m_lingvaInstanceUrl = instanceUrl;
+        break;
+    default:
+        break;
+    }
+}
+
+void QOnlineTranslator::setInstanceApiKey(Engine engine, const QString &apiKey)
+{
+    switch(engine) {
+    case LibreTranslate:
+        m_libreApiKey = apiKey;
+        break;
+    default:
+        break;
+    }
+}
+
 QString QOnlineTranslator::languageName(Language lang)
 {
     switch (lang) {
@@ -1606,12 +1631,12 @@ void QOnlineTranslator::requestLibreLangDetection()
 
     // Generate POST data
     const QByteArray postData = "&q=" + QUrl::toPercentEncoding(sourceText)
-        + "&api_key="; // api_key is placeholder for now, as free instance doesn't request it
+        + "&api_key=" + m_libreApiKey.toUtf8();
 
     // Setup request
     QNetworkRequest request;
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-    request.setUrl(QStringLiteral("https://translate.argosopentech.com/detect"));
+    request.setUrl(m_libreInstanceUrl.toString() + "/detect");
 
     // Make reply
     m_currentReply = m_networkManager->post(request, postData);
@@ -1647,12 +1672,12 @@ void QOnlineTranslator::requestLibreTranslate()
     const QByteArray postData = "&q=" + QUrl::toPercentEncoding(sourceText)
         + "&source=" + languageApiCode(LibreTranslate, m_sourceLang).toUtf8()
         + "&target=" + languageApiCode(LibreTranslate, m_translationLang).toUtf8()
-        + "&api_key="; // api_key is placeholder for now, as free instance doesn't request it
+        + "&api_key=" + m_libreApiKey.toUtf8();
 
     // Setup request
     QNetworkRequest request;
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-    request.setUrl(QStringLiteral("https://translate.argosopentech.com/translate"));
+    request.setUrl(m_libreInstanceUrl.toString() + "/translate");
 
     // Make reply
     m_currentReply = m_networkManager->post(request, postData);
@@ -1679,7 +1704,7 @@ void QOnlineTranslator::requestLingvaTranslate()
     const QString sourceText = sender()->property(s_textProperty).toString();
 
     // Generate API url
-    QUrl url(QStringLiteral("https://lingva.ml/api/v1/")
+    QUrl url(m_lingvaInstanceUrl.toString()
              + languageApiCode(Lingva, m_sourceLang) + "/"
              + languageApiCode(Lingva, m_translationLang) + "/"
              + QUrl::toPercentEncoding(sourceText));

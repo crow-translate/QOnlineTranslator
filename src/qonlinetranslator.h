@@ -27,6 +27,7 @@
 #include <QMap>
 #include <QPointer>
 #include <QVector>
+#include <QUrl>
 
 class QStateMachine;
 class QState;
@@ -428,6 +429,24 @@ public:
     void setExamplesEnabled(bool enable);
 
     /**
+     * @brief Set instance for LibreTranslate or Lingva
+     *
+     * @param engine engine
+     * @param instanceUrl instance url
+     * @sa QExample
+     */
+    void setInstance(Engine engine, const QUrl &instanceUrl);
+
+    /**
+     * @brief Set instance api key for LibreTranslate
+     *
+     * @param engine engine
+     * @param apiKey your key for this particular instance
+     * @sa QExample
+     */
+    void setInstanceApiKey(Engine engine, const QString &apiKey);
+
+    /**
      * @brief Language name
      *
      * @param lang language
@@ -600,6 +619,13 @@ private:
     QString m_translation;
     QString m_translationTranslit;
     QString m_errorString;
+
+    // Self-hosted engines settings
+    // LibreTranslate
+    QString m_libreApiKey = QString(); // Doesn't require key for free instance
+    QUrl m_libreInstanceUrl = QUrl(QStringLiteral("https://translate.argosopentech.com")); // One of the free instance
+    // Lingva
+    QUrl m_lingvaInstanceUrl = QUrl(QStringLiteral("https://lingva.ml"));
 
     QMap<QString, QVector<QOption>> m_translationOptions;
     QMap<QString, QVector<QExample>> m_examples;
