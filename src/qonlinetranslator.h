@@ -431,6 +431,7 @@ public:
      * @brief Set the URL engine
      *
      * Affects only LibreTranslate and Lingva.
+     * This method is REQUIRED.
      *
      * @param engine engine
      * @param url engine url
@@ -441,6 +442,7 @@ public:
      * @brief Set api key for engine
      *
      * Affects only LibreTranslate.
+     * By default, api key is ignored in free instances.
      *
      * @param engine engine
      * @param apiKey your key for this particular instance
@@ -624,9 +626,9 @@ private:
     // Self-hosted engines settings
     // LibreTranslate
     QByteArray m_libreApiKey; // Doesn't require key for free instance
-    QString m_libreUrl = QStringLiteral("https://translate.argosopentech.com"); // One of the free instance
+    QString m_libreUrl;
     // Lingva
-    QString m_lingvaUrl = QStringLiteral("https://lingva.ml");
+    QString m_lingvaUrl;
 
     QMap<QString, QVector<QOption>> m_translationOptions;
     QMap<QString, QVector<QExample>> m_examples;
