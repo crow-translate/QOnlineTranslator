@@ -421,25 +421,25 @@ void QOnlineTranslator::setExamplesEnabled(bool enable)
     m_examplesEnabled = enable;
 }
 
-void QOnlineTranslator::setInstance(Engine engine, const QUrl &instanceUrl)
+void QOnlineTranslator::setInstance(Engine engine, QUrl instanceUrl)
 {
     switch (engine) {
     case LibreTranslate:
-        m_libreInstanceUrl = instanceUrl;
+        m_libreInstanceUrl = qMove(instanceUrl);
         break;
     case Lingva:
-        m_lingvaInstanceUrl = instanceUrl;
+        m_lingvaInstanceUrl = qMove(instanceUrl);
         break;
     default:
         break;
     }
 }
 
-void QOnlineTranslator::setInstanceApiKey(Engine engine, const QByteArray &apiKey)
+void QOnlineTranslator::setInstanceApiKey(Engine engine, QByteArray apiKey)
 {
     switch (engine) {
     case LibreTranslate:
-        m_libreApiKey = apiKey;
+        m_libreApiKey = qMove(apiKey);
         break;
     default:
         break;

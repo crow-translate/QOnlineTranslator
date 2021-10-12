@@ -434,7 +434,7 @@ public:
      * @param engine engine
      * @param instanceUrl instance url
      */
-    void setInstance(Engine engine, const QUrl &instanceUrl);
+    void setInstance(Engine engine, QUrl instanceUrl);
 
     /**
      * @brief Set instance api key for LibreTranslate
@@ -442,7 +442,7 @@ public:
      * @param engine engine
      * @param apiKey your key for this particular instance
      */
-    void setInstanceApiKey(Engine engine, const QByteArray &apiKey);
+    void setInstanceApiKey(Engine engine, QByteArray apiKey);
 
     /**
      * @brief Language name
