@@ -66,7 +66,7 @@ void QOnlineTts::generateUrls(const QString &text, QOnlineTranslator::Engine eng
             const int splitIndex = QOnlineTranslator::getSplitIndex(unparsedText, s_googleTtsLimit); // Split the part by special symbol
 
             // Generate URL API for add it to the playlist
-            QUrl apiUrl(QStringLiteral("http://translate.googleapis.com/translate_tts"));
+            QUrl apiUrl(QStringLiteral("https://translate.googleapis.com/translate_tts"));
             const QString query = QStringLiteral("ie=UTF-8&client=gtx&tl=%1&q=%2").arg(langString, QString(QUrl::toPercentEncoding(unparsedText.left(splitIndex))));
 #if defined(Q_OS_LINUX)
             apiUrl.setQuery(query);
@@ -114,15 +114,18 @@ void QOnlineTts::generateUrls(const QString &text, QOnlineTranslator::Engine eng
         break;
     }
     case QOnlineTranslator::Bing:
-        setError(UnsupportedEngine, tr("%1 engine does not support TTS").arg(QMetaEnum::fromType<QOnlineTranslator::Engine>().valueToKey(QOnlineTranslator::Bing)));
+    case QOnlineTranslator::LibreTranslate:
     case QOnlineTranslator::Lingva:
-        // Lingva returns audio in strange format, use placeholder, until we'll figure it out
-        //
-        // Example: https://lingva.ml/api/v1/audio/en/Hello%20World!
-        // Will return json with uint bytes array, according to documentation
-        // See: https://github.com/TheDavidDelta/lingva-translate#public-apis
-        setError(UnsupportedEngine, tr("%1 engine does not support TTS").arg(QMetaEnum::fromType<QOnlineTranslator::Engine>().valueToKey(QOnlineTranslator::Lingva)));
+        setError(UnsupportedEngine, tr("%1 engine does not support TTS").arg(QMetaEnum::fromType<QOnlineTranslator::Engine>().valueToKey(engine)));
+        break;
     }
+
+    // NOTE:
+    // Lingva returns audio in strange format, use placeholder, until we'll figure it out
+    //
+    // Example: https://lingva.ml/api/v1/audio/en/Hello%20World!
+    // Will return json with uint bytes array, according to documentation
+    // See: https://github.com/TheDavidDelta/lingva-translate#public-apis
 }
 
 QList<QMediaContent> QOnlineTts::media() const

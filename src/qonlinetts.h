@@ -25,12 +25,32 @@
 
 #include <QMediaContent>
 
+/**
+ * @brief Provides TTS URL generation
+ *
+ * Example:
+ * @code
+ * QMediaPlayer *player = new QMediaPlayer(this);
+ * QMediaPlaylist *playlist = new QMediaPlaylist(player);
+ * QOnlineTts tts;
+ * 
+ * playlist->addMedia(tts.generateUrls("Hello World!", QOnlineTranslator::Google););
+ * player->setPlaylist(playlist);
+ * 
+ * player->play(); // Plays "Hello World!"
+ * @endcode
+ */
 class QOnlineTts : public QObject
 {
     Q_OBJECT
     Q_DISABLE_COPY(QOnlineTts)
 
 public:
+    /**
+     * @brief Defines voice to use
+     *
+     * Used only by Yandex.
+     */
     enum Voice {
         // All
         NoVoice = -1,
@@ -45,6 +65,11 @@ public:
     };
     Q_ENUM(Voice)
 
+    /**
+     * @brief Defines emotion to use
+     *
+     * Used only by Yandex.
+     */
     enum Emotion {
         // All
         NoEmotion = -1,
@@ -56,25 +81,108 @@ public:
     };
     Q_ENUM(Emotion)
 
+    /**
+     * @brief Indicates all possible error conditions found during the processing of the URLs generation
+     */
     enum TtsError {
+        /** No error condition */
         NoError,
+        /** Specified engine does not support TTS */
         UnsupportedEngine,
+        /** Unsupported language by specified engine */
         UnsupportedLanguage,
+        /** Unsupported voice by specified engine */
         UnsupportedVoice,
+        /** Unsupported emotion by specified engine */
         UnsupportedEmotion,
     };
 
+    /**
+     * @brief Create object
+     *
+     * Constructs an object with empty data and with parent.
+     * You can use generateUrls() to create URLs for use in QMediaPlayer.
+     *
+     * @param parent parent object
+     */
     explicit QOnlineTts(QObject *parent = nullptr);
 
+    /**
+     * @brief Create TTS urls
+     *
+     * Splits text into parts (engines have a limited number of characters per request) and returns list with the generated API URLs to play.
+     *
+     * @param text text to speak
+     * @param engine online translation engine
+     * @param lang text language
+     * @param voice voice to use (used only by Yandex)
+     * @param emotion emotion to use (used only by Yandex)
+     */
     void generateUrls(const QString &text, QOnlineTranslator::Engine engine, QOnlineTranslator::Language lang, Voice voice = NoVoice, Emotion emotion = NoEmotion);
+
+    /**
+     * @brief Generated media
+     *
+     * @return List of generated URLs
+     */
     QList<QMediaContent> media() const;
 
+    /**
+     * @brief Last error
+     *
+     * Error that was found during the generating tts.
+     * If no error was found, returns TtsError::NoError.
+     * The text of the error can be obtained by errorString().
+     *
+     * @return last error
+     */
     TtsError error() const;
+
+    /**
+     * @brief Last error string
+     *
+     * A human-readable description of the last tts URL generation error that occurred.
+     *
+     * @return last error string
+     */
     QString errorString() const;
 
+    /**
+     * @brief Code of the voice
+     *
+     * @param voice voice
+     * @return code for voice
+     */
     static QString voiceCode(Voice voice);
+
+    /**
+     * @brief Code of the emotion
+     *
+     * Used only by Yandex.
+     *
+     * @param emotion emotion
+     * @return code for emotion
+     */
     static QString emotionCode(Emotion emotion);
+
+    /**
+     * @brief Emotion from code
+     *
+     * Used only by Yandex.
+     *
+     * @param emotionCode emotion code
+     * @return corresponding emotion
+     */
     static Emotion emotion(const QString &emotionCode);
+
+    /**
+     * @brief Voice from code
+     *
+     * Used only by Yandex.
+     *
+     * @param voiceCode voice code
+     * @return corresponding voice
+     */
     static Voice voice(const QString &voiceCode);
 
 private:
