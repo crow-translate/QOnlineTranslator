@@ -512,6 +512,7 @@ private slots:
     // LibreTranslate
     void requestLibreLangDetection();
     void parseLibreLangDetection();
+
     void requestLibreTranslate();
     void parseLibreTranslate();
 
