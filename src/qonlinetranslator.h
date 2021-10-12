@@ -430,8 +430,8 @@ public:
     /**
      * @brief Set the URL engine
      *
-     * Affects only LibreTranslate and Lingva.
-     * This method is REQUIRED.
+     * Only affects LibreTranslate and Lingva because these engines have multiple instances.
+     * You need to call this function to specify the URL of an instance for them.
      *
      * @param engine engine
      * @param url engine url
