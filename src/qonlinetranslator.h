@@ -440,7 +440,7 @@ public:
     /**
      * @brief Set api key for engine
      *
-     * Affects only LibreTranslate at this moment.
+     * Affects only LibreTranslate.
      *
      * @param engine engine
      * @param apiKey your key for this particular instance
