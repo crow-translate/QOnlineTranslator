@@ -433,7 +433,7 @@ public:
      * Affects only LibreTranslate and Lingva.
      *
      * @param engine engine
-     * @param instanceUrl instance url
+     * @param url engine url
      */
     void setEngineUrl(Engine engine, QString url);
 
