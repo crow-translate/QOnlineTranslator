@@ -421,7 +421,7 @@ void QOnlineTranslator::setExamplesEnabled(bool enable)
     m_examplesEnabled = enable;
 }
 
-void QOnlineTranslator::setInstance(Engine engine, QUrl instanceUrl)
+void QOnlineTranslator::setInstance(Engine engine, QString instanceUrl)
 {
     switch (engine) {
     case LibreTranslate:
@@ -1636,7 +1636,7 @@ void QOnlineTranslator::requestLibreLangDetection()
     // Setup request
     QNetworkRequest request;
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-    request.setUrl(m_libreInstanceUrl.toString() + "/detect");
+    request.setUrl(m_libreInstanceUrl + "/detect");
 
     // Make reply
     m_currentReply = m_networkManager->post(request, postData);
@@ -1677,7 +1677,7 @@ void QOnlineTranslator::requestLibreTranslate()
     // Setup request
     QNetworkRequest request;
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-    request.setUrl(m_libreInstanceUrl.toString() + "/translate");
+    request.setUrl(m_libreInstanceUrl + "/translate");
 
     // Make reply
     m_currentReply = m_networkManager->post(request, postData);
@@ -1704,7 +1704,7 @@ void QOnlineTranslator::requestLingvaTranslate()
     const QString sourceText = sender()->property(s_textProperty).toString();
 
     // Generate API url
-    QUrl url(m_lingvaInstanceUrl.toString()
+    QUrl url(m_lingvaInstanceUrl
              + languageApiCode(Lingva, m_sourceLang) + "/"
              + languageApiCode(Lingva, m_translationLang) + "/"
              + QUrl::toPercentEncoding(sourceText));

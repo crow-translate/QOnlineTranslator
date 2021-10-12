@@ -434,7 +434,7 @@ public:
      * @param engine engine
      * @param instanceUrl instance url
      */
-    void setInstance(Engine engine, QUrl instanceUrl);
+    void setInstance(Engine engine, QString instanceUrl);
 
     /**
      * @brief Set instance api key for LibreTranslate
@@ -621,9 +621,9 @@ private:
     // Self-hosted engines settings
     // LibreTranslate
     QByteArray m_libreApiKey; // Doesn't require key for free instance
-    QUrl m_libreInstanceUrl = QUrl(QStringLiteral("https://translate.argosopentech.com")); // One of the free instance
+    QString m_libreInstanceUrl = QStringLiteral("https://translate.argosopentech.com"); // One of the free instance
     // Lingva
-    QUrl m_lingvaInstanceUrl = QUrl(QStringLiteral("https://lingva.ml"));
+    QString m_lingvaInstanceUrl = QStringLiteral("https://lingva.ml");
 
     QMap<QString, QVector<QOption>> m_translationOptions;
     QMap<QString, QVector<QExample>> m_examples;
