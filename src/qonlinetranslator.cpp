@@ -2069,12 +2069,9 @@ bool QOnlineTranslator::isSupportTranslit(Engine engine, Language lang)
         default:
             return false;
         }
-    case LibreTranslate:
-        // LibreTranslate doesn't support translit
+    case LibreTranslate: // LibreTranslate doesn't support translit
+    case Lingva: // Although Lingvo is a frontend to Google Translate, it doesn't support transliteration
         return false;
-    case Lingva:
-        return false; // Although Lingvo is a frontend to Google Translate, it doesn't support transliteration
-        break;
     }
 
     return false;
@@ -2335,11 +2332,9 @@ bool QOnlineTranslator::isSupportDictionary(Engine engine, Language sourceLang, 
         default:
             return false;
         }
-    case LibreTranslate:
-        // LibreTranslate doesn't support dictinaries
+    case LibreTranslate: // LibreTranslate doesn't support dictinaries
+    case Lingva: // Although Lingvo is a frontend to Google Translate, it doesn't support dictionaries
         return false;
-    case Lingva:
-        return false; // Although Lingvo is a frontend to Google Translate, it doesn't support dictionaries
     }
 
     return false;
