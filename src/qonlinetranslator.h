@@ -433,7 +433,6 @@ public:
      *
      * @param engine engine
      * @param instanceUrl instance url
-     * @sa QExample
      */
     void setInstance(Engine engine, const QUrl &instanceUrl);
 
@@ -442,7 +441,6 @@ public:
      *
      * @param engine engine
      * @param apiKey your key for this particular instance
-     * @sa QExample
      */
     void setInstanceApiKey(Engine engine, const QByteArray &apiKey);
 
