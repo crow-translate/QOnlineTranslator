@@ -623,10 +623,8 @@ private:
     QString m_errorString;
 
     // Self-hosted engines settings
-    // LibreTranslate
-    QByteArray m_libreApiKey; // Doesn't require key for free instance
+    QByteArray m_libreApiKey; // Can be empty, since free instances ignores api_key param
     QString m_libreUrl;
-    // Lingva
     QString m_lingvaUrl;
 
     QMap<QString, QVector<QOption>> m_translationOptions;
