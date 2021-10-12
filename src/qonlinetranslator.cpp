@@ -423,7 +423,7 @@ void QOnlineTranslator::setExamplesEnabled(bool enable)
 
 void QOnlineTranslator::setInstance(Engine engine, const QUrl &instanceUrl)
 {
-    switch(engine) {
+    switch (engine) {
     case LibreTranslate:
         m_libreInstanceUrl = instanceUrl;
         break;
@@ -437,7 +437,7 @@ void QOnlineTranslator::setInstance(Engine engine, const QUrl &instanceUrl)
 
 void QOnlineTranslator::setInstanceApiKey(Engine engine, const QString &apiKey)
 {
-    switch(engine) {
+    switch (engine) {
     case LibreTranslate:
         m_libreApiKey = apiKey;
         break;
