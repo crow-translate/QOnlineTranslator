@@ -252,6 +252,7 @@ void QOnlineTranslator::detectLanguage(const QString &text, Engine engine)
         break;
     case Bing:
         buildBingDetectStateMachine();
+        break;
     case LibreTranslate:
         buildLibreDetectStateMachine();
         break;
