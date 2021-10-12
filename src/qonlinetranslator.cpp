@@ -435,7 +435,7 @@ void QOnlineTranslator::setInstance(Engine engine, const QUrl &instanceUrl)
     }
 }
 
-void QOnlineTranslator::setInstanceApiKey(Engine engine, const QString &apiKey)
+void QOnlineTranslator::setInstanceApiKey(Engine engine, const QByteArray &apiKey)
 {
     switch (engine) {
     case LibreTranslate:
@@ -1631,7 +1631,7 @@ void QOnlineTranslator::requestLibreLangDetection()
 
     // Generate POST data
     const QByteArray postData = "&q=" + QUrl::toPercentEncoding(sourceText)
-        + "&api_key=" + m_libreApiKey.toUtf8();
+        + "&api_key=" + m_libreApiKey;
 
     // Setup request
     QNetworkRequest request;
@@ -1672,7 +1672,7 @@ void QOnlineTranslator::requestLibreTranslate()
     const QByteArray postData = "&q=" + QUrl::toPercentEncoding(sourceText)
         + "&source=" + languageApiCode(LibreTranslate, m_sourceLang).toUtf8()
         + "&target=" + languageApiCode(LibreTranslate, m_translationLang).toUtf8()
-        + "&api_key=" + m_libreApiKey.toUtf8();
+        + "&api_key=" + m_libreApiKey;
 
     // Setup request
     QNetworkRequest request;

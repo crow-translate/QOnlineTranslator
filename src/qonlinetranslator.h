@@ -444,7 +444,7 @@ public:
      * @param apiKey your key for this particular instance
      * @sa QExample
      */
-    void setInstanceApiKey(Engine engine, const QString &apiKey);
+    void setInstanceApiKey(Engine engine, const QByteArray &apiKey);
 
     /**
      * @brief Language name
@@ -622,7 +622,7 @@ private:
 
     // Self-hosted engines settings
     // LibreTranslate
-    QString m_libreApiKey = QString(); // Doesn't require key for free instance
+    QByteArray m_libreApiKey; // Doesn't require key for free instance
     QUrl m_libreInstanceUrl = QUrl(QStringLiteral("https://translate.argosopentech.com")); // One of the free instance
     // Lingva
     QUrl m_lingvaInstanceUrl = QUrl(QStringLiteral("https://lingva.ml"));
