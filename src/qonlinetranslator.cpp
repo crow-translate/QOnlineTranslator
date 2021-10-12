@@ -224,6 +224,9 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
     case LibreTranslate:
         buildLibreStateMachine();
         break;
+    case Lingva:
+        buildLingvaStateMachine();
+        break;
     }
 
     m_stateMachine->start();
@@ -252,6 +255,9 @@ void QOnlineTranslator::detectLanguage(const QString &text, Engine engine)
         break;
     case LibreTranslate:
         buildLibreDetectStateMachine();
+        break;
+    case Lingva:
+        buildLingvaDetectStateMachine();
         break;
     }
 
@@ -904,6 +910,7 @@ bool QOnlineTranslator::isSupportTranslation(Engine engine, Language lang)
 
     switch (engine) {
     case Google:
+    case Lingva: // Lingva is a frontend to Google Translate
         switch (lang) {
         case NoLanguage:
         case Bashkir:
@@ -1661,6 +1668,35 @@ void QOnlineTranslator::parseLibreTranslate()
         return;
     }
 
+    const QJsonDocument jsonResponse = QJsonDocument::fromJson(m_currentReply->readAll());
+    const QJsonObject responseObject = jsonResponse.object();
+
+    m_translation = responseObject.value(QStringLiteral("translation")).toString();
+}
+
+void QOnlineTranslator::requestLingvaTranslate()
+{
+    const QString sourceText = sender()->property(s_textProperty).toString();
+
+    // Generate API url
+    QUrl url(QStringLiteral("https://lingva.ml/api/v1/")
+             + languageApiCode(Lingva, m_sourceLang) + "/"
+             + languageApiCode(Lingva, m_translationLang) + "/"
+             + QUrl::toPercentEncoding(sourceText));
+
+    m_currentReply = m_networkManager->get(QNetworkRequest(url));
+}
+
+void QOnlineTranslator::parseLingvaTranslate()
+{
+    m_currentReply->deleteLater();
+
+    // Check for errors
+    if (m_currentReply->error() != QNetworkReply::NoError) {
+        resetData(NetworkError, m_currentReply->errorString());
+        return;
+    }
+
     // Parse translation data
     const QJsonDocument jsonResponse = QJsonDocument::fromJson(m_currentReply->readAll());
     const QJsonObject responseObject = jsonResponse.object();
@@ -1836,9 +1872,37 @@ void QOnlineTranslator::buildLibreDetectStateMachine()
 
     detectState->addTransition(detectState, &QState::finished, finalState);
 
-    // Setup translation state
+    // Setup lang detection state
     const QString text = m_source.left(getSplitIndex(m_source, s_libreTranslateLimit));
     buildNetworkRequestState(detectState, &QOnlineTranslator::requestLibreLangDetection, &QOnlineTranslator::parseLibreLangDetection, text);
+}
+
+void QOnlineTranslator::buildLingvaStateMachine()
+{
+    // States
+    auto *translationState = new QState(m_stateMachine);
+    auto *finalState = new QFinalState(m_stateMachine);
+    m_stateMachine->setInitialState(translationState);
+
+    // Transitions
+    translationState->addTransition(translationState, &QState::finished, finalState);
+
+    // Setup translation state
+    buildSplitNetworkRequest(translationState, &QOnlineTranslator::requestLingvaTranslate, &QOnlineTranslator::parseLingvaTranslate, m_source, s_googleTranslateLimit);
+}
+
+void QOnlineTranslator::buildLingvaDetectStateMachine()
+{
+    // States
+    auto *detectState = new QState(m_stateMachine);
+    auto *finalState = new QFinalState(m_stateMachine);
+    m_stateMachine->setInitialState(detectState);
+
+    detectState->addTransition(detectState, &QState::finished, finalState);
+
+    // Setup lang detection state
+    const QString text = m_source.left(getSplitIndex(m_source, s_googleTranslateLimit));
+    buildNetworkRequestState(detectState, &QOnlineTranslator::requestLingvaTranslate, &QOnlineTranslator::parseLingvaTranslate, text);
 }
 
 void QOnlineTranslator::buildSplitNetworkRequest(QState *parent, void (QOnlineTranslator::*requestMethod)(), void (QOnlineTranslator::*parseMethod)(), const QString &text, int textLimit)
@@ -2005,8 +2069,8 @@ bool QOnlineTranslator::isSupportTranslit(Engine engine, Language lang)
         default:
             return false;
         }
-    case LibreTranslate:
-        // LibreTranslate doesn't support translit
+    case LibreTranslate: // LibreTranslate doesn't support translit
+    case Lingva: // Although Lingvo is a frontend to Google Translate, it doesn't support transliteration
         return false;
     }
 
@@ -2268,8 +2332,8 @@ bool QOnlineTranslator::isSupportDictionary(Engine engine, Language sourceLang, 
         default:
             return false;
         }
-    case LibreTranslate:
-        // LibreTranslate doesn't support dictinaries
+    case LibreTranslate: // LibreTranslate doesn't support dictinaries
+    case Lingva: // Although Lingvo is a frontend to Google Translate, it doesn't support dictionaries
         return false;
     }
 
@@ -2284,6 +2348,7 @@ QString QOnlineTranslator::languageApiCode(Engine engine, Language lang)
 
     switch (engine) {
     case Google:
+    case Lingva: // Lingva is a Google Translate frontend, so will support same langs
         return s_googleLanguageCodes.value(lang, s_genericLanguageCodes.value(lang));
     case Yandex:
         return s_yandexLanguageCodes.value(lang, s_genericLanguageCodes.value(lang));
@@ -2302,6 +2367,7 @@ QOnlineTranslator::Language QOnlineTranslator::language(Engine engine, const QSt
     // Engine exceptions
     switch (engine) {
     case Google:
+    case Lingva: // Lingva is a Google Translate frontend, so will support same langs
         return s_googleLanguageCodes.key(langCode, s_genericLanguageCodes.key(langCode, NoLanguage));
     case Yandex:
         return s_yandexLanguageCodes.key(langCode, s_genericLanguageCodes.key(langCode, NoLanguage));

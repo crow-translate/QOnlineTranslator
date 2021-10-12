@@ -185,7 +185,8 @@ public:
         Google,
         Yandex,
         Bing,
-        LibreTranslate
+        LibreTranslate,
+        Lingva
     };
     Q_ENUM(Engine)
 
@@ -515,6 +516,10 @@ private slots:
     void requestLibreTranslate();
     void parseLibreTranslate();
 
+    // Lingva
+    void requestLingvaTranslate();
+    void parseLingvaTranslate();
+
 private:
     /*
      * Engines have translation limit, so need to split all text into parts and make request sequentially.
@@ -532,6 +537,9 @@ private:
 
     void buildLibreStateMachine();
     void buildLibreDetectStateMachine();
+
+    void buildLingvaStateMachine();
+    void buildLingvaDetectStateMachine();
 
     // Helper functions to build nested states
     void buildSplitNetworkRequest(QState *parent, void (QOnlineTranslator::*requestMethod)(), void (QOnlineTranslator::*parseMethod)(), const QString &text, int textLimit);
