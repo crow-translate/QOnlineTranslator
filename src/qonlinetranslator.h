@@ -428,7 +428,7 @@ public:
     void setExamplesEnabled(bool enable);
 
     /**
-     * @brief Set URL the engine
+     * @brief Set the URL engine
      *
      * Affects only LibreTranslate and Lingva.
      *
