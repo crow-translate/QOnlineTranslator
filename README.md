@@ -2,7 +2,7 @@
 
 [![GitHub (pre-)release](https://img.shields.io/github/release/crow-translate/QOnlineTranslator/all.svg)](https://github.com/crow-translate/QOnlineTranslator/releases)
 
-**QOnlineTranslator** is a library for **Qt5** that provides free usage of Google, Yandex and Bing translate API.
+**QOnlineTranslator** is a library for **Qt5** that provides free usage of Google, Yandex, Bing, LibreTranslate and Lingva translate API.
 
 **Example:**
 
