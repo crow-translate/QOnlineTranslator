@@ -1890,6 +1890,11 @@ void QOnlineTranslator::buildLibreStateMachine()
 
 void QOnlineTranslator::buildLibreDetectStateMachine()
 {
+    Q_ASSERT_X(
+        !m_libreUrl.isEmpty(),
+        "buildLibreDetectStateMachine",
+        "The engine requires a URL, but it was not specified");
+
     // States
     auto *detectState = new QState(m_stateMachine);
     auto *finalState = new QFinalState(m_stateMachine);
@@ -1918,6 +1923,11 @@ void QOnlineTranslator::buildLingvaStateMachine()
 
 void QOnlineTranslator::buildLingvaDetectStateMachine()
 {
+    Q_ASSERT_X(
+        !m_lingvaUrl.isEmpty(),
+        "buildLingvaDetectStateMachine",
+        "The engine requires a URL, but it was not specified");
+
     // States
     auto *detectState = new QState(m_stateMachine);
     auto *finalState = new QFinalState(m_stateMachine);
