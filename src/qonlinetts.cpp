@@ -194,7 +194,7 @@ QString QOnlineTts::languageApiCode(QOnlineTranslator::Engine engine, QOnlineTra
     }
 
     setError(UnsupportedLanguage, tr("Selected language %1 is not supported for %2").arg(QMetaEnum::fromType<QOnlineTranslator::Language>().valueToKey(lang), QMetaEnum::fromType<QOnlineTranslator::Engine>().valueToKey(engine)));
-    return QString();
+    return {};
 }
 
 QString QOnlineTts::voiceApiCode(QOnlineTranslator::Engine engine, Voice voice)
@@ -206,7 +206,7 @@ QString QOnlineTts::voiceApiCode(QOnlineTranslator::Engine engine, Voice voice)
     }
 
     setError(UnsupportedVoice, tr("Selected voice %1 is not supported for %2").arg(QMetaEnum::fromType<Voice>().valueToKey(voice), QMetaEnum::fromType<QOnlineTranslator::Engine>().valueToKey(engine)));
-    return QString();
+    return {};
 }
 
 QString QOnlineTts::emotionApiCode(QOnlineTranslator::Engine engine, Emotion emotion)
@@ -218,5 +218,5 @@ QString QOnlineTts::emotionApiCode(QOnlineTranslator::Engine engine, Emotion emo
     }
 
     setError(UnsupportedEmotion, tr("Selected emotion %1 is not supported for %2").arg(QMetaEnum::fromType<Emotion>().valueToKey(emotion), QMetaEnum::fromType<QOnlineTranslator::Engine>().valueToKey(engine)));
-    return QString();
+    return {};
 }
