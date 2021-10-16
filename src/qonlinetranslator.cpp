@@ -702,7 +702,7 @@ QString QOnlineTranslator::languageName(Language lang)
     case Zulu:
         return tr("Zulu");
     default:
-        return QString();
+        return {};
     }
 }
 
@@ -2379,7 +2379,7 @@ bool QOnlineTranslator::isSupportDictionary(Engine engine, Language sourceLang, 
 QString QOnlineTranslator::languageApiCode(Engine engine, Language lang)
 {
     if (!isSupportTranslation(engine, lang))
-        return QString();
+        return {};
 
     switch (engine) {
     case Google:
