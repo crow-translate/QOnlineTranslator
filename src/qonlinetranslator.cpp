@@ -223,7 +223,7 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
         break;
     case LibreTranslate:
         if (m_libreUrl.isEmpty()) {
-            resetData(ParametersError, tr("LibreTranslate URL can't be empty."));
+            resetData(ParametersError, tr("%1 URL can't be empty.").arg(QMetaEnum::fromType<Engine>().valueToKey(engine)));
             emit finished();
             return;
         }
@@ -232,7 +232,7 @@ void QOnlineTranslator::translate(const QString &text, Engine engine, Language t
         break;
     case Lingva:
         if (m_lingvaUrl.isEmpty()) {
-            resetData(ParametersError, tr("Lingva URL can't be empty."));
+            resetData(ParametersError, tr("%1 URL can't be empty.").arg(QMetaEnum::fromType<Engine>().valueToKey(engine)));
             emit finished();
             return;
         }
@@ -267,7 +267,7 @@ void QOnlineTranslator::detectLanguage(const QString &text, Engine engine)
         break;
     case LibreTranslate:
         if (m_libreUrl.isEmpty()) {
-            resetData(ParametersError, tr("LibreTranslate URL can't be empty."));
+            resetData(ParametersError, tr("%1 URL can't be empty.").arg(QMetaEnum::fromType<Engine>().valueToKey(engine)));
             emit finished();
             return;
         }
@@ -276,7 +276,7 @@ void QOnlineTranslator::detectLanguage(const QString &text, Engine engine)
         break;
     case Lingva:
         if (m_lingvaUrl.isEmpty()) {
-            resetData(ParametersError, tr("Lingva URL can't be empty."));
+            resetData(ParametersError, tr("%1 URL can't be empty.").arg(QMetaEnum::fromType<Engine>().valueToKey(engine)));
             emit finished();
             return;
         }
