@@ -1890,8 +1890,10 @@ void QOnlineTranslator::buildLibreStateMachine()
 
 void QOnlineTranslator::buildLibreDetectStateMachine()
 {
-    if (m_libreUrl.isEmpty())
+    if (m_libreUrl.isEmpty()) {
         resetData(ParametersError, tr("Empty LibreTranslate URL."));
+        return;
+    }
 
     // States
     auto *detectState = new QState(m_stateMachine);
@@ -1921,8 +1923,10 @@ void QOnlineTranslator::buildLingvaStateMachine()
 
 void QOnlineTranslator::buildLingvaDetectStateMachine()
 {
-    if (m_lingvaUrl.isEmpty())
+    if (m_lingvaUrl.isEmpty()) {
         resetData(ParametersError, tr("Empty Lingva URL."));
+        return;
+    }
 
     // States
     auto *detectState = new QState(m_stateMachine);
