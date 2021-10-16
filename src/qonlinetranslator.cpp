@@ -1704,7 +1704,7 @@ void QOnlineTranslator::requestLingvaTranslate()
     const QString sourceText = sender()->property(s_textProperty).toString();
 
     // Generate API url
-    QUrl url(m_lingvaUrl
+    QUrl url(m_lingvaUrl + "/api/v1/"
              + languageApiCode(Lingva, m_sourceLang) + "/"
              + languageApiCode(Lingva, m_translationLang) + "/"
              + QUrl::toPercentEncoding(sourceText));
@@ -1726,7 +1726,7 @@ void QOnlineTranslator::parseLingvaTranslate()
     const QJsonDocument jsonResponse = QJsonDocument::fromJson(m_currentReply->readAll());
     const QJsonObject responseObject = jsonResponse.object();
 
-    m_translation = responseObject.value(QStringLiteral("translatedText")).toString();
+    m_translation = responseObject.value(QStringLiteral("translation")).toString();
 }
 
 void QOnlineTranslator::buildGoogleStateMachine()
