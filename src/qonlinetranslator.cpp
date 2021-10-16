@@ -1871,6 +1871,11 @@ void QOnlineTranslator::buildBingDetectStateMachine()
 
 void QOnlineTranslator::buildLibreStateMachine()
 {
+    if (m_libreUrl.isEmpty()) {
+        resetData(ParametersError, tr("LibreTranslate URL can't be empty."));
+        return;
+    }
+
     // States
     auto *languageDetectionState = new QState(m_stateMachine);
     auto *translationState = new QState(m_stateMachine);
@@ -1891,7 +1896,7 @@ void QOnlineTranslator::buildLibreStateMachine()
 void QOnlineTranslator::buildLibreDetectStateMachine()
 {
     if (m_libreUrl.isEmpty()) {
-        resetData(ParametersError, tr("Empty LibreTranslate URL."));
+        resetData(ParametersError, tr("LibreTranslate URL can't be empty."));
         return;
     }
 
@@ -1909,6 +1914,11 @@ void QOnlineTranslator::buildLibreDetectStateMachine()
 
 void QOnlineTranslator::buildLingvaStateMachine()
 {
+    if (m_lingvaUrl.isEmpty()) {
+        resetData(ParametersError, tr("Lingva URL can't be empty."));
+        return;
+    }
+
     // States
     auto *translationState = new QState(m_stateMachine);
     auto *finalState = new QFinalState(m_stateMachine);
@@ -1924,7 +1934,7 @@ void QOnlineTranslator::buildLingvaStateMachine()
 void QOnlineTranslator::buildLingvaDetectStateMachine()
 {
     if (m_lingvaUrl.isEmpty()) {
-        resetData(ParametersError, tr("Empty Lingva URL."));
+        resetData(ParametersError, tr("Lingva URL can't be empty."));
         return;
     }
 
