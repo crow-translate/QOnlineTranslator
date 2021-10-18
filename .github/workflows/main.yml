@@ -51,6 +51,8 @@ jobs:
               -D CMAKE_CXX_FLAGS="-Wall -Wextra -pedantic -Werror"
           - os: windows-latest
             extra-cmake-arguments: >-
+              -D CMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake
+              -D VCPKG_TARGET_TRIPLET=$env:RUNVCPKG_VCPKG_TRIPLET
               -D CMAKE_CXX_FLAGS="/experimental:external /external:anglebrackets /external:W0 /W4 /WX"
               -D CMAKE_CXX_CLANG_TIDY='clang-tidy;--warnings-as-errors=*'
 
@@ -63,7 +65,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install qtmultimedia5-dev
+          sudo apt-get install qtmultimedia5-dev ninja-build
 
       - name: Install vcpkg packages
         uses: lukka/run-vcpkg@v7
@@ -74,9 +76,11 @@ jobs:
         env:
           VCPKG_DISABLE_METRICS: 1
 
+      - name: Setup MSVC
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+
       - name: Build
-        uses: lukka/run-cmake@v3
-        with:
-          cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
-          useVcpkgToolchainFile: true
-          cmakeAppendedArgs: -G Ninja ${{ matrix.extra-cmake-arguments }}
+        run: |
+          cmake -B build -G Ninja ${{ matrix.extra-cmake-arguments }}
+          cmake --build build --parallel 2
