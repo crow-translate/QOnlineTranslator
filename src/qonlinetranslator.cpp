@@ -1548,6 +1548,22 @@ void QOnlineTranslator::parseBingCredentials()
         return;
     }
     s_bingToken = webSiteData.mid(tokenBeginPos, tokenEndPos - tokenBeginPos);
+
+    const int igBeginPos = webSiteData.indexOf("IG");
+    const int igEndPos = webSiteData.indexOf('"', igBeginPos + 2);
+    if (igEndPos == -1) {
+        resetData(ParsingError, tr("Error: Unable to extract additional Bing information from web version."));
+        return;
+    }
+    s_bingIg = webSiteData.mid(igBeginPos, igEndPos - igBeginPos);
+
+    const int iidBeginPos = webSiteData.indexOf("data-iid");
+    const int iidEndPos = webSiteData.indexOf('"', iidBeginPos + 2);
+    if (iidEndPos == -1) {
+        resetData(ParsingError, tr("Error: Unable to extract additional Bing information from web version."));
+        return;
+    }
+    s_bingIid = webSiteData.mid(iidBeginPos, iidEndPos - iidBeginPos);
 }
 
 void QOnlineTranslator::requestBingTranslate()
@@ -1565,7 +1581,7 @@ void QOnlineTranslator::requestBingTranslate()
     QNetworkRequest request;
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
     request.setHeader(QNetworkRequest::UserAgentHeader, QCoreApplication::applicationName() + '/' + QCoreApplication::applicationVersion());
-    request.setUrl(QStringLiteral("https://www.bing.com/ttranslatev3"));
+    request.setUrl(QStringLiteral("https://www.bing.com/ttranslatev3?IG=%1&IID=%2").arg(s_bingIg, s_bingIid));
 
     // Make reply
     m_currentReply = m_networkManager->post(request, postData);
