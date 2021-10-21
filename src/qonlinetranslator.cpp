@@ -1577,11 +1577,14 @@ void QOnlineTranslator::requestBingTranslate()
         + "&token=" + s_bingToken
         + "&key=" + s_bingKey;
 
+    QUrl url(QStringLiteral("https://www.bing.com/ttranslatev3"));
+    url.setQuery(QStringLiteral("IG=%1&IID=%2").arg(s_bingIg, s_bingIid));
+
     // Setup request
     QNetworkRequest request;
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
     request.setHeader(QNetworkRequest::UserAgentHeader, QCoreApplication::applicationName() + '/' + QCoreApplication::applicationVersion());
-    request.setUrl(QStringLiteral("https://www.bing.com/ttranslatev3?IG=%1&IID=%2").arg(s_bingIg, s_bingIid));
+    request.setUrl(url);
 
     // Make reply
     m_currentReply = m_networkManager->post(request, postData);
