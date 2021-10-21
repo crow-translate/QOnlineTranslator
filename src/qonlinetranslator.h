@@ -594,6 +594,8 @@ private:
     static inline QString s_yandexKey;
     static inline QByteArray s_bingKey;
     static inline QByteArray s_bingToken;
+    static inline QString s_bingIg;
+    static inline QString s_bingIid;
 
     // This properties used to store unseful information in states
     static constexpr char s_textProperty[] = "Text";
