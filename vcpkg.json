@@ -1,6 +1,6 @@
 {
   "name": "qonlinetranslator",
-  "version-string": "1.5.1",
+  "version-string": "latest",
   "dependencies": [
     "qt5-multimedia"
   ]
