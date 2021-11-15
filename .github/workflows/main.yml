@@ -11,7 +11,8 @@ on:
       - "**.md"
       - ".gitignore"
 jobs:
-  Formatting:
+  format:
+    name: Format
     runs-on: ubuntu-20.04
     steps:
       - name: Clone repo
@@ -22,7 +23,8 @@ jobs:
         with:
           clangFormatVersion: 12
 
-  Documentation:
+  doxygen:
+    name: Doxygen
     runs-on: ubuntu-20.04
     steps:
       - name: Clone repo
@@ -38,7 +40,8 @@ jobs:
           cmake -B build -D DOXYGEN_WARN_AS_ERROR=YES
           cmake --build build --target QOnlineTranslatorDocumentation
 
-  Build:
+  build:
+    name: Build
     strategy:
       matrix:
         os: [ubuntu-18.04, ubuntu-20.04, windows-latest]
