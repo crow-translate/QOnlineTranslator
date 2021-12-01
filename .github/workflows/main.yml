@@ -2,14 +2,14 @@ name: Main
 on:
   push:
     branches-ignore:
-      - "releases/**"
+      - 'releases/**'
     paths-ignore:
-      - "**.md"
-      - ".gitignore"
+      - '**.md'
+      - '.gitignore'
   pull_request:
     paths-ignore:
-      - "**.md"
-      - ".gitignore"
+      - '**.md'
+      - '.gitignore'
 jobs:
   format:
     name: Format
