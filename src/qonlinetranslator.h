@@ -589,6 +589,7 @@ private:
     static const QMap<Language, QString> s_googleLanguageCodes;
     static const QMap<Language, QString> s_yandexLanguageCodes;
     static const QMap<Language, QString> s_bingLanguageCodes;
+    static const QMap<Language, QString> s_lingvaLanguageCodes;
 
     // Credentials that is parsed from the web version to receive the translation using the API
     static inline QString s_yandexKey;

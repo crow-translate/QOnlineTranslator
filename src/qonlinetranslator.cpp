@@ -174,6 +174,10 @@ const QMap<QOnlineTranslator::Language, QString> QOnlineTranslator::s_bingLangua
     {TraditionalChinese, QStringLiteral("zh-Hant")},
     {Hmong, QStringLiteral("mww")}};
 
+const QMap<QOnlineTranslator::Language, QString> QOnlineTranslator::s_lingvaLanguageCodes = {
+    {SimplifiedChinese, QStringLiteral("zh")},
+    {TraditionalChinese, QStringLiteral("zh_HANT")}};
+
 QOnlineTranslator::QOnlineTranslator(QObject *parent)
     : QObject(parent)
     , m_stateMachine(new QStateMachine(this))
@@ -2416,7 +2420,6 @@ QString QOnlineTranslator::languageApiCode(Engine engine, Language lang)
 
     switch (engine) {
     case Google:
-    case Lingva: // Lingva is a Google Translate frontend, so will support same langs
         return s_googleLanguageCodes.value(lang, s_genericLanguageCodes.value(lang));
     case Yandex:
         return s_yandexLanguageCodes.value(lang, s_genericLanguageCodes.value(lang));
@@ -2424,6 +2427,8 @@ QString QOnlineTranslator::languageApiCode(Engine engine, Language lang)
         return s_bingLanguageCodes.value(lang, s_genericLanguageCodes.value(lang));
     case LibreTranslate:
         return s_genericLanguageCodes.value(lang);
+    case Lingva:
+        return s_lingvaLanguageCodes.value(lang, s_genericLanguageCodes.value(lang));
     }
 
     Q_UNREACHABLE();
@@ -2435,7 +2440,6 @@ QOnlineTranslator::Language QOnlineTranslator::language(Engine engine, const QSt
     // Engine exceptions
     switch (engine) {
     case Google:
-    case Lingva: // Lingva is a Google Translate frontend, so will support same langs
         return s_googleLanguageCodes.key(langCode, s_genericLanguageCodes.key(langCode, NoLanguage));
     case Yandex:
         return s_yandexLanguageCodes.key(langCode, s_genericLanguageCodes.key(langCode, NoLanguage));
@@ -2443,6 +2447,8 @@ QOnlineTranslator::Language QOnlineTranslator::language(Engine engine, const QSt
         return s_bingLanguageCodes.key(langCode, s_genericLanguageCodes.key(langCode, NoLanguage));
     case LibreTranslate:
         return s_genericLanguageCodes.key(langCode, NoLanguage);
+    case Lingva:
+        return s_lingvaLanguageCodes.key(langCode, s_genericLanguageCodes.key(langCode, NoLanguage));
     }
 
     Q_UNREACHABLE();
