@@ -60,6 +60,7 @@ public:
         Belarusian,
         Bengali,
         Bosnian,
+		BritishEnglish,
         Bulgarian,
         Cantonese,
         Catalan,
