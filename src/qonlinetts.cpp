@@ -173,9 +173,9 @@ QString QOnlineTts::languageApiCode(QOnlineTranslator::Engine engine, QOnlineTra
     switch (engine) {
     case QOnlineTranslator::Google:
     case QOnlineTranslator::Lingva: // Lingva is a frontend to Google Translate
-		if (lang == QOnlineTranslator::BritishEnglish)
-			return QStringLiteral("en-GB"); // Google Translate won't translate into British English, but its TTS engine supports British pronunciation
-		else if (lang != QOnlineTranslator::Auto)
+        if (lang == QOnlineTranslator::BritishEnglish)
+            return QStringLiteral("en-GB"); // Google Translate won't translate into British English, but its TTS engine supports British pronunciation
+        else if (lang != QOnlineTranslator::Auto)
             return QOnlineTranslator::languageApiCode(engine, lang); // Google use the same codes for tts (except 'auto')
         break;
     case QOnlineTranslator::Yandex:

@@ -43,7 +43,7 @@ const QMap<QOnlineTranslator::Language, QString> QOnlineTranslator::s_genericLan
     {Belarusian, QStringLiteral("be")},
     {Bengali, QStringLiteral("bn")},
     {Bosnian, QStringLiteral("bs")},
-	{BritishEnglish, QStringLiteral("en")}, // As far as I know, no translation provider can translate into British English, only Google Translate TTS has British pronunciation.
+    {BritishEnglish, QStringLiteral("en")}, // As far as I know, no translation provider can translate into British English, only Google Translate TTS has British pronunciation.
     {Bulgarian, QStringLiteral("bg")},
     {Cantonese, QStringLiteral("yue")},
     {Catalan, QStringLiteral("ca")},
@@ -54,7 +54,7 @@ const QMap<QOnlineTranslator::Language, QString> QOnlineTranslator::s_genericLan
     {Czech, QStringLiteral("cs")},
     {Danish, QStringLiteral("da")},
     {Dutch, QStringLiteral("nl")},
-	{English, QStringLiteral("en")}, // English is American English with American pronunciation; sadly, due to widespread Anglophobia in the tech community, BritishEnglish is in fact Yanks' English with Received Pronunciation, and this is only supported by Google!
+    {English, QStringLiteral("en")}, // English is American English with American pronunciation; sadly, due to widespread Anglophobia in the tech community, BritishEnglish is in fact Yanks' English with Received Pronunciation, and this is only supported by Google!
     {Esperanto, QStringLiteral("eo")},
     {Estonian, QStringLiteral("et")},
     {Fijian, QStringLiteral("fj")},
@@ -501,8 +501,8 @@ QString QOnlineTranslator::languageName(Language lang)
         return tr("Bengali");
     case Bosnian:
         return tr("Bosnian");
-	case BritishEnglish:
-		return tr("English (British Pronunciation)");
+    case BritishEnglish:
+        return tr("English (British Pronunciation)");
     case Bulgarian:
         return tr("Bulgarian");
     case Catalan:
