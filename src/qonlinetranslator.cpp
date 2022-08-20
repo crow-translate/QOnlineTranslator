@@ -502,7 +502,7 @@ QString QOnlineTranslator::languageName(Language lang)
     case Bosnian:
         return tr("Bosnian");
     case BritishEnglish:
-        return tr("English (British Pronunciation)");
+        return tr("English (British pronunciation)");
     case Bulgarian:
         return tr("Bulgarian");
     case Catalan:
