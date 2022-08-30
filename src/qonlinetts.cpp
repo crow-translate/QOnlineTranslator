@@ -190,6 +190,44 @@ QOnlineTts::Region QOnlineTts::region(const QString &regionCode)
     return s_voiceRegionCodes.key(regionCode, DefaultRegion);
 }
 
+QString QOnlineTts::regionName(Region region)
+{
+    switch (region) {
+    case DefaultRegion:
+        return tr("Default region");
+    case BengaliBangladesh:
+        return tr("Bangla (Bangladesh)");
+    case BengaliIndia:
+        return tr("Bangla (India)");
+    case ChineseMandarinChina:
+        return tr("Chinese, Mandarin (China)");
+    case EnglishAustralia:
+        return tr("English (Australia)");
+    case EnglishIndia:
+        return tr("English (India)");
+    case EnglishUk:
+        return tr("English (United Kingdom)");
+    case EnglishUs:
+        return tr("English (United States)");
+    case FrenchCanada:
+        return tr("French (Canada)");
+    case FrenchFrance:
+        return tr("French (France)");
+    case GermanGermany:
+        return tr("German (Germany)");
+    case PortugueseBrazil:
+        return tr("Portuguese (Brazil)");
+    case SpanishSpain:
+        return tr("Spanish (Spain)");
+    case SpanishUs:
+        return tr("Spanish (United States)");
+    case TamilIndia:
+        return tr("Tamil (India)");
+    default:
+        return {};
+    }
+}
+
 void QOnlineTts::setError(TtsError error, const QString &errorString)
 {
     m_error = error;

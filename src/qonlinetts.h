@@ -230,6 +230,8 @@ public:
      */
     static Region region(const QString &regionCode);
 
+    static QString regionName(Region region);
+
     /**
      * @brief Voice region preferences
      * @return voice region preferences
