@@ -117,9 +117,7 @@ public:
         /** Unsupported voice by specified engine */
         UnsupportedVoice,
         /** Unsupported emotion by specified engine */
-        UnsupportedEmotion,
-        /** Unsupported region by specified engine */
-        UnsupportedRegion
+        UnsupportedEmotion
     };
 
     /**
@@ -230,19 +228,24 @@ public:
      */
     static Region region(const QString &regionCode);
 
+    /**
+     * @brief Region name
+     * @param region region
+     * @return region name
+     */
     static QString regionName(Region region);
 
     /**
      * @brief Voice region preferences
      * @return voice region preferences
      */
-    const QMap<QOnlineTranslator::Language, Region> &regionPreferences() const;
+    const QMap<QOnlineTranslator::Language, Region> &regions() const;
 
     /**
      * @brief Set voice region preferences
      * @param region preferences
      */
-    void setRegionPreferences(const QMap<QOnlineTranslator::Language, Region> &regionPreferences);
+    void setRegions(const QMap<QOnlineTranslator::Language, Region> &regionPreferences);
 
 private:
     void setError(TtsError error, const QString &errorString);
@@ -250,7 +253,6 @@ private:
     QString languageApiCode(QOnlineTranslator::Engine engine, QOnlineTranslator::Language lang);
     QString voiceApiCode(QOnlineTranslator::Engine engine, Voice voice);
     QString emotionApiCode(QOnlineTranslator::Engine engine, Emotion emotion);
-    QString regionApiCode(QOnlineTranslator::Engine engine, Region region);
 
     static const QMap<Emotion, QString> s_emotionCodes;
     static const QMap<Voice, QString> s_voiceCodes;

@@ -38,7 +38,6 @@ const QMap<QOnlineTts::Voice, QString> QOnlineTts::s_voiceCodes = {
 /// The codes are obtained from https://cloud.google.com/speech-to-text/docs/languages,
 /// I'm not sure if Google Translate TTS uses the same codes and unable to confirm most.
 const QMap<QOnlineTts::Region, QString> QOnlineTts::s_voiceRegionCodes = {
-    {DefaultRegion, QStringLiteral("")},
     {BengaliBangladesh, QStringLiteral("bn-BD")},
     {BengaliIndia, QStringLiteral("bn-IN")},
     {ChineseMandarinChina, QStringLiteral("cmn-Hans-CN")},
@@ -242,7 +241,7 @@ QString QOnlineTts::languageApiCode(QOnlineTranslator::Engine engine, QOnlineTra
     case QOnlineTranslator::Lingva: // Lingva is a frontend to Google Translate
         if (lang != QOnlineTranslator::Auto) {
             if (m_regionPreferences.contains(lang))
-                return regionApiCode(engine, m_regionPreferences.value(lang));
+                return regionCode(m_regionPreferences.value(lang));
             else
                 return QOnlineTranslator::languageApiCode(engine, lang); // Google use the same codes for tts (except 'auto')
         }
@@ -291,22 +290,12 @@ QString QOnlineTts::emotionApiCode(QOnlineTranslator::Engine engine, Emotion emo
     return {};
 }
 
-QString QOnlineTts::regionApiCode(QOnlineTranslator::Engine engine, Region region)
-{
-    if (engine == QOnlineTranslator::Google) {
-        return regionCode(region);
-    }
-
-    setError(UnsupportedRegion, tr("Selected region %1 is not supported by %2").arg(QMetaEnum::fromType<Region>().valueToKey(region), QMetaEnum::fromType<QOnlineTranslator::Engine>().valueToKey(engine)));
-    return {};
-}
-
-const QMap<QOnlineTranslator::Language, QOnlineTts::Region> &QOnlineTts::regionPreferences() const
+const QMap<QOnlineTranslator::Language, QOnlineTts::Region> &QOnlineTts::regions() const
 {
     return m_regionPreferences;
 }
 
-void QOnlineTts::setRegionPreferences(const QMap<QOnlineTranslator::Language, Region> &newRegionPreferences)
+void QOnlineTts::setRegions(const QMap<QOnlineTranslator::Language, Region> &newRegionPreferences)
 {
     m_regionPreferences = newRegionPreferences;
 }
