@@ -35,6 +35,25 @@ const QMap<QOnlineTts::Voice, QString> QOnlineTts::s_voiceCodes = {
     {Alyss, QStringLiteral("alyss")},
     {Omazh, QStringLiteral("omazh")}};
 
+/// The codes are obtained from https://cloud.google.com/speech-to-text/docs/languages,
+/// I'm not sure if Google Translate TTS uses the same codes and unable to confirm most.
+const QMap<QOnlineTts::Region, QString> QOnlineTts::s_voiceRegionCodes = {
+    {DefaultRegion, QStringLiteral("")},
+    {BengaliBangladesh, QStringLiteral("bn-BD")},
+    {BengaliIndia, QStringLiteral("bn-IN")},
+    {ChineseMandarinChina, QStringLiteral("cmn-Hans-CN")},
+    {EnglishAustralia, QStringLiteral("en-AU")},
+    {EnglishIndia, QStringLiteral("en-IN")},
+    {EnglishUk, QStringLiteral("en-GB")},
+    {EnglishUs, QStringLiteral("en-US")},
+    {FrenchCanada, QStringLiteral("fr-CA")},
+    {FrenchFrance, QStringLiteral("fr-FR")},
+    {GermanGermany, QStringLiteral("de-DE")},
+    {PortugueseBrazil, QStringLiteral("pt-BR")},
+    {SpanishSpain, QStringLiteral("es-ES")},
+    {SpanishUs, QStringLiteral("es-US")},
+    {TamilIndia, QStringLiteral("ta-IN")}};
+
 QOnlineTts::QOnlineTts(QObject *parent)
     : QObject(parent)
 {
@@ -146,6 +165,11 @@ QString QOnlineTts::voiceCode(Voice voice)
     return s_voiceCodes.value(voice);
 }
 
+QString QOnlineTts::regionCode(Region region)
+{
+    return s_voiceRegionCodes.value(region);
+}
+
 QString QOnlineTts::emotionCode(Emotion emotion)
 {
     return s_emotionCodes.value(emotion);
@@ -161,6 +185,11 @@ QOnlineTts::Voice QOnlineTts::voice(const QString &voiceCode)
     return s_voiceCodes.key(voiceCode, NoVoice);
 }
 
+QOnlineTts::Region QOnlineTts::region(const QString &regionCode)
+{
+    return s_voiceRegionCodes.key(regionCode, DefaultRegion);
+}
+
 void QOnlineTts::setError(TtsError error, const QString &errorString)
 {
     m_error = error;
@@ -173,8 +202,12 @@ QString QOnlineTts::languageApiCode(QOnlineTranslator::Engine engine, QOnlineTra
     switch (engine) {
     case QOnlineTranslator::Google:
     case QOnlineTranslator::Lingva: // Lingva is a frontend to Google Translate
-        if (lang != QOnlineTranslator::Auto)
-            return QOnlineTranslator::languageApiCode(engine, lang); // Google use the same codes for tts (except 'auto')
+        if (lang != QOnlineTranslator::Auto) {
+            if (m_regionPreferences.contains(lang))
+                return regionApiCode(engine, m_regionPreferences.value(lang));
+            else
+                return QOnlineTranslator::languageApiCode(engine, lang); // Google use the same codes for tts (except 'auto')
+        }
         break;
     case QOnlineTranslator::Yandex:
         switch (lang) {
@@ -216,6 +249,26 @@ QString QOnlineTts::emotionApiCode(QOnlineTranslator::Engine engine, Emotion emo
         return emotionCode(emotion);
     }
 
-    setError(UnsupportedEmotion, tr("Selected emotion %1 is not supported for %2").arg(QMetaEnum::fromType<Emotion>().valueToKey(emotion), QMetaEnum::fromType<QOnlineTranslator::Engine>().valueToKey(engine)));
+    setError(UnsupportedEmotion, tr("Selected emotion %1 is not supported by %2").arg(QMetaEnum::fromType<Emotion>().valueToKey(emotion), QMetaEnum::fromType<QOnlineTranslator::Engine>().valueToKey(engine)));
     return {};
+}
+
+QString QOnlineTts::regionApiCode(QOnlineTranslator::Engine engine, Region region)
+{
+    if (engine == QOnlineTranslator::Google) {
+        return regionCode(region);
+    }
+
+    setError(UnsupportedRegion, tr("Selected region %1 is not supported by %2").arg(QMetaEnum::fromType<Region>().valueToKey(region), QMetaEnum::fromType<QOnlineTranslator::Engine>().valueToKey(engine)));
+    return {};
+}
+
+const QMap<QOnlineTranslator::Language, QOnlineTts::Region> &QOnlineTts::regionPreferences() const
+{
+    return m_regionPreferences;
+}
+
+void QOnlineTts::setRegionPreferences(const QMap<QOnlineTranslator::Language, Region> &newRegionPreferences)
+{
+    m_regionPreferences = newRegionPreferences;
 }

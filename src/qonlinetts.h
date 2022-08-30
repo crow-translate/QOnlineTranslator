@@ -32,10 +32,10 @@
  * QMediaPlayer *player = new QMediaPlayer(this);
  * QMediaPlaylist *playlist = new QMediaPlaylist(player);
  * QOnlineTts tts;
- * 
+ *
  * playlist->addMedia(tts.generateUrls("Hello World!", QOnlineTranslator::Google););
  * player->setPlaylist(playlist);
- * 
+ *
  * player->play(); // Plays "Hello World!"
  * @endcode
  */
@@ -81,6 +81,30 @@ public:
     Q_ENUM(Emotion)
 
     /**
+     * @brief Defines regional accents to use
+     *
+     * Used only by Google.
+     */
+    enum Region {
+        DefaultRegion,
+        BengaliBangladesh,
+        BengaliIndia,
+        ChineseMandarinChina,
+        EnglishAustralia,
+        EnglishIndia,
+        EnglishUk,
+        EnglishUs,
+        FrenchCanada,
+        FrenchFrance,
+        GermanGermany,
+        PortugueseBrazil,
+        SpanishSpain,
+        SpanishUs,
+        TamilIndia,
+    };
+    Q_ENUM(Region)
+
+    /**
      * @brief Indicates all possible error conditions found during the processing of the URLs generation
      */
     enum TtsError {
@@ -94,6 +118,8 @@ public:
         UnsupportedVoice,
         /** Unsupported emotion by specified engine */
         UnsupportedEmotion,
+        /** Unsupported region by specified engine */
+        UnsupportedRegion
     };
 
     /**
@@ -155,6 +181,16 @@ public:
     static QString voiceCode(Voice voice);
 
     /**
+     * @brief Code of the regional voice
+     *
+     * Used only by Google
+     *
+     * @param region region
+     * @return code for regional language
+     */
+    static QString regionCode(Region region);
+
+    /**
      * @brief Code of the emotion
      *
      * Used only by Yandex.
@@ -184,15 +220,41 @@ public:
      */
     static Voice voice(const QString &voiceCode);
 
+    /**
+     * @brief Voice region from code
+     *
+     * Used only by Google
+     *
+     * @param regionCode region code
+     * @return corresponding region code
+     */
+    static Region region(const QString &regionCode);
+
+    /**
+     * @brief Voice region preferences
+     * @return voice region preferences
+     */
+    const QMap<QOnlineTranslator::Language, Region> &regionPreferences() const;
+
+    /**
+     * @brief Set voice region preferences
+     * @param region preferences
+     */
+    void setRegionPreferences(const QMap<QOnlineTranslator::Language, Region> &regionPreferences);
+
 private:
     void setError(TtsError error, const QString &errorString);
 
     QString languageApiCode(QOnlineTranslator::Engine engine, QOnlineTranslator::Language lang);
     QString voiceApiCode(QOnlineTranslator::Engine engine, Voice voice);
     QString emotionApiCode(QOnlineTranslator::Engine engine, Emotion emotion);
+    QString regionApiCode(QOnlineTranslator::Engine engine, Region region);
 
     static const QMap<Emotion, QString> s_emotionCodes;
     static const QMap<Voice, QString> s_voiceCodes;
+    static const QMap<Region, QString> s_voiceRegionCodes;
+
+    QMap<QOnlineTranslator::Language, Region> m_regionPreferences;
 
     static constexpr int s_googleTtsLimit = 200;
     static constexpr int s_yandexTtsLimit = 1400;
