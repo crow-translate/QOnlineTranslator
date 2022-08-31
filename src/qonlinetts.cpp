@@ -196,11 +196,15 @@ QString QOnlineTts::regionName(QOnlineTranslator::Language language, QLocale::Co
             return tr("Bangla (Bangladesh)");
         case QLocale::India:
             return tr("Bangla (India)");
+        default:
+            break;
         }
     case QOnlineTranslator::SimplifiedChinese:
         switch (region) {
         case QLocale::China:
             return tr("Chinese, Mandarin (China)");
+        default:
+            break;
         }
     case QOnlineTranslator::English:
         switch (region) {
@@ -212,6 +216,8 @@ QString QOnlineTts::regionName(QOnlineTranslator::Language language, QLocale::Co
             return tr("English (United Kingdom)");
         case QLocale::UnitedStates:
             return tr("English (United States)");
+        default:
+            break;
         }
     case QOnlineTranslator::French:
         switch (region) {
@@ -219,16 +225,22 @@ QString QOnlineTts::regionName(QOnlineTranslator::Language language, QLocale::Co
             return tr("French (Canada)");
         case QLocale::France:
             return tr("French (France)");
+        default:
+            break;
         }
     case QOnlineTranslator::German:
         switch (region) {
         case QLocale::Germany:
             return tr("German (Germany)");
+        default:
+            break;
         }
     case QOnlineTranslator::Portuguese:
         switch (region) {
         case QLocale::Brazil:
             return tr("Portuguese (Brazil)");
+        default:
+            break;
         }
     case QOnlineTranslator::Spanish:
         switch (region) {
@@ -236,14 +248,19 @@ QString QOnlineTts::regionName(QOnlineTranslator::Language language, QLocale::Co
             return tr("Spanish (Spain)");
         case QLocale::UnitedStates:
             return tr("Spanish (United States)");
+        default:
+            break;
         }
     case QOnlineTranslator::Tamil:
         switch (region) {
         case QLocale::India:
             return tr("Tamil (India)");
+        default:
+            break;
         }
+    default:
+        break;
     }
-
     return tr("Default region");
 }
 
