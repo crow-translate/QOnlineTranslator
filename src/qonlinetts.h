@@ -22,6 +22,7 @@
 
 #include "qonlinetranslator.h"
 
+#include <QLocale>
 #include <QMediaContent>
 
 /**
@@ -79,30 +80,6 @@ public:
         Evil
     };
     Q_ENUM(Emotion)
-
-    /**
-     * @brief Defines regional accents to use
-     *
-     * Used only by Google.
-     */
-    enum Region {
-        DefaultRegion,
-        BengaliBangladesh,
-        BengaliIndia,
-        ChineseMandarinChina,
-        EnglishAustralia,
-        EnglishIndia,
-        EnglishUk,
-        EnglishUs,
-        FrenchCanada,
-        FrenchFrance,
-        GermanGermany,
-        PortugueseBrazil,
-        SpanishSpain,
-        SpanishUs,
-        TamilIndia,
-    };
-    Q_ENUM(Region)
 
     /**
      * @brief Indicates all possible error conditions found during the processing of the URLs generation
@@ -179,16 +156,6 @@ public:
     static QString voiceCode(Voice voice);
 
     /**
-     * @brief Code of the regional voice
-     *
-     * Used only by Google
-     *
-     * @param region region
-     * @return code for regional language
-     */
-    static QString regionCode(Region region);
-
-    /**
      * @brief Code of the emotion
      *
      * Used only by Yandex.
@@ -197,6 +164,17 @@ public:
      * @return code for emotion
      */
     static QString emotionCode(Emotion emotion);
+
+    /**
+     * @brief code of the regional language (voice only)
+     *
+     * Used only by Google
+     *
+     * @param language language
+     * @param region region
+     * @return code for language in region, or a region-neutral language code if region is not supported
+     */
+    static QString regionCode(QOnlineTranslator::Language language, QLocale::Country region);
 
     /**
      * @brief Emotion from code
@@ -226,26 +204,34 @@ public:
      * @param regionCode region code
      * @return corresponding region code
      */
-    static Region region(const QString &regionCode);
+    static QPair<QOnlineTranslator::Language, QLocale::Country> region(const QString &regionCode);
 
     /**
-     * @brief Region name
+     * @brief name of regional language from specified language and region
+     * @param language language
      * @param region region
-     * @return region name
+     * @return corresponding regional language name, or "Default region" if the specified region is not supported for the specified language
      */
-    static QString regionName(Region region);
+    static QString regionName(QOnlineTranslator::Language language, QLocale::Country region);
 
     /**
-     * @brief Voice region preferences
-     * @return voice region preferences
+     * @brief valid and supported regions for a particular language
+     * @param language language
+     * @return a list of valid Country enums
      */
-    const QMap<QOnlineTranslator::Language, Region> &regions() const;
+    static QList<QLocale::Country> validRegions(QOnlineTranslator::Language language);
 
     /**
-     * @brief Set voice region preferences
-     * @param region preferences
+     * @brief region preferences
+     * @return region preferences
      */
-    void setRegions(const QMap<QOnlineTranslator::Language, Region> &regionPreferences);
+    const QMap<QOnlineTranslator::Language, QLocale::Country> &regions() const;
+
+    /**
+     * @brief set region preferences
+     * @param newRegionPreferences new region preferences
+     */
+    void setRegions(const QMap<QOnlineTranslator::Language, QLocale::Country> &newRegionPreferences);
 
 private:
     void setError(TtsError error, const QString &errorString);
@@ -256,9 +242,9 @@ private:
 
     static const QMap<Emotion, QString> s_emotionCodes;
     static const QMap<Voice, QString> s_voiceCodes;
-    static const QMap<Region, QString> s_voiceRegionCodes;
+    static const QMap<QPair<QOnlineTranslator::Language, QLocale::Country>, QString> s_regionCodes;
 
-    QMap<QOnlineTranslator::Language, Region> m_regionPreferences;
+    QMap<QOnlineTranslator::Language, QLocale::Country> m_regionPreferences;
 
     static constexpr int s_googleTtsLimit = 200;
     static constexpr int s_yandexTtsLimit = 1400;
