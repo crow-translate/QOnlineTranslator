@@ -299,9 +299,8 @@ QString QOnlineTts::languageApiCode(QOnlineTranslator::Engine engine, QOnlineTra
     switch (engine) {
     case QOnlineTranslator::Google:
     case QOnlineTranslator::Lingva: // Lingva is a frontend to Google Translate
-        if (lang != QOnlineTranslator::Auto) {
+        if (lang != QOnlineTranslator::Auto)
             return regionCode(lang, m_regionPreferences.value(lang)); // Google use the same codes for tts (except 'auto')
-        }
         break;
     case QOnlineTranslator::Yandex:
         switch (lang) {
