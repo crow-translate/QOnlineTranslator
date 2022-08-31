@@ -35,6 +35,22 @@ const QMap<QOnlineTts::Voice, QString> QOnlineTts::s_voiceCodes = {
     {Alyss, QStringLiteral("alyss")},
     {Omazh, QStringLiteral("omazh")}};
 
+const QMap<QPair<QOnlineTranslator::Language, QLocale::Country>, QString> QOnlineTts::s_regionCodes = {
+    {{QOnlineTranslator::Bengali, QLocale::Bangladesh}, QStringLiteral("bn-BD")},
+    {{QOnlineTranslator::Bengali, QLocale::India}, QStringLiteral("bn-IN")},
+    {{QOnlineTranslator::SimplifiedChinese, QLocale::China}, QStringLiteral("cmn-Hans-CN")},
+    {{QOnlineTranslator::English, QLocale::Australia}, QStringLiteral("en-AU")},
+    {{QOnlineTranslator::English, QLocale::India}, QStringLiteral("en-IN")},
+    {{QOnlineTranslator::English, QLocale::UnitedKingdom}, QStringLiteral("en-GB")},
+    {{QOnlineTranslator::English, QLocale::UnitedStates}, QStringLiteral("en-US")},
+    {{QOnlineTranslator::French, QLocale::Canada}, QStringLiteral("fr-CA")},
+    {{QOnlineTranslator::French, QLocale::France}, QStringLiteral("fr-FR")},
+    {{QOnlineTranslator::German, QLocale::Germany}, QStringLiteral("de-DE")},
+    {{QOnlineTranslator::Portuguese, QLocale::Brazil}, QStringLiteral("pt-BR")},
+    {{QOnlineTranslator::Spanish, QLocale::Spain}, QStringLiteral("es-ES")},
+    {{QOnlineTranslator::Spanish, QLocale::UnitedStates}, QStringLiteral("es-US")},
+    {{QOnlineTranslator::Tamil, QLocale::India}, QStringLiteral("ta-IN")}};
+
 QOnlineTts::QOnlineTts(QObject *parent)
     : QObject(parent)
 {
@@ -146,6 +162,11 @@ QString QOnlineTts::voiceCode(Voice voice)
     return s_voiceCodes.value(voice);
 }
 
+QString QOnlineTts::regionCode(QOnlineTranslator::Language language, QLocale::Country region)
+{
+    return s_regionCodes.value({language, region}, QOnlineTranslator::languageApiCode(QOnlineTranslator::Google, language));
+}
+
 QString QOnlineTts::emotionCode(Emotion emotion)
 {
     return s_emotionCodes.value(emotion);
@@ -161,6 +182,120 @@ QOnlineTts::Voice QOnlineTts::voice(const QString &voiceCode)
     return s_voiceCodes.key(voiceCode, NoVoice);
 }
 
+QPair<QOnlineTranslator::Language, QLocale::Country> QOnlineTts::region(const QString &regionCode)
+{
+    return s_regionCodes.key(regionCode, {QOnlineTranslator::NoLanguage, QLocale::AnyCountry});
+}
+
+QString QOnlineTts::regionName(QOnlineTranslator::Language language, QLocale::Country region)
+{
+    switch (language) {
+    case QOnlineTranslator::Bengali:
+        switch (region) {
+        case QLocale::Bangladesh:
+            return tr("Bangla (Bangladesh)");
+        case QLocale::India:
+            return tr("Bangla (India)");
+        default:
+            break;
+        }
+        break;
+    case QOnlineTranslator::SimplifiedChinese:
+        switch (region) {
+        case QLocale::China:
+            return tr("Chinese, Mandarin (China)");
+        default:
+            break;
+        }
+        break;
+    case QOnlineTranslator::English:
+        switch (region) {
+        case QLocale::Australia:
+            return tr("English (Australia)");
+        case QLocale::India:
+            return tr("English (India)");
+        case QLocale::UnitedKingdom:
+            return tr("English (United Kingdom)");
+        case QLocale::UnitedStates:
+            return tr("English (United States)");
+        default:
+            break;
+        }
+        break;
+    case QOnlineTranslator::French:
+        switch (region) {
+        case QLocale::Canada:
+            return tr("French (Canada)");
+        case QLocale::France:
+            return tr("French (France)");
+        default:
+            break;
+        }
+        break;
+    case QOnlineTranslator::German:
+        switch (region) {
+        case QLocale::Germany:
+            return tr("German (Germany)");
+        default:
+            break;
+        }
+        break;
+    case QOnlineTranslator::Portuguese:
+        switch (region) {
+        case QLocale::Brazil:
+            return tr("Portuguese (Brazil)");
+        default:
+            break;
+        }
+        break;
+    case QOnlineTranslator::Spanish:
+        switch (region) {
+        case QLocale::Spain:
+            return tr("Spanish (Spain)");
+        case QLocale::UnitedStates:
+            return tr("Spanish (United States)");
+        default:
+            break;
+        }
+        break;
+    case QOnlineTranslator::Tamil:
+        switch (region) {
+        case QLocale::India:
+            return tr("Tamil (India)");
+        default:
+            break;
+        }
+        break;
+    default:
+        break;
+    }
+    return tr("Default region");
+}
+
+QList<QLocale::Country> QOnlineTts::validRegions(QOnlineTranslator::Language language)
+{
+    switch (language) {
+    case QOnlineTranslator::Bengali:
+        return {QLocale::Bangladesh, QLocale::India};
+    case QOnlineTranslator::SimplifiedChinese:
+        return {QLocale::China};
+    case QOnlineTranslator::English:
+        return {QLocale::Australia, QLocale::India, QLocale::UnitedKingdom, QLocale::UnitedStates};
+    case QOnlineTranslator::French:
+        return {QLocale::Canada, QLocale::France};
+    case QOnlineTranslator::German:
+        return {QLocale::Germany};
+    case QOnlineTranslator::Portuguese:
+        return {QLocale::Brazil};
+    case QOnlineTranslator::Spanish:
+        return {QLocale::Spain, QLocale::UnitedStates};
+    case QOnlineTranslator::Tamil:
+        return {QLocale::India};
+    default:
+        return {};
+    }
+}
+
 void QOnlineTts::setError(TtsError error, const QString &errorString)
 {
     m_error = error;
@@ -174,7 +309,7 @@ QString QOnlineTts::languageApiCode(QOnlineTranslator::Engine engine, QOnlineTra
     case QOnlineTranslator::Google:
     case QOnlineTranslator::Lingva: // Lingva is a frontend to Google Translate
         if (lang != QOnlineTranslator::Auto)
-            return QOnlineTranslator::languageApiCode(engine, lang); // Google use the same codes for tts (except 'auto')
+            return regionCode(lang, m_regionPreferences.value(lang)); // Google use the same codes for tts (except 'auto')
         break;
     case QOnlineTranslator::Yandex:
         switch (lang) {
@@ -216,6 +351,16 @@ QString QOnlineTts::emotionApiCode(QOnlineTranslator::Engine engine, Emotion emo
         return emotionCode(emotion);
     }
 
-    setError(UnsupportedEmotion, tr("Selected emotion %1 is not supported for %2").arg(QMetaEnum::fromType<Emotion>().valueToKey(emotion), QMetaEnum::fromType<QOnlineTranslator::Engine>().valueToKey(engine)));
+    setError(UnsupportedEmotion, tr("Selected emotion %1 is not supported by %2").arg(QMetaEnum::fromType<Emotion>().valueToKey(emotion), QMetaEnum::fromType<QOnlineTranslator::Engine>().valueToKey(engine)));
     return {};
+}
+
+const QMap<QOnlineTranslator::Language, QLocale::Country> &QOnlineTts::regions() const
+{
+    return m_regionPreferences;
+}
+
+void QOnlineTts::setRegions(const QMap<QOnlineTranslator::Language, QLocale::Country> &newRegionPreferences)
+{
+    m_regionPreferences = newRegionPreferences;
 }

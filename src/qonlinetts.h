@@ -22,6 +22,7 @@
 
 #include "qonlinetranslator.h"
 
+#include <QLocale>
 #include <QMediaContent>
 
 /**
@@ -32,10 +33,10 @@
  * QMediaPlayer *player = new QMediaPlayer(this);
  * QMediaPlaylist *playlist = new QMediaPlaylist(player);
  * QOnlineTts tts;
- * 
+ *
  * playlist->addMedia(tts.generateUrls("Hello World!", QOnlineTranslator::Google););
  * player->setPlaylist(playlist);
- * 
+ *
  * player->play(); // Plays "Hello World!"
  * @endcode
  */
@@ -93,7 +94,7 @@ public:
         /** Unsupported voice by specified engine */
         UnsupportedVoice,
         /** Unsupported emotion by specified engine */
-        UnsupportedEmotion,
+        UnsupportedEmotion
     };
 
     /**
@@ -165,6 +166,17 @@ public:
     static QString emotionCode(Emotion emotion);
 
     /**
+     * @brief code of the regional language (voice only)
+     *
+     * Used only by Google
+     *
+     * @param language language
+     * @param region region
+     * @return code for language in region, or a region-neutral language code if region is not supported
+     */
+    static QString regionCode(QOnlineTranslator::Language language, QLocale::Country region);
+
+    /**
      * @brief Emotion from code
      *
      * Used only by Yandex.
@@ -184,6 +196,43 @@ public:
      */
     static Voice voice(const QString &voiceCode);
 
+    /**
+     * @brief Voice region from code
+     *
+     * Used only by Google
+     *
+     * @param regionCode region code
+     * @return corresponding region code
+     */
+    static QPair<QOnlineTranslator::Language, QLocale::Country> region(const QString &regionCode);
+
+    /**
+     * @brief name of regional language from specified language and region
+     * @param language language
+     * @param region region
+     * @return corresponding regional language name, or "Default region" if the specified region is not supported for the specified language
+     */
+    static QString regionName(QOnlineTranslator::Language language, QLocale::Country region);
+
+    /**
+     * @brief valid and supported regions for a particular language
+     * @param language language
+     * @return a list of valid Country enums
+     */
+    static QList<QLocale::Country> validRegions(QOnlineTranslator::Language language);
+
+    /**
+     * @brief region preferences
+     * @return region preferences
+     */
+    const QMap<QOnlineTranslator::Language, QLocale::Country> &regions() const;
+
+    /**
+     * @brief set region preferences
+     * @param newRegionPreferences new region preferences
+     */
+    void setRegions(const QMap<QOnlineTranslator::Language, QLocale::Country> &newRegionPreferences);
+
 private:
     void setError(TtsError error, const QString &errorString);
 
@@ -193,6 +242,9 @@ private:
 
     static const QMap<Emotion, QString> s_emotionCodes;
     static const QMap<Voice, QString> s_voiceCodes;
+    static const QMap<QPair<QOnlineTranslator::Language, QLocale::Country>, QString> s_regionCodes;
+
+    QMap<QOnlineTranslator::Language, QLocale::Country> m_regionPreferences;
 
     static constexpr int s_googleTtsLimit = 200;
     static constexpr int s_yandexTtsLimit = 1400;
