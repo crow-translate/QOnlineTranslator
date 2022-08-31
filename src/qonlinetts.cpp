@@ -199,6 +199,7 @@ QString QOnlineTts::regionName(QOnlineTranslator::Language language, QLocale::Co
         default:
             break;
         }
+        break;
     case QOnlineTranslator::SimplifiedChinese:
         switch (region) {
         case QLocale::China:
@@ -206,6 +207,7 @@ QString QOnlineTts::regionName(QOnlineTranslator::Language language, QLocale::Co
         default:
             break;
         }
+        break;
     case QOnlineTranslator::English:
         switch (region) {
         case QLocale::Australia:
@@ -219,6 +221,7 @@ QString QOnlineTts::regionName(QOnlineTranslator::Language language, QLocale::Co
         default:
             break;
         }
+        break;
     case QOnlineTranslator::French:
         switch (region) {
         case QLocale::Canada:
@@ -228,6 +231,7 @@ QString QOnlineTts::regionName(QOnlineTranslator::Language language, QLocale::Co
         default:
             break;
         }
+        break;
     case QOnlineTranslator::German:
         switch (region) {
         case QLocale::Germany:
@@ -235,6 +239,7 @@ QString QOnlineTts::regionName(QOnlineTranslator::Language language, QLocale::Co
         default:
             break;
         }
+        break;
     case QOnlineTranslator::Portuguese:
         switch (region) {
         case QLocale::Brazil:
@@ -242,6 +247,7 @@ QString QOnlineTts::regionName(QOnlineTranslator::Language language, QLocale::Co
         default:
             break;
         }
+        break;
     case QOnlineTranslator::Spanish:
         switch (region) {
         case QLocale::Spain:
@@ -251,6 +257,7 @@ QString QOnlineTts::regionName(QOnlineTranslator::Language language, QLocale::Co
         default:
             break;
         }
+        break;
     case QOnlineTranslator::Tamil:
         switch (region) {
         case QLocale::India:
@@ -258,6 +265,7 @@ QString QOnlineTts::regionName(QOnlineTranslator::Language language, QLocale::Co
         default:
             break;
         }
+        break;
     default:
         break;
     }
