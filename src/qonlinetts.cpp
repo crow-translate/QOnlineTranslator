@@ -189,87 +189,18 @@ QPair<QOnlineTranslator::Language, QLocale::Country> QOnlineTts::region(const QS
 
 QString QOnlineTts::regionName(QOnlineTranslator::Language language, QLocale::Country region)
 {
-    switch (language) {
-    case QOnlineTranslator::Bengali:
-        switch (region) {
-        case QLocale::Bangladesh:
-            return tr("Bangla (Bangladesh)");
-        case QLocale::India:
-            return tr("Bangla (India)");
-        default:
-            break;
-        }
-        break;
-    case QOnlineTranslator::SimplifiedChinese:
-        switch (region) {
-        case QLocale::China:
-            return tr("Chinese, Mandarin (China)");
-        default:
-            break;
-        }
-        break;
-    case QOnlineTranslator::English:
-        switch (region) {
-        case QLocale::Australia:
-            return tr("English (Australia)");
-        case QLocale::India:
-            return tr("English (India)");
-        case QLocale::UnitedKingdom:
-            return tr("English (United Kingdom)");
-        case QLocale::UnitedStates:
-            return tr("English (United States)");
-        default:
-            break;
-        }
-        break;
-    case QOnlineTranslator::French:
-        switch (region) {
-        case QLocale::Canada:
-            return tr("French (Canada)");
-        case QLocale::France:
-            return tr("French (France)");
-        default:
-            break;
-        }
-        break;
-    case QOnlineTranslator::German:
-        switch (region) {
-        case QLocale::Germany:
-            return tr("German (Germany)");
-        default:
-            break;
-        }
-        break;
-    case QOnlineTranslator::Portuguese:
-        switch (region) {
-        case QLocale::Brazil:
-            return tr("Portuguese (Brazil)");
-        default:
-            break;
-        }
-        break;
-    case QOnlineTranslator::Spanish:
-        switch (region) {
-        case QLocale::Spain:
-            return tr("Spanish (Spain)");
-        case QLocale::UnitedStates:
-            return tr("Spanish (United States)");
-        default:
-            break;
-        }
-        break;
-    case QOnlineTranslator::Tamil:
-        switch (region) {
-        case QLocale::India:
-            return tr("Tamil (India)");
-        default:
-            break;
-        }
-        break;
-    default:
-        break;
-    }
-    return tr("Default region");
+	// Check for Chinese first, which has a peculiar notation
+	if (language == QOnlineTranslator::SimplifiedChinese) {
+		switch (region) {
+		case QLocale::China:
+			return tr("Mandarin (China)");
+		default:
+			return tr("Default region");
+		}
+	} else if (validRegions(language).contains(region))
+		return QLocale::countryToString(region);
+	else
+		return tr("Default region");
 }
 
 QList<QLocale::Country> QOnlineTts::validRegions(QOnlineTranslator::Language language)
