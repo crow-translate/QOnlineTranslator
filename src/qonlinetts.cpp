@@ -189,18 +189,18 @@ QPair<QOnlineTranslator::Language, QLocale::Country> QOnlineTts::region(const QS
 
 QString QOnlineTts::regionName(QOnlineTranslator::Language language, QLocale::Country region)
 {
-	// Check for Chinese first, which has a peculiar notation
-	if (language == QOnlineTranslator::SimplifiedChinese) {
-		switch (region) {
-		case QLocale::China:
-			return tr("Mandarin (China)");
-		default:
-			return tr("Default region");
-		}
-	} else if (validRegions(language).contains(region))
-		return QLocale::countryToString(region);
-	else
-		return tr("Default region");
+    // Check for Chinese first, which has a peculiar notation
+    if (language == QOnlineTranslator::SimplifiedChinese) {
+        switch (region) {
+        case QLocale::China:
+            return tr("Mandarin (China)");
+        default:
+            return tr("Default region");
+        }
+    } else if (validRegions(language).contains(region))
+        return QLocale::countryToString(region);
+    else
+        return tr("Default region");
 }
 
 QList<QLocale::Country> QOnlineTts::validRegions(QOnlineTranslator::Language language)
