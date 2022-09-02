@@ -207,19 +207,10 @@ public:
     static QPair<QOnlineTranslator::Language, QLocale::Country> region(const QString &regionCode);
 
     /**
-     * @brief name of regional language from specified language and region
-     * @param language language
-     * @param region region
-     * @return corresponding regional language name, or "Default region" if the specified region is not supported for the specified language
+     * @brief valid and supported regions for languages
+     * @return a map, with key being language enum and value a list of valid regions enum
      */
-    static QString regionName(QOnlineTranslator::Language language, QLocale::Country region);
-
-    /**
-     * @brief valid and supported regions for a particular language
-     * @param language language
-     * @return a list of valid Country enums
-     */
-    static QList<QLocale::Country> validRegions(QOnlineTranslator::Language language);
+    static const QMap<QOnlineTranslator::Language, QList<QLocale::Country>> &validRegions();
 
     /**
      * @brief region preferences
@@ -243,6 +234,7 @@ private:
     static const QMap<Emotion, QString> s_emotionCodes;
     static const QMap<Voice, QString> s_voiceCodes;
     static const QMap<QPair<QOnlineTranslator::Language, QLocale::Country>, QString> s_regionCodes;
+    static const QMap<QOnlineTranslator::Language, QList<QLocale::Country>> s_validRegions;
 
     QMap<QOnlineTranslator::Language, QLocale::Country> m_regionPreferences;
 

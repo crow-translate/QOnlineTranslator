@@ -51,6 +51,16 @@ const QMap<QPair<QOnlineTranslator::Language, QLocale::Country>, QString> QOnlin
     {{QOnlineTranslator::Spanish, QLocale::UnitedStates}, QStringLiteral("es-US")},
     {{QOnlineTranslator::Tamil, QLocale::India}, QStringLiteral("ta-IN")}};
 
+const QMap<QOnlineTranslator::Language, QList<QLocale::Country>> QOnlineTts::s_validRegions = {
+    {QOnlineTranslator::Bengali, {QLocale::Bangladesh, QLocale::India}},
+    {QOnlineTranslator::SimplifiedChinese, {QLocale::China}},
+    {QOnlineTranslator::English, {QLocale::Australia, QLocale::India, QLocale::UnitedKingdom, QLocale::UnitedStates}},
+    {QOnlineTranslator::French, {QLocale::Canada, QLocale::France}},
+    {QOnlineTranslator::German, {QLocale::Germany}},
+    {QOnlineTranslator::Portuguese, {QLocale::Brazil}},
+    {QOnlineTranslator::Spanish, {QLocale::Spain, QLocale::UnitedStates}},
+    {QOnlineTranslator::Tamil, {QLocale::India}}};
+
 QOnlineTts::QOnlineTts(QObject *parent)
     : QObject(parent)
 {
@@ -187,44 +197,9 @@ QPair<QOnlineTranslator::Language, QLocale::Country> QOnlineTts::region(const QS
     return s_regionCodes.key(regionCode, {QOnlineTranslator::NoLanguage, QLocale::AnyCountry});
 }
 
-QString QOnlineTts::regionName(QOnlineTranslator::Language language, QLocale::Country region)
+const QMap<QOnlineTranslator::Language, QList<QLocale::Country>> &QOnlineTts::validRegions()
 {
-    // Check for Chinese first, which has a peculiar notation
-    if (language == QOnlineTranslator::SimplifiedChinese) {
-        switch (region) {
-        case QLocale::China:
-            return tr("Mandarin (China)");
-        default:
-            return tr("Default region");
-        }
-    } else if (validRegions(language).contains(region))
-        return QLocale::countryToString(region);
-    else
-        return tr("Default region");
-}
-
-QList<QLocale::Country> QOnlineTts::validRegions(QOnlineTranslator::Language language)
-{
-    switch (language) {
-    case QOnlineTranslator::Bengali:
-        return {QLocale::Bangladesh, QLocale::India};
-    case QOnlineTranslator::SimplifiedChinese:
-        return {QLocale::China};
-    case QOnlineTranslator::English:
-        return {QLocale::Australia, QLocale::India, QLocale::UnitedKingdom, QLocale::UnitedStates};
-    case QOnlineTranslator::French:
-        return {QLocale::Canada, QLocale::France};
-    case QOnlineTranslator::German:
-        return {QLocale::Germany};
-    case QOnlineTranslator::Portuguese:
-        return {QLocale::Brazil};
-    case QOnlineTranslator::Spanish:
-        return {QLocale::Spain, QLocale::UnitedStates};
-    case QOnlineTranslator::Tamil:
-        return {QLocale::India};
-    default:
-        return {};
-    }
+    return s_validRegions;
 }
 
 void QOnlineTts::setError(TtsError error, const QString &errorString)
