@@ -1531,14 +1531,14 @@ void QOnlineTranslator::parseBingCredentials()
     const QByteArray webSiteData = m_currentReply->readAll();
     // Previously credentials variable name was "params_RichTranslateHelper", now it called
     // "params_AbusePreventionHelper". OH, IRONY!
-    const QByteArray abuseAbuserBeginString = "var params_AbusePreventionHelper = [";
-    const int credentialsBeginPos = webSiteData.indexOf(abuseAbuserBeginString);
+    const QByteArray abuseBeginString = "var params_AbusePreventionHelper = [";
+    const int credentialsBeginPos = webSiteData.indexOf(abuseBeginString);
     if (credentialsBeginPos == -1) {
         resetData(ParsingError, tr("Error: Unable to find Bing credentials in web version."));
         return;
     }
 
-    const int keyBeginPos = credentialsBeginPos + abuseAbuserBeginString.size();
+    const int keyBeginPos = credentialsBeginPos + abuseBeginString.size();
     const int keyEndPos = webSiteData.indexOf(',', keyBeginPos);
     if (keyEndPos == -1) {
         resetData(ParsingError, tr("Error: Unable to extract Bing key from web version."));
@@ -1574,7 +1574,6 @@ void QOnlineTranslator::parseBingCredentials()
         return;
     }
     s_bingIid = webSiteData.mid(iidBeginPos + iidString.size(), iidEndPos - (iidBeginPos + iidString.size()));
-    qDebug() << s_bingToken;
 }
 
 void QOnlineTranslator::requestBingTranslate()
