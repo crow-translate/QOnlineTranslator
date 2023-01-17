@@ -1786,8 +1786,9 @@ void QOnlineTranslator::parseLingvaTranslate()
     // Parse transliteration, if enabled
     if (m_translationTranslitEnabled)
         m_translationTranslit = jsonData.value(QStringLiteral("pronunciation"))
-                .toObject().value(QStringLiteral("translation"))
-                .toString();
+                                    .toObject()
+                                    .value(QStringLiteral("translation"))
+                                    .toString();
 
     // Translation options
     if (m_translationOptionsEnabled) {
