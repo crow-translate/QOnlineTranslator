@@ -1778,8 +1778,35 @@ void QOnlineTranslator::parseLingvaTranslate()
     // Parse translation data
     const QJsonDocument jsonResponse = QJsonDocument::fromJson(m_currentReply->readAll());
     const QJsonObject responseObject = jsonResponse.object();
+    const QJsonObject jsonData = responseObject.value(QStringLiteral("info")).toObject();
 
+    // Parse translation itself
     m_translation = responseObject.value(QStringLiteral("translation")).toString();
+
+    // Parse transliteration, if enabled
+    if (m_translationTranslitEnabled)
+        m_translationTranslit = jsonData.value(QStringLiteral("pronunciation"))
+                .toObject().value(QStringLiteral("translation"))
+                .toString();
+
+    // Translation options
+    if (m_translationOptionsEnabled) {
+        for (const QJsonValueRef typeOfSpeechData : jsonData.value(QStringLiteral("extraTranslations")).toArray()) {
+            const QJsonObject speechDataObject = typeOfSpeechData.toObject();
+            const QJsonArray typeOfSpeechDataArray = speechDataObject.value(QStringLiteral("list")).toArray();
+            const QString typeOfSpeech = speechDataObject.value(QStringLiteral("type")).toString();
+            for (const QJsonValue &wordData : typeOfSpeechDataArray) {
+                const QJsonObject wordDataObject = wordData.toObject();
+                const QString word = wordDataObject.value(QStringLiteral("word")).toString();
+                const QJsonArray translationsArray = wordDataObject.value(QStringLiteral("meanings")).toArray();
+                QStringList translations;
+                translations.reserve(translationsArray.size());
+                for (const QJsonValue &wordTranslation : translationsArray)
+                    translations.append(wordTranslation.toString());
+                m_translationOptions[typeOfSpeech].append({word, QString(), translations});
+            }
+        }
+    }
 }
 
 void QOnlineTranslator::buildGoogleStateMachine()
@@ -2094,6 +2121,7 @@ bool QOnlineTranslator::isSupportTranslit(Engine engine, Language lang)
 {
     switch (engine) {
     case Google:
+    case Lingva:
         isSupportTranslation(Google, lang); // Google supports transliteration for all supported languages
         break;
     case Yandex:
@@ -2148,7 +2176,6 @@ bool QOnlineTranslator::isSupportTranslit(Engine engine, Language lang)
             return false;
         }
     case LibreTranslate: // LibreTranslate doesn't support translit
-    case Lingva: // Although Lingvo is a frontend to Google Translate, it doesn't support transliteration
         return false;
     }
 
