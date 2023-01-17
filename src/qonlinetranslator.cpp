@@ -1529,14 +1529,16 @@ void QOnlineTranslator::parseBingCredentials()
     }
 
     const QByteArray webSiteData = m_currentReply->readAll();
-    const QByteArray credentialsBeginString = "var params_RichTranslateHelper = [";
-    const int credentialsBeginPos = webSiteData.indexOf(credentialsBeginString);
+    // Previously credentials variable name was "params_RichTranslateHelper", now it called
+    // "params_AbusePreventionHelper". OH, IRONY!
+    const QByteArray abuseAbuserBeginString = "var params_AbusePreventionHelper = [";
+    const int credentialsBeginPos = webSiteData.indexOf(abuseAbuserBeginString);
     if (credentialsBeginPos == -1) {
         resetData(ParsingError, tr("Error: Unable to find Bing credentials in web version."));
         return;
     }
 
-    const int keyBeginPos = credentialsBeginPos + credentialsBeginString.size();
+    const int keyBeginPos = credentialsBeginPos + abuseAbuserBeginString.size();
     const int keyEndPos = webSiteData.indexOf(',', keyBeginPos);
     if (keyEndPos == -1) {
         resetData(ParsingError, tr("Error: Unable to extract Bing key from web version."));
@@ -1552,21 +1554,27 @@ void QOnlineTranslator::parseBingCredentials()
     }
     s_bingToken = webSiteData.mid(tokenBeginPos, tokenEndPos - tokenBeginPos);
 
-    const int igBeginPos = webSiteData.indexOf("IG");
-    const int igEndPos = webSiteData.indexOf('"', igBeginPos + 2);
+    // This is offset for IG key, so if M$ change something on page again
+    // Crow will use constant string size as offset, istead of adjust
+    // offset mannually
+    const QByteArray igString = "IG:\"";
+    const int igBeginPos = webSiteData.indexOf(igString);
+    const int igEndPos = webSiteData.indexOf('"', igBeginPos + igString.size());
     if (igEndPos == -1) {
         resetData(ParsingError, tr("Error: Unable to extract additional Bing information from web version."));
         return;
     }
-    s_bingIg = webSiteData.mid(igBeginPos, igEndPos - igBeginPos);
+    s_bingIg = webSiteData.mid(igBeginPos + igString.size(), igEndPos - (igBeginPos + igString.size()));
 
-    const int iidBeginPos = webSiteData.indexOf("data-iid");
-    const int iidEndPos = webSiteData.indexOf('"', iidBeginPos + 2);
+    const QByteArray iidString = "data-iid=\"";
+    const int iidBeginPos = webSiteData.indexOf(iidString);
+    const int iidEndPos = webSiteData.indexOf('"', iidBeginPos + iidString.size());
     if (iidEndPos == -1) {
         resetData(ParsingError, tr("Error: Unable to extract additional Bing information from web version."));
         return;
     }
-    s_bingIid = webSiteData.mid(iidBeginPos, iidEndPos - iidBeginPos);
+    s_bingIid = webSiteData.mid(iidBeginPos + iidString.size(), iidEndPos - (iidBeginPos + iidString.size()));
+    qDebug() << s_bingToken;
 }
 
 void QOnlineTranslator::requestBingTranslate()
