@@ -1310,11 +1310,11 @@ void QOnlineTranslator::parseGoogleTranslate()
 
     // Examples
     if (m_examplesEnabled) {
-        for (const QJsonValueRef exampleData : jsonData.at(12).toArray()) {
-            const QJsonArray exampleDataArray = exampleData.toArray();
-            const QString typeOfSpeech = exampleDataArray.at(0).toString();
+        for (const QJsonValueRef examplesData : jsonData.at(12).toArray()) {
+            const QJsonArray examplesDataArray = examplesData.toArray();
+            const QString typeOfSpeech = examplesDataArray.at(0).toString();
 
-            for (const QJsonValueRef exampleData : exampleDataArray.at(1).toArray()) {
+            for (const QJsonValueRef exampleData : examplesDataArray.at(1).toArray()) {
                 const QJsonArray exampleArray = exampleData.toArray();
                 const QString example = exampleArray.at(2).toString();
                 const QString definition = exampleArray.at(0).toString();
