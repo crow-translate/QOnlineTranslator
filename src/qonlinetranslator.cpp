@@ -1808,6 +1808,18 @@ void QOnlineTranslator::parseLingvaTranslate()
             }
         }
     }
+
+    // Examples
+    if (m_examplesEnabled) {
+        for (const QJsonValueRef exampleData : jsonData.value(QStringLiteral("definitions")).toArray()) {
+            const QJsonObject exampleObject = exampleData.toObject();
+            const QString typeOfSpeech = exampleObject.value(QStringLiteral("type")).toString();
+            // TODO: Return all examples?
+            const QJsonObject example = exampleObject.value("list").toArray().at(0).toObject();
+
+            m_examples[typeOfSpeech].append({example.value(QStringLiteral("example")).toString(), example.value(QStringLiteral("definition")).toString()});
+        }
+    }
 }
 
 void QOnlineTranslator::buildGoogleStateMachine()
