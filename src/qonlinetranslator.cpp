@@ -1811,13 +1811,15 @@ void QOnlineTranslator::parseLingvaTranslate()
 
     // Examples
     if (m_examplesEnabled) {
-        for (const QJsonValueRef exampleData : jsonData.value(QStringLiteral("definitions")).toArray()) {
-            const QJsonObject exampleObject = exampleData.toObject();
-            const QString typeOfSpeech = exampleObject.value(QStringLiteral("type")).toString();
-            // TODO: Return all examples?
-            const QJsonObject example = exampleObject.value("list").toArray().at(0).toObject();
+        for (const QJsonValueRef examplesData : jsonData.value(QStringLiteral("definitions")).toArray()) {
+            const QJsonObject examplesObject = examplesData.toObject();
+            const QString typeOfSpeech = examplesObject.value(QStringLiteral("type")).toString();
+            const QJsonArray examples = examplesObject.value("list").toArray();
 
-            m_examples[typeOfSpeech].append({example.value(QStringLiteral("example")).toString(), example.value(QStringLiteral("definition")).toString()});
+            for (const auto &example : examples) {
+                const QJsonObject exampleObject = example.toObject();
+                m_examples[typeOfSpeech].append({exampleObject.value(QStringLiteral("example")).toString().replace("\n", ""), exampleObject.value(QStringLiteral("definition")).toString().replace("\n", "")});
+            }
         }
     }
 }
