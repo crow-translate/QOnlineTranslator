@@ -1814,9 +1814,8 @@ void QOnlineTranslator::parseLingvaTranslate()
         for (const QJsonValueRef examplesData : jsonData.value(QStringLiteral("definitions")).toArray()) {
             const QJsonObject examplesObject = examplesData.toObject();
             const QString typeOfSpeech = examplesObject.value(QStringLiteral("type")).toString();
-            const QJsonArray examples = examplesObject.value("list").toArray();
 
-            for (const QJsonValue &example : examples) {
+            for (const QJsonValueRef example : examplesObject.value("list").toArray()) {
                 const QJsonObject exampleObject = example.toObject();
                 m_examples[typeOfSpeech].append({exampleObject.value(QStringLiteral("example")).toString().replace("\n", ""), exampleObject.value(QStringLiteral("definition")).toString().replace("\n", "")});
             }
