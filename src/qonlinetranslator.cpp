@@ -1314,9 +1314,12 @@ void QOnlineTranslator::parseGoogleTranslate()
             const QJsonArray exampleDataArray = exampleData.toArray();
             const QString typeOfSpeech = exampleDataArray.at(0).toString();
 
-            for (const QJsonValueRef example : exampleDataArray.at(1).toArray()) {
-                const QJsonArray exampleArray = example.toArray();
-                m_examples[typeOfSpeech].append({exampleArray.at(2).toString(), exampleArray.at(0).toString()});
+            for (const QJsonValueRef exampleData : exampleDataArray.at(1).toArray()) {
+                const QJsonArray exampleArray = exampleData.toArray();
+                const QString example = exampleArray.at(2).toString();
+                const QString definition = exampleArray.at(0).toString();
+
+                m_examples[typeOfSpeech].append({example, definition});
             }
         }
     }
