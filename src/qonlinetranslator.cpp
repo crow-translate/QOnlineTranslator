@@ -1819,6 +1819,7 @@ void QOnlineTranslator::parseLingvaTranslate()
                 const QJsonObject exampleObject = exampleData.toObject();
                 const QString example = exampleObject.value(QStringLiteral("example")).toString();
                 const QString definition = exampleObject.value(QStringLiteral("definition")).toString();
+
                 m_examples[typeOfSpeech].append({example, definition});
             }
         }
