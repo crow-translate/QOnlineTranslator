@@ -24,6 +24,7 @@ Checks: >
   -cppcoreguidelines-pro-type-vararg,
   -cppcoreguidelines-special-member-functions,
   -misc-no-recursion,
+  -misc-const-correctness,
   -misc-non-private-member-variables-in-classes,
   -modernize-avoid-c-arrays,
   -modernize-use-nodiscard,
