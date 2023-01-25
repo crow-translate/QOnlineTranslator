@@ -1315,7 +1315,7 @@ void QOnlineTranslator::parseGoogleTranslate()
             const QString typeOfSpeech = exampleDataArray.at(0).toString();
             const QJsonArray examplesArray = exampleDataArray.at(1).toArray();
 
-            for (const auto &example : examplesArray) {
+            for (const QJsonValue &example : examplesArray) {
                 const QJsonArray exampleArray = example.toArray();
                 m_examples[typeOfSpeech].append({exampleArray.at(2).toString(), exampleArray.at(0).toString()});
             }
