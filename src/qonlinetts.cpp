@@ -93,11 +93,7 @@ void QOnlineTts::generateUrls(const QString &text, QOnlineTranslator::Engine eng
             // Generate URL API for add it to the playlist
             QUrl apiUrl(QStringLiteral("https://translate.googleapis.com/translate_tts"));
             const QString query = QStringLiteral("ie=UTF-8&client=gtx&tl=%1&q=%2").arg(langString, QString(QUrl::toPercentEncoding(unparsedText.left(splitIndex))));
-#if defined(Q_OS_LINUX)
             apiUrl.setQuery(query);
-#elif defined(Q_OS_WIN)
-            apiUrl.setQuery(query, QUrl::DecodedMode);
-#endif
             m_media.append(apiUrl);
 
             // Remove the said part from the next saying
@@ -126,11 +122,7 @@ void QOnlineTts::generateUrls(const QString &text, QOnlineTranslator::Engine eng
             QUrl apiUrl(QStringLiteral("https://tts.voicetech.yandex.net/tts"));
             const QString query = QStringLiteral("text=%1&lang=%2&speaker=%3&emotion=%4&format=mp3")
                                       .arg(QUrl::toPercentEncoding(unparsedText.left(splitIndex)), langString, voiceString, emotionString);
-#if defined(Q_OS_LINUX)
             apiUrl.setQuery(query);
-#elif defined(Q_OS_WIN)
-            apiUrl.setQuery(query, QUrl::DecodedMode);
-#endif
             m_media.append(apiUrl);
 
             // Remove the said part from the next saying
