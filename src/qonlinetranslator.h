@@ -25,8 +25,8 @@
 
 #include <QMap>
 #include <QPointer>
-#include <QVector>
 #include <QUuid>
+#include <QVector>
 
 class QStateMachine;
 class QState;
