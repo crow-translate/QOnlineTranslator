@@ -1326,24 +1326,6 @@ void QOnlineTranslator::parseGoogleTranslate()
     }
 }
 
-void QOnlineTranslator::requestYandexKey()
-{
-    const QUrl url(QStringLiteral("https://translate.yandex.com"));
-    m_currentReply = m_networkManager->get(QNetworkRequest(url));
-}
-
-void QOnlineTranslator::parseYandexKey()
-{
-    m_currentReply->deleteLater();
-
-    if (m_currentReply->error() != QNetworkReply::NoError) {
-        resetData(NetworkError, m_currentReply->errorString());
-        return;
-    }
-
-    s_yandexUcid = QUuid::createUuid().toByteArray(QUuid::Id128);
-}
-
 void QOnlineTranslator::requestYandexTranslate()
 {
     const QString sourceText = sender()->property(s_textProperty).toString();

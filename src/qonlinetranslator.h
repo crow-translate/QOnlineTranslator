@@ -503,10 +503,6 @@ private slots:
     void requestGoogleTranslate();
     void parseGoogleTranslate();
 
-    // Yandex
-    void requestYandexKey();
-    void parseYandexKey();
-
     void requestYandexTranslate();
     void parseYandexTranslate();
 
