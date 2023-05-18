@@ -1835,26 +1835,18 @@ void QOnlineTranslator::buildGoogleDetectStateMachine()
 void QOnlineTranslator::buildYandexStateMachine()
 {
     // States
-    auto *keyState = new QState(m_stateMachine); // Generate SID from web version first to access API
     auto *translationState = new QState(m_stateMachine);
     auto *sourceTranslitState = new QState(m_stateMachine);
     auto *translationTranslitState = new QState(m_stateMachine);
     auto *dictionaryState = new QState(m_stateMachine);
     auto *finalState = new QFinalState(m_stateMachine);
-    m_stateMachine->setInitialState(keyState);
+    m_stateMachine->setInitialState(translationState);
 
     // Transitions
-    keyState->addTransition(keyState, &QState::finished, translationState);
     translationState->addTransition(translationState, &QState::finished, sourceTranslitState);
     sourceTranslitState->addTransition(sourceTranslitState, &QState::finished, translationTranslitState);
     translationTranslitState->addTransition(translationTranslitState, &QState::finished, dictionaryState);
     dictionaryState->addTransition(dictionaryState, &QState::finished, finalState);
-
-    // Setup key state
-    if (s_yandexUcid.isEmpty())
-        buildNetworkRequestState(keyState, &QOnlineTranslator::requestYandexKey, &QOnlineTranslator::parseYandexKey);
-    else
-        keyState->setInitialState(new QFinalState(keyState));
 
     // Setup translation state
     buildSplitNetworkRequest(translationState, &QOnlineTranslator::requestYandexTranslate, &QOnlineTranslator::parseYandexTranslate, m_source, s_yandexTranslateLimit);
@@ -1881,20 +1873,12 @@ void QOnlineTranslator::buildYandexStateMachine()
 void QOnlineTranslator::buildYandexDetectStateMachine()
 {
     // States
-    auto *keyState = new QState(m_stateMachine); // Generate SID from web version first to access API
     auto *detectState = new QState(m_stateMachine);
     auto *finalState = new QFinalState(m_stateMachine);
-    m_stateMachine->setInitialState(keyState);
+    m_stateMachine->setInitialState(detectState);
 
     // Transitions
-    keyState->addTransition(keyState, &QState::finished, detectState);
     detectState->addTransition(detectState, &QState::finished, finalState);
-
-    // Setup key state
-    if (s_yandexUcid.isEmpty())
-        buildNetworkRequestState(keyState, &QOnlineTranslator::requestYandexKey, &QOnlineTranslator::parseYandexKey);
-    else
-        keyState->setInitialState(new QFinalState(keyState));
 
     // Setup detect state
     const QString text = m_source.left(getSplitIndex(m_source, s_yandexTranslateLimit));

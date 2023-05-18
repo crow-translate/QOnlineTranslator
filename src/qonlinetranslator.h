@@ -590,8 +590,10 @@ private:
     static const QMap<Language, QString> s_bingLanguageCodes;
     static const QMap<Language, QString> s_lingvaLanguageCodes;
 
+    // Yandex is required uuid be generated, so do it on program startup
+    static inline QByteArray s_yandexUcid = QUuid::createUuid().toByteArray(QUuid::Id128);
+
     // Credentials that is parsed from the web version to receive the translation using the API
-    static inline QByteArray s_yandexUcid;
     static inline QByteArray s_bingKey;
     static inline QByteArray s_bingToken;
     static inline QString s_bingIg;
