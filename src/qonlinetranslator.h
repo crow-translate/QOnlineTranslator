@@ -26,7 +26,6 @@
 #include <QMap>
 #include <QPointer>
 #include <QVector>
-#include <QUuid>
 
 class QStateMachine;
 class QState;
@@ -504,6 +503,10 @@ private slots:
     void requestGoogleTranslate();
     void parseGoogleTranslate();
 
+    // Yandex
+    void requestYandexKey();
+    void parseYandexKey();
+
     void requestYandexTranslate();
     void parseYandexTranslate();
 
@@ -587,7 +590,7 @@ private:
     static const QMap<Language, QString> s_bingLanguageCodes;
     static const QMap<Language, QString> s_lingvaLanguageCodes;
 
-    // Yandex is required uuid be generated, so do it on program startup
+    // Yandex require a random UUID to be generated
     static inline QByteArray s_yandexUcid = QUuid::createUuid().toByteArray(QUuid::Id128);
 
     // Credentials that is parsed from the web version to receive the translation using the API
