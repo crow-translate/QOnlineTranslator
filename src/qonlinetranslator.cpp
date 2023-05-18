@@ -29,7 +29,6 @@
 #include <QMediaPlayer>
 #include <QNetworkReply>
 #include <QStateMachine>
-#include <QUuid>
 
 const QMap<QOnlineTranslator::Language, QString> QOnlineTranslator::s_genericLanguageCodes = {
     {Auto, QStringLiteral("auto")},
