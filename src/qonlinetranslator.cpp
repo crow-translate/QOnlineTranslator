@@ -1325,51 +1325,6 @@ void QOnlineTranslator::parseGoogleTranslate()
     }
 }
 
-void QOnlineTranslator::requestYandexKey()
-{
-    const QUrl url(QStringLiteral("https://translate.yandex.com"));
-    m_currentReply = m_networkManager->get(QNetworkRequest(url));
-}
-
-void QOnlineTranslator::parseYandexKey()
-{
-    m_currentReply->deleteLater();
-
-    if (m_currentReply->error() != QNetworkReply::NoError) {
-        resetData(NetworkError, m_currentReply->errorString());
-        return;
-    }
-
-    // Check availability of service
-    const QByteArray webSiteData = m_currentReply->readAll();
-    if (webSiteData.isEmpty() || webSiteData.contains("<title>Oops!</title>") || webSiteData.contains("<title>302 Found</title>")) {
-        resetData(ServiceError, tr("Error: Engine systems have detected suspicious traffic from your computer network. Please try your request again later."));
-        return;
-    }
-
-    const QByteArray sidBeginString = "SID: '";
-    const int sidBeginStringPos = webSiteData.indexOf(sidBeginString);
-    if (sidBeginStringPos == -1) {
-        resetData(ParsingError, tr("Error: Unable to find Yandex SID in web version."));
-        return;
-    }
-
-    const int sidBeginPosition = sidBeginStringPos + sidBeginString.size();
-    const int sidEndPosition = webSiteData.indexOf('\'', sidBeginPosition);
-    if (sidEndPosition == -1) {
-        resetData(ParsingError, tr("Error: Unable to extract Yandex SID from web version."));
-        return;
-    }
-
-    // Yandex show reversed parts of session ID, need to decode
-    const QString sid = webSiteData.mid(sidBeginPosition, sidEndPosition - sidBeginPosition);
-    QStringList sidParts = sid.split('.');
-    for (int i = 0; i < sidParts.size(); ++i)
-        std::reverse(sidParts[i].begin(), sidParts[i].end());
-
-    s_yandexKey = sidParts.join('.');
-}
-
 void QOnlineTranslator::requestYandexTranslate()
 {
     const QString sourceText = sender()->property(s_textProperty).toString();
@@ -1382,8 +1337,8 @@ void QOnlineTranslator::requestYandexTranslate()
 
     // Generate API url
     QUrl url(QStringLiteral("https://translate.yandex.net/api/v1/tr.json/translate"));
-    url.setQuery(QStringLiteral("id=%1-2-0&srv=tr-text&text=%2&lang=%3")
-                     .arg(s_yandexKey, QUrl::toPercentEncoding(sourceText), lang));
+    url.setQuery(QStringLiteral("ucid=%1&srv=android&text=%2&lang=%3")
+                     .arg(s_yandexUcid, QUrl::toPercentEncoding(sourceText), lang));
 
     // Setup request
     QNetworkRequest request;
@@ -1407,7 +1362,7 @@ void QOnlineTranslator::parseYandexTranslate()
         }
 
         // Parse data to get request error type
-        s_yandexKey.clear();
+        s_yandexUcid.clear();
         const QJsonDocument jsonResponse = QJsonDocument::fromJson(m_currentReply->readAll());
         resetData(ServiceError, jsonResponse.object().value(QStringLiteral("message")).toString());
         return;
@@ -1861,26 +1816,18 @@ void QOnlineTranslator::buildGoogleDetectStateMachine()
 void QOnlineTranslator::buildYandexStateMachine()
 {
     // States
-    auto *keyState = new QState(m_stateMachine); // Generate SID from web version first to access API
     auto *translationState = new QState(m_stateMachine);
     auto *sourceTranslitState = new QState(m_stateMachine);
     auto *translationTranslitState = new QState(m_stateMachine);
     auto *dictionaryState = new QState(m_stateMachine);
     auto *finalState = new QFinalState(m_stateMachine);
-    m_stateMachine->setInitialState(keyState);
+    m_stateMachine->setInitialState(translationState);
 
     // Transitions
-    keyState->addTransition(keyState, &QState::finished, translationState);
     translationState->addTransition(translationState, &QState::finished, sourceTranslitState);
     sourceTranslitState->addTransition(sourceTranslitState, &QState::finished, translationTranslitState);
     translationTranslitState->addTransition(translationTranslitState, &QState::finished, dictionaryState);
     dictionaryState->addTransition(dictionaryState, &QState::finished, finalState);
-
-    // Setup key state
-    if (s_yandexKey.isEmpty())
-        buildNetworkRequestState(keyState, &QOnlineTranslator::requestYandexKey, &QOnlineTranslator::parseYandexKey);
-    else
-        keyState->setInitialState(new QFinalState(keyState));
 
     // Setup translation state
     buildSplitNetworkRequest(translationState, &QOnlineTranslator::requestYandexTranslate, &QOnlineTranslator::parseYandexTranslate, m_source, s_yandexTranslateLimit);
@@ -1907,20 +1854,12 @@ void QOnlineTranslator::buildYandexStateMachine()
 void QOnlineTranslator::buildYandexDetectStateMachine()
 {
     // States
-    auto *keyState = new QState(m_stateMachine); // Generate SID from web version first to access API
     auto *detectState = new QState(m_stateMachine);
     auto *finalState = new QFinalState(m_stateMachine);
-    m_stateMachine->setInitialState(keyState);
+    m_stateMachine->setInitialState(detectState);
 
     // Transitions
-    keyState->addTransition(keyState, &QState::finished, detectState);
     detectState->addTransition(detectState, &QState::finished, finalState);
-
-    // Setup key state
-    if (s_yandexKey.isEmpty())
-        buildNetworkRequestState(keyState, &QOnlineTranslator::requestYandexKey, &QOnlineTranslator::parseYandexKey);
-    else
-        keyState->setInitialState(new QFinalState(keyState));
 
     // Setup detect state
     const QString text = m_source.left(getSplitIndex(m_source, s_yandexTranslateLimit));
