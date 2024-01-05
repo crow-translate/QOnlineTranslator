@@ -1548,6 +1548,11 @@ void QOnlineTranslator::parseBingTranslate()
     const QJsonDocument jsonResponse = QJsonDocument::fromJson(m_currentReply->readAll());
     const QJsonObject responseObject = jsonResponse.array().first().toObject();
 
+    if (jsonResponse.object().value(QStringLiteral("statusCode")).toInt(200) == 400) {
+        resetData(NetworkError, tr("Error: Bing return unhandled network error"));
+        return;
+    }
+
     if (m_sourceLang == Auto) {
         const QString langCode = responseObject.value(QStringLiteral("detectedLanguage")).toObject().value(QStringLiteral("language")).toString();
         m_sourceLang = language(Bing, langCode);
