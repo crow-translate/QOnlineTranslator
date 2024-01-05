@@ -604,7 +604,7 @@ private:
     static constexpr int s_googleTranslateLimit = 5000;
     static constexpr int s_yandexTranslateLimit = 150;
     static constexpr int s_yandexTranslitLimit = 180;
-    static constexpr int s_bingTranslateLimit = 5001;
+    static constexpr int s_bingTranslateLimit = 502;
     static constexpr int s_libreTranslateLimit = 120;
 
     QStateMachine *m_stateMachine;
