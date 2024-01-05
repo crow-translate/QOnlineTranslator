@@ -1548,7 +1548,7 @@ void QOnlineTranslator::parseBingTranslate()
     const QJsonDocument jsonResponse = QJsonDocument::fromJson(m_currentReply->readAll());
     const QJsonObject responseObject = jsonResponse.array().first().toObject();
 
-    if (jsonResponse.object().value(QStringLiteral("statusCode")).toInt(200) == 400) {
+    if (!jsonResponse.object().value(QStringLiteral("statusCode")).isNull()) {
         const QString errorMessage = jsonResponse.object().value(QStringLiteral("errorMessage")).toString();
 
         if (!errorMessage.isEmpty())
