@@ -1683,7 +1683,7 @@ void QOnlineTranslator::parseLibreTranslate()
     const QJsonDocument jsonResponse = QJsonDocument::fromJson(m_currentReply->readAll());
     const QJsonObject responseObject = jsonResponse.object();
 
-    m_translation = responseObject.value(QStringLiteral("translatedText")).toString();
+    m_translation += responseObject.value(QStringLiteral("translatedText")).toString();
 }
 
 void QOnlineTranslator::requestLingvaTranslate()
