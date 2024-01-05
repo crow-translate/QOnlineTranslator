@@ -1549,7 +1549,12 @@ void QOnlineTranslator::parseBingTranslate()
     const QJsonObject responseObject = jsonResponse.array().first().toObject();
 
     if (jsonResponse.object().value(QStringLiteral("statusCode")).toInt(200) == 400) {
-        resetData(NetworkError, tr("Error: Bing return unhandled network error"));
+        const QString errorMessage = jsonResponse.object().value(QStringLiteral("errorMessage")).toString();
+
+        if (!errorMessage.isEmpty())
+            resetData(ServiceError, errorMessage);
+        else
+            resetData(ServiceError, tr("Error: Bing return unhandled network error"));
         return;
     }
 
